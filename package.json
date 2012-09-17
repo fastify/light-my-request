@@ -1,7 +1,7 @@
 {
   "name": "shot",
   "description": "Injects a fake HTTP request/response into a node HTTP server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
   ],
@@ -10,7 +10,7 @@
   "keywords": [
     "utilities",
     "http",
-    "debut",
+    "debug",
     "test"
   ],
   "engines": {
