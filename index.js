@@ -1,1 +1,1 @@
-module.exports = require('./lib/shot');
+module.exports = require('./lib');
