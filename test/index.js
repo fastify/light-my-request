@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Shot = process.env.TEST_COV ? require('../lib-cov') : require('../lib');
+var Shot = require('../lib');
 
 
 // Declare internals
