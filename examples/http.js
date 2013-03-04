@@ -1,7 +1,7 @@
 // Load modules
 
 var Http = require('http');
-var Shot = require('../lib/shot');
+var Shot = require('..');
 
 
 // Declare internals
@@ -14,7 +14,7 @@ internals.main = function () {
     var dispatch = function (req, res) {
 
         var reply = 'Hello World';
-        res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(reply);
     };
 
@@ -24,7 +24,7 @@ internals.main = function () {
 
     Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
-        console.log(res.readPayload());
+        console.log(res.payload);
     });
 };
 

@@ -32,7 +32,7 @@ internals.main = function () {
 
     Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
-        console.log(res.readPayload());
+        console.log(res.payload);
     });
 };
 
