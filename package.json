@@ -1,11 +1,11 @@
 {
   "name": "shot",
   "description": "Injects a fake HTTP request/response into a node HTTP server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
   ],
-  "repository": "git://github.com/hueniverse/shot",
+  "repository": "git://github.com/spumko/shot",
   "main": "index",
   "keywords": [
     "utilities",
@@ -32,7 +32,7 @@
   "licenses": [
     {
       "type": "BSD",
-      "url": "http://github.com/hueniverse/shot/raw/master/LICENSE"
+      "url": "http://github.com/spumko/shot/raw/master/LICENSE"
     }
   ]
 }

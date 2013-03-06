@@ -1,4 +1,5 @@
-# shot
+<a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
+![shot Logo](https://raw.github.com/spumko/shot/master/images/shot.png)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging. Does not use a socket
 connection so can be run against an inactive server (server not in listen mode). This module is still experimental.
