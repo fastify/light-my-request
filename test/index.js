@@ -1,6 +1,6 @@
 // Load modules
 
-var Chai = require('chai');
+var Lab = require('lab');
 var Shot = require('../lib');
 
 
@@ -11,7 +11,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Shot', function () {
@@ -38,7 +42,7 @@ describe('Shot', function () {
 
             var dispatch = function (req, res) {
 
-                res.writeHead(200);
+                res.writeHead(200, 'OK');
                 res.write('a');
                 res.write('b');
                 res.end();
@@ -115,176 +119,195 @@ describe('Shot', function () {
                 done();
             });
         });
+    });
 
-        describe('#play', function () {
+    describe('#writeHead', function () {
 
-            it('plays payload', function (done) {
+        it('returns single buffer payload', function (done) {
 
-                var dispatch = function (req, res) {
+            var reply = 'Hello World';
+            var dispatch = function (req, res) {
 
-                    var buffer = '';
-                    req.on('data', function (chunk) {
+                res.writeHead(200, 'OK', { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
+                res.end(reply);
+            };
 
-                        buffer += chunk;
-                    });
+            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
-                    req.on('error', function (err) {
-                    });
-
-                    req.on('close', function () {
-                    });
-
-                    req.on('end', function () {
-
-                        res.writeHead(200, { 'Content-Length': 0 });
-                        res.end(buffer);
-                        req.destroy();
-                    });
-                };
-
-                var body = 'something special just for you';
-                Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                    expect(res.payload).to.equal(body);
-                    done();
-                });
+                expect(res.payload).to.equal(reply);
+                done();
             });
+        });
+    });
 
-            it('plays payload with pause', function (done) {
+    describe('#play', function () {
 
-                var dispatch = function (req, res) {
+        it('plays payload', function (done) {
 
-                    req.pause();
-                    req.pause();
+            var dispatch = function (req, res) {
 
-                    var buffer = '';
-                    req.on('data', function (chunk) {
+                var buffer = '';
+                req.on('data', function (chunk) {
 
-                        buffer += chunk;
-                    });
+                    buffer += chunk;
+                });
 
-                    req.on('error', function (err) {
-                    });
+                req.on('error', function (err) {
+                });
 
-                    req.on('close', function () {
-                    });
+                req.on('close', function () {
+                });
 
-                    req.on('end', function () {
+                req.on('end', function () {
 
-                        res.writeHead(200, { 'Content-Length': 0 });
-                        res.end(buffer);
-                        req.destroy();
-                    });
+                    res.writeHead(200, { 'Content-Length': 0 });
+                    res.end(buffer);
+                    req.destroy();
+                });
+            };
+
+            var body = 'something special just for you';
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
+
+                expect(res.payload).to.equal(body);
+                done();
+            });
+        });
+
+        it('plays payload with pause', function (done) {
+
+            var dispatch = function (req, res) {
+
+                req.pause();
+                req.pause();
+
+                var buffer = '';
+                req.on('data', function (chunk) {
+
+                    buffer += chunk;
+                });
+
+                req.on('error', function (err) {
+                });
+
+                req.on('close', function () {
+                });
+
+                req.on('end', function () {
+
+                    res.writeHead(200, { 'Content-Length': 0 });
+                    res.end(buffer);
+                    req.destroy();
+                });
+
+                req.resume();
+                req.resume();
+            };
+
+            var body = 'something special just for you';
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
+
+                expect(res.payload).to.equal(body);
+                done();
+            });
+        });
+
+        it('plays payload with nextTick', function (done) {
+
+            var dispatch = function (req, res) {
+
+                req.pause();
+
+                var buffer = '';
+                req.on('data', function (chunk) {
+
+                    buffer += chunk;
+                });
+
+                req.on('error', function (err) {
+                });
+
+                req.on('close', function () {
+                });
+
+                req.on('end', function () {
+
+                    res.writeHead(200, { 'Content-Length': 0 });
+                    res.end(buffer);
+                    req.destroy();
+                });
+
+                process.nextTick(function () {
 
                     req.resume();
-                    req.resume();
-                };
-
-                var body = 'something special just for you';
-                Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                    expect(res.payload).to.equal(body);
-                    done();
                 });
+            };
+
+            var body = 'something special just for you';
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
+
+                expect(res.payload).to.equal(body);
+                done();
             });
+        });
 
-            it('plays payload with nextTick', function (done) {
+        it('simulates error', function (done) {
 
-                var dispatch = function (req, res) {
+            var dispatch = function (req, res) {
 
-                    req.pause();
+                var buffer = '';
+                req.on('data', function (chunk) {
 
-                    var buffer = '';
-                    req.on('data', function (chunk) {
-
-                        buffer += chunk;
-                    });
-
-                    req.on('error', function (err) {
-                    });
-
-                    req.on('close', function () {
-                    });
-
-                    req.on('end', function () {
-
-                        res.writeHead(200, { 'Content-Length': 0 });
-                        res.end(buffer);
-                        req.destroy();
-                    });
-
-                    process.nextTick(function () {
-
-                        req.resume();
-                    });
-                };
-
-                var body = 'something special just for you';
-                Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                    expect(res.payload).to.equal(body);
-                    done();
+                    buffer += chunk;
                 });
+
+                req.on('error', function (err) {
+                    res.writeHead(200, { 'Content-Length': 0 });
+                    res.end('error');
+                });
+
+                req.on('close', function () {
+                });
+
+                req.on('end', function () {
+                });
+            };
+
+            var body = 'something special just for you';
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { error: true } }, function (res) {
+
+                expect(res.payload).to.equal('error');
+                done();
             });
+        });
 
-            it('simulates error', function (done) {
+        it('simulates close', function (done) {
 
-                var dispatch = function (req, res) {
+            var dispatch = function (req, res) {
 
-                    var buffer = '';
-                    req.on('data', function (chunk) {
+                var buffer = '';
+                req.on('data', function (chunk) {
 
-                        buffer += chunk;
-                    });
-
-                    req.on('error', function (err) {
-                        res.writeHead(200, { 'Content-Length': 0 });
-                        res.end('error');
-                    });
-
-                    req.on('close', function () {
-                    });
-
-                    req.on('end', function () {
-                    });
-                };
-
-                var body = 'something special just for you';
-                Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { error: true } }, function (res) {
-
-                    expect(res.payload).to.equal('error');
-                    done();
+                    buffer += chunk;
                 });
-            });
 
-            it('simulates close', function (done) {
-
-                var dispatch = function (req, res) {
-
-                    var buffer = '';
-                    req.on('data', function (chunk) {
-
-                        buffer += chunk;
-                    });
-
-                    req.on('error', function (err) {
-                    });
-
-                    req.on('close', function () {
-                        res.writeHead(200, { 'Content-Length': 0 });
-                        res.end('close');
-                    });
-
-                    req.on('end', function () {
-                    });
-                };
-
-                var body = 'something special just for you';
-                Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { close: true } }, function (res) {
-
-                    expect(res.payload).to.equal('close');
-                    done();
+                req.on('error', function (err) {
                 });
+
+                req.on('close', function () {
+                    res.writeHead(200, { 'Content-Length': 0 });
+                    res.end('close');
+                });
+
+                req.on('end', function () {
+                });
+            };
+
+            var body = 'something special just for you';
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { close: true } }, function (res) {
+
+                expect(res.payload).to.equal('close');
+                done();
             });
         });
     });
