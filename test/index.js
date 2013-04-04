@@ -140,51 +140,16 @@ describe('Shot', function () {
         });
     });
 
-    describe('#play', function () {
+    describe('#_read', function () {
 
         it('plays payload', function (done) {
 
             var dispatch = function (req, res) {
 
                 var buffer = '';
-                req.on('data', function (chunk) {
+                req.on('readable', function () {
 
-                    buffer += chunk;
-                });
-
-                req.on('error', function (err) {
-                });
-
-                req.on('close', function () {
-                });
-
-                req.on('end', function () {
-
-                    res.writeHead(200, { 'Content-Length': 0 });
-                    res.end(buffer);
-                    req.destroy();
-                });
-            };
-
-            var body = 'something special just for you';
-            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                expect(res.payload).to.equal(body);
-                done();
-            });
-        });
-
-        it('plays payload with pause', function (done) {
-
-            var dispatch = function (req, res) {
-
-                req.pause();
-                req.pause();
-
-                var buffer = '';
-                req.on('data', function (chunk) {
-
-                    buffer += chunk;
+                    buffer += req.read();
                 });
 
                 req.on('error', function (err) {
@@ -200,47 +165,7 @@ describe('Shot', function () {
                     req.destroy();
                 });
 
-                req.resume();
-                req.resume();
-            };
-
-            var body = 'something special just for you';
-            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                expect(res.payload).to.equal(body);
-                done();
-            });
-        });
-
-        it('plays payload with nextTick', function (done) {
-
-            var dispatch = function (req, res) {
-
-                req.pause();
-
-                var buffer = '';
-                req.on('data', function (chunk) {
-
-                    buffer += chunk;
-                });
-
-                req.on('error', function (err) {
-                });
-
-                req.on('close', function () {
-                });
-
-                req.on('end', function () {
-
-                    res.writeHead(200, { 'Content-Length': 0 });
-                    res.end(buffer);
-                    req.destroy();
-                });
-
-                process.nextTick(function () {
-
-                    req.resume();
-                });
+                req.read(0);
             };
 
             var body = 'something special just for you';
@@ -256,12 +181,13 @@ describe('Shot', function () {
             var dispatch = function (req, res) {
 
                 var buffer = '';
-                req.on('data', function (chunk) {
+                req.on('readable', function () {
 
-                    buffer += chunk;
+                    buffer += req.read();
                 });
 
                 req.on('error', function (err) {
+
                     res.writeHead(200, { 'Content-Length': 0 });
                     res.end('error');
                 });
@@ -286,15 +212,16 @@ describe('Shot', function () {
             var dispatch = function (req, res) {
 
                 var buffer = '';
-                req.on('data', function (chunk) {
+                req.on('readable', function () {
 
-                    buffer += chunk;
+                    buffer += req.read();
                 });
 
                 req.on('error', function (err) {
                 });
 
                 req.on('close', function () {
+
                     res.writeHead(200, { 'Content-Length': 0 });
                     res.end('close');
                 });
