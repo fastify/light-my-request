@@ -149,7 +149,7 @@ describe('Shot', function () {
                 var buffer = '';
                 req.on('readable', function () {
 
-                    buffer += req.read();
+                    buffer += req.read() || '';
                 });
 
                 req.on('error', function (err) {
@@ -164,8 +164,6 @@ describe('Shot', function () {
                     res.end(buffer);
                     req.destroy();
                 });
-
-                req.read(0);
             };
 
             var body = 'something special just for you';
@@ -180,22 +178,13 @@ describe('Shot', function () {
 
             var dispatch = function (req, res) {
 
-                var buffer = '';
                 req.on('readable', function () {
-
-                    buffer += req.read();
                 });
 
                 req.on('error', function (err) {
 
                     res.writeHead(200, { 'Content-Length': 0 });
                     res.end('error');
-                });
-
-                req.on('close', function () {
-                });
-
-                req.on('end', function () {
                 });
             };
 
@@ -214,7 +203,7 @@ describe('Shot', function () {
                 var buffer = '';
                 req.on('readable', function () {
 
-                    buffer += req.read();
+                    buffer += req.read() || '';
                 });
 
                 req.on('error', function (err) {
