@@ -55,6 +55,27 @@ describe('Shot', function () {
             });
         });
 
+        it('returns chunked payload with trailer', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.setHeader('Trailer', 'Server-Authorization');
+                res.setHeader('Transfer-Encoding', 'chunked');
+                res.writeHead(200, 'OK');
+                res.write('a');
+                res.write('b');
+                res.addTrailers({ 'Test': 123 });
+                res.end();
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+
+                expect(res.payload).to.equal('ab');
+                expect(res.headers.test).to.equal('123');
+                done();
+            });
+        });
+
         it('returns multi buffer payload', function (done) {
 
             var dispatch = function (req, res) {
@@ -140,16 +161,16 @@ describe('Shot', function () {
         });
     });
 
-    describe('#play', function () {
+    describe('#_read', function () {
 
         it('plays payload', function (done) {
 
             var dispatch = function (req, res) {
 
                 var buffer = '';
-                req.on('data', function (chunk) {
+                req.on('readable', function () {
 
-                    buffer += chunk;
+                    buffer += req.read() || '';
                 });
 
                 req.on('error', function (err) {
@@ -163,83 +184,6 @@ describe('Shot', function () {
                     res.writeHead(200, { 'Content-Length': 0 });
                     res.end(buffer);
                     req.destroy();
-                });
-            };
-
-            var body = 'something special just for you';
-            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                expect(res.payload).to.equal(body);
-                done();
-            });
-        });
-
-        it('plays payload with pause', function (done) {
-
-            var dispatch = function (req, res) {
-
-                req.pause();
-                req.pause();
-
-                var buffer = '';
-                req.on('data', function (chunk) {
-
-                    buffer += chunk;
-                });
-
-                req.on('error', function (err) {
-                });
-
-                req.on('close', function () {
-                });
-
-                req.on('end', function () {
-
-                    res.writeHead(200, { 'Content-Length': 0 });
-                    res.end(buffer);
-                    req.destroy();
-                });
-
-                req.resume();
-                req.resume();
-            };
-
-            var body = 'something special just for you';
-            Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
-
-                expect(res.payload).to.equal(body);
-                done();
-            });
-        });
-
-        it('plays payload with nextTick', function (done) {
-
-            var dispatch = function (req, res) {
-
-                req.pause();
-
-                var buffer = '';
-                req.on('data', function (chunk) {
-
-                    buffer += chunk;
-                });
-
-                req.on('error', function (err) {
-                });
-
-                req.on('close', function () {
-                });
-
-                req.on('end', function () {
-
-                    res.writeHead(200, { 'Content-Length': 0 });
-                    res.end(buffer);
-                    req.destroy();
-                });
-
-                process.nextTick(function () {
-
-                    req.resume();
                 });
             };
 
@@ -255,21 +199,13 @@ describe('Shot', function () {
 
             var dispatch = function (req, res) {
 
-                var buffer = '';
-                req.on('data', function (chunk) {
-
-                    buffer += chunk;
+                req.on('readable', function () {
                 });
 
                 req.on('error', function (err) {
+
                     res.writeHead(200, { 'Content-Length': 0 });
                     res.end('error');
-                });
-
-                req.on('close', function () {
-                });
-
-                req.on('end', function () {
                 });
             };
 
@@ -286,15 +222,16 @@ describe('Shot', function () {
             var dispatch = function (req, res) {
 
                 var buffer = '';
-                req.on('data', function (chunk) {
+                req.on('readable', function () {
 
-                    buffer += chunk;
+                    buffer += req.read() || '';
                 });
 
                 req.on('error', function (err) {
                 });
 
                 req.on('close', function () {
+
                     res.writeHead(200, { 'Content-Length': 0 });
                     res.end('close');
                 });
