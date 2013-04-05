@@ -55,6 +55,27 @@ describe('Shot', function () {
             });
         });
 
+        it('returns chunked payload with trailer', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.setHeader('Trailer', 'Server-Authorization');
+                res.setHeader('Transfer-Encoding', 'chunked');
+                res.writeHead(200, 'OK');
+                res.write('a');
+                res.write('b');
+                res.addTrailers({ 'Test': 123 });
+                res.end();
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+
+                expect(res.payload).to.equal('ab');
+                expect(res.headers.test).to.equal('123');
+                done();
+            });
+        });
+
         it('returns multi buffer payload', function (done) {
 
             var dispatch = function (req, res) {
