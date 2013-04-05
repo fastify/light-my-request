@@ -19,7 +19,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "lab": "0.0.x",
+    "lab": "0.1.x",
     "complexity-report": "0.x.x"
   },
   "scripts": {
