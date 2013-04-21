@@ -24,16 +24,15 @@ describe('Shot', function () {
 
         it('returns single buffer payload', function (done) {
 
-            var reply = 'Hello World';
             var dispatch = function (req, res) {
 
-                res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
-                res.end(reply);
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(req.headers.host + '|' + req.url);
             };
 
-            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+            Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
 
-                expect(res.payload).to.equal(reply);
+                expect(res.payload).to.equal('example.com:8080|/hello');
                 done();
             });
         });
