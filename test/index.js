@@ -2,6 +2,8 @@
 
 var Lab = require('lab');
 var Shot = require('../lib');
+var Util = require('util');
+var Stream = require('stream');
 
 
 // Declare internals
@@ -136,6 +138,83 @@ describe('Shot', function () {
 
             Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
+                done();
+            });
+        });
+
+        it('pipes response', function (done) {
+
+            var Read = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Util.inherits(Read, Stream.Readable);
+
+            Read.prototype._read = function (size) {
+
+                this.push('hi');
+                this.push(null);
+            };
+
+            var finished = false;
+            var dispatch = function (req, res) {
+
+                res.writeHead(200);
+                var stream = new Read();
+
+                res.on('finish', function () {
+
+                    finished = true;
+                });
+
+                stream.pipe(res);
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+
+                expect(finished).to.equal(true);
+                expect(res.payload).to.equal('hi');
+                done();
+            });
+        });
+
+        it('pipes response with old stream', function (done) {
+
+            var Read = function () {
+
+                Stream.Readable.call(this);
+            };
+
+            Util.inherits(Read, Stream.Readable);
+
+            Read.prototype._read = function (size) {
+
+                this.push('hi');
+                this.push(null);
+            };
+
+            var finished = false;
+            var dispatch = function (req, res) {
+
+                res.writeHead(200);
+                var stream = new Read();
+                stream.pause();
+                var stream2 = new Stream.Readable().wrap(stream);
+                stream.resume();
+
+                res.on('finish', function () {
+
+                    finished = true;
+                });
+
+                stream2.pipe(res);
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+
+                expect(finished).to.equal(true);
+                expect(res.payload).to.equal('hi');
                 done();
             });
         });
