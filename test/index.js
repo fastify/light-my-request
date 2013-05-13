@@ -1,9 +1,11 @@
 // Load modules
 
-var Lab = require('lab');
-var Shot = require('../lib');
 var Util = require('util');
 var Stream = require('stream');
+var Fs = require('fs');
+var Zlib = require('zlib');
+var Lab = require('lab');
+var Shot = require('../lib');
 
 
 // Declare internals
@@ -74,6 +76,29 @@ describe('Shot', function () {
                 expect(res.payload).to.equal('ab');
                 expect(res.headers.test).to.equal('123');
                 done();
+            });
+        });
+
+        it('parses zipped payload', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200, 'OK');
+                var stream = Fs.createReadStream('./package.json');
+                stream.pipe(Zlib.createGzip()).pipe(res);
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+
+                Fs.readFile('./package.json', { encoding: 'utf-8' }, function (err, file) {
+
+                    Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, unzipped) {
+
+                        expect(err).to.not.exist;
+                        expect(unzipped.toString('utf-8')).to.deep.equal(file);
+                        done();
+                    });
+                });
             });
         });
 
