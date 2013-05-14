@@ -26,6 +26,26 @@ describe('Shot', function () {
 
     describe('#inject', function () {
 
+        it('returns non-chunked payload', function (done) {
+
+            var output = 'example.com:8080|/hello';
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': output.length });
+                res.end(req.headers.host + '|' + req.url);
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+
+                expect(res.headers.date).to.exist;
+                expect(res.headers.connection).to.exist;
+                expect(res.headers['transfer-encoding']).to.not.exist;
+                expect(res.payload).to.equal(output);
+                done();
+            });
+        });
+
         it('returns single buffer payload', function (done) {
 
             var dispatch = function (req, res) {
@@ -36,6 +56,9 @@ describe('Shot', function () {
 
             Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
 
+                expect(res.headers.date).to.exist;
+                expect(res.headers.connection).to.exist;
+                expect(res.headers['transfer-encoding']).to.equal('chunked');
                 expect(res.payload).to.equal('example.com:8080|/hello');
                 done();
             });
@@ -53,6 +76,9 @@ describe('Shot', function () {
 
             Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
+                expect(res.headers.date).to.exist;
+                expect(res.headers.connection).to.exist;
+                expect(res.headers['transfer-encoding']).to.equal('chunked');
                 expect(res.payload).to.equal('ab');
                 done();
             });
