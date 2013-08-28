@@ -2,9 +2,6 @@
   "name": "shot",
   "description": "Injects a fake HTTP request/response into a node HTTP server",
   "version": "0.4.5",
-  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
-  "contributors":[
-  ],
   "repository": "git://github.com/spumko/shot",
   "main": "index",
   "keywords": [
@@ -19,8 +16,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "lab": "0.1.x",
-    "complexity-report": "0.x.x"
+    "lab": "0.2.x"
   },
   "scripts": {
     "test": "make test-cov"
