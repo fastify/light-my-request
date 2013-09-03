@@ -269,6 +269,22 @@ describe('Shot', function () {
                 done();
             });
         });
+
+        it('echos object payload', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200, { 'content-type': req.headers['content-type'] });
+                req.pipe(res);
+            };
+
+            Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, function (res) {
+
+                expect(res.headers['content-type']).to.equal('application/json');
+                expect(res.payload).to.equal('{"a":1}');
+                done();
+            });
+        });
     });
 
     describe('#writeHead', function () {

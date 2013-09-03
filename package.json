@@ -1,7 +1,7 @@
 {
   "name": "shot",
   "description": "Injects a fake HTTP request/response into a node HTTP server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": "git://github.com/spumko/shot",
   "main": "index",
   "keywords": [
