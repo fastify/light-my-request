@@ -64,6 +64,21 @@ describe('Shot', function () {
             });
         });
 
+        it('passes headers', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(req.headers.super);
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, function (res) {
+
+                expect(res.payload).to.equal('duper');
+                done();
+            });
+        });
+
         it('returns chunked payload', function (done) {
 
             var dispatch = function (req, res) {
