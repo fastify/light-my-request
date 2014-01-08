@@ -355,6 +355,38 @@ describe('Shot', function () {
             });
         });
 
+        it('simulates split', function (done) {
+
+            var dispatch = function (req, res) {
+
+                var buffer = '';
+                req.on('readable', function () {
+
+                    buffer += req.read() || '';
+                });
+
+                req.on('error', function (err) {
+                });
+
+                req.on('close', function () {
+                });
+
+                req.on('end', function () {
+
+                    res.writeHead(200, { 'Content-Length': 0 });
+                    res.end(buffer);
+                    req.destroy();
+                });
+            };
+
+            var body = 'something special just for you';
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { split: true } }, function (res) {
+
+                expect(res.payload).to.equal(body);
+                done();
+            });
+        });
+
         it('simulates error', function (done) {
 
             var dispatch = function (req, res) {
