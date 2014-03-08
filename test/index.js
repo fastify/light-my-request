@@ -36,7 +36,7 @@ describe('Shot', function () {
                 res.end(req.headers.host + '|' + req.url);
             };
 
-            Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+            Shot.inject(dispatch, 'http://example.com:8080/hello', function (res) {
 
                 expect(res.headers.date).to.exist;
                 expect(res.headers.connection).to.exist;
