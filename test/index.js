@@ -54,7 +54,7 @@ describe('Shot', function () {
                 res.end(req.headers.host + '|' + req.url);
             };
 
-            Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+            Shot.inject(dispatch, { url: 'http://example.com:8080/hello' }, function (res) {
 
                 expect(res.headers.date).to.exist;
                 expect(res.headers.connection).to.exist;
@@ -73,6 +73,21 @@ describe('Shot', function () {
             };
 
             Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, function (res) {
+
+                expect(res.payload).to.equal('duper');
+                done();
+            });
+        });
+
+        it('leaves user-agent unmodified', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(req.headers['user-agent']);
+            };
+
+            Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { 'user-agent': 'duper' } }, function (res) {
 
                 expect(res.payload).to.equal('duper');
                 done();
@@ -300,6 +315,37 @@ describe('Shot', function () {
                 done();
             });
         });
+
+        it('echos object payload without payload', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200);
+                req.pipe(res);
+            };
+
+            Shot.inject(dispatch, { method: 'post', url: '/test' }, function (res) {
+
+                expect(res.payload).to.equal('');
+                done();
+            });
+        });
+
+        it('retains content-type header', function (done) {
+
+            var dispatch = function (req, res) {
+
+                res.writeHead(200, { 'content-type': req.headers['content-type'] });
+                req.pipe(res);
+            };
+
+            Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 }, headers: { 'content-type': 'something' } }, function (res) {
+
+                expect(res.headers['content-type']).to.equal('something');
+                expect(res.payload).to.equal('{"a":1}');
+                done();
+            });
+        });
     });
 
     describe('#writeHead', function () {
@@ -407,6 +453,58 @@ describe('Shot', function () {
                 expect(res.payload).to.equal('error');
                 done();
             });
+        });
+
+        it('simulates no end without payload', function (done) {
+
+            var end = false;
+            var dispatch = function (req, res) {
+
+                req.resume();
+                req.on('end', function () {
+
+                    end = true;
+                });
+            };
+
+            var replied = false;
+            Shot.inject(dispatch, { method: 'get', url: '/', simulate: { end: false } }, function (res) {
+
+                replied = true;
+            });
+            
+            setTimeout(function () {
+
+                expect(end).to.equal(false);
+                expect(replied).to.equal(false);
+                done();
+            }, 10);
+        });
+
+        it('simulates no end with payload', function (done) {
+
+            var end = false;
+            var dispatch = function (req, res) {
+
+                req.resume();
+                req.on('end', function () {
+
+                    end = true;
+                });
+            };
+
+            var replied = false;
+            Shot.inject(dispatch, { method: 'get', url: '/', payload: '1234567', simulate: { end: false } }, function (res) {
+
+                replied = true;
+            });
+            
+            setTimeout(function () {
+
+                expect(end).to.equal(false);
+                expect(replied).to.equal(false);
+                done();
+            }, 10);
         });
 
         it('simulates close', function (done) {
