@@ -6,10 +6,7 @@ connection so can be run against an inactive server (server not in listen mode).
 
 [![Build Status](https://secure.travis-ci.org/spumko/shot.png)](http://travis-ci.org/spumko/shot)
 
-| Lead Maintainer  |
-|:-:|
-|[wpreul](https://github.com/wpreul)|
-|![wpreul](https://secure.gravatar.com/avatar/be062e7594902e5f5dce0660867a8f60?s=128)|
+Lead Maintainer: [Wyatt Preul](https://github.com/wpreul)
 
 For example:
 
