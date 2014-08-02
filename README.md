@@ -1,10 +1,9 @@
-<a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
-![shot Logo](https://raw.github.com/spumko/shot/master/images/shot.png)
+![shot Logo](https://raw.github.com/hapijs/shot/master/images/shot.png)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging. Does not use a socket
 connection so can be run against an inactive server (server not in listen mode). This module is still experimental.
 
-[![Build Status](https://secure.travis-ci.org/spumko/shot.png)](http://travis-ci.org/spumko/shot)
+[![Build Status](https://secure.travis-ci.org/hapijs/shot.png)](http://travis-ci.org/hapijs/shot)
 
 Lead Maintainer: [Wyatt Preul](https://github.com/wpreul)
 
