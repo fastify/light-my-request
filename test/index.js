@@ -23,7 +23,7 @@ var expect = Lab.expect;
 
 describe('Shot', function () {
 
-    describe('#inject', function () {
+    describe('inject()', function () {
 
         it('returns non-chunked payload', function (done) {
 
@@ -347,7 +347,7 @@ describe('Shot', function () {
         });
     });
 
-    describe('#writeHead', function () {
+    describe('writeHead()', function () {
 
         it('returns single buffer payload', function (done) {
 
@@ -366,7 +366,7 @@ describe('Shot', function () {
         });
     });
 
-    describe('#_read', function () {
+    describe('_read()', function () {
 
         it('plays payload', function (done) {
 
