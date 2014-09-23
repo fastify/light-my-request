@@ -21,7 +21,7 @@ var it = lab.it;
 var expect = Lab.expect;
 
 
-describe('Shot', function () {
+describe('shot', function () {
 
     describe('inject()', function () {
 
