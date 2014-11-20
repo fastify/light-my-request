@@ -76,6 +76,36 @@ describe('inject()', function () {
         });
     });
 
+    it('optionally accepts an object as url', function (done) {
+
+        var output = 'example.com:8080|/hello?test=1234';
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': output.length });
+            res.end(req.headers.host + '|' + req.url);
+        };
+
+        var url = {
+            protocol: 'http',
+            hostname: 'example.com',
+            port: '8080',
+            pathname: 'hello',
+            query: {
+                test: '1234'
+            }
+        };
+
+        Shot.inject(dispatch, { url: url }, function (res) {
+
+            expect(res.headers.date).to.exist;
+            expect(res.headers.connection).to.exist;
+            expect(res.headers['transfer-encoding']).to.not.exist;
+            expect(res.payload).to.equal(output);
+            done();
+        });
+    });
+
     it('leaves user-agent unmodified', function (done) {
 
         var dispatch = function (req, res) {
