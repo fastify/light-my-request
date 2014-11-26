@@ -1,7 +1,7 @@
 ![shot Logo](https://raw.github.com/hapijs/shot/master/images/shot.png)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging. Does not use a socket
-connection so can be run against an inactive server (server not in listen mode). This module is still experimental.
+connection so can be run against an inactive server (server not in listen mode).
 
 [![Build Status](https://secure.travis-ci.org/hapijs/shot.png)](http://travis-ci.org/hapijs/shot)
 
