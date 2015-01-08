@@ -13,7 +13,9 @@
   "engines": {
     "node": ">=0.10.30"
   },
-  "dependencies": {},
+  "dependencies": {
+    "hoek": "2.x.x"
+  },
   "devDependencies": {
     "lab": "4.x.x"
   },
