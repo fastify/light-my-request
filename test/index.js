@@ -35,9 +35,9 @@ describe('inject()', function () {
 
         Shot.inject(dispatch, 'http://example.com:8080/hello', function (res) {
 
-            expect(res.headers.date).to.exist;
-            expect(res.headers.connection).to.exist;
-            expect(res.headers['transfer-encoding']).to.not.exist;
+            expect(res.headers.date).to.exist();
+            expect(res.headers.connection).to.exist();
+            expect(res.headers['transfer-encoding']).to.not.exist();
             expect(res.payload).to.equal(output);
             done();
         });
@@ -53,8 +53,8 @@ describe('inject()', function () {
 
         Shot.inject(dispatch, { url: 'http://example.com:8080/hello' }, function (res) {
 
-            expect(res.headers.date).to.exist;
-            expect(res.headers.connection).to.exist;
+            expect(res.headers.date).to.exist();
+            expect(res.headers.connection).to.exist();
             expect(res.headers['transfer-encoding']).to.equal('chunked');
             expect(res.payload).to.equal('example.com:8080|/hello');
             done();
@@ -98,9 +98,9 @@ describe('inject()', function () {
 
         Shot.inject(dispatch, { url: url }, function (res) {
 
-            expect(res.headers.date).to.exist;
-            expect(res.headers.connection).to.exist;
-            expect(res.headers['transfer-encoding']).to.not.exist;
+            expect(res.headers.date).to.exist();
+            expect(res.headers.connection).to.exist();
+            expect(res.headers['transfer-encoding']).to.not.exist();
             expect(res.payload).to.equal(output);
             done();
         });
@@ -133,8 +133,8 @@ describe('inject()', function () {
 
         Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
-            expect(res.headers.date).to.exist;
-            expect(res.headers.connection).to.exist;
+            expect(res.headers.date).to.exist();
+            expect(res.headers.connection).to.exist();
             expect(res.headers['transfer-encoding']).to.equal('chunked');
             expect(res.payload).to.equal('ab');
             done();
@@ -177,7 +177,7 @@ describe('inject()', function () {
 
                 Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, unzipped) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(unzipped.toString('utf-8')).to.deep.equal(file);
                     done();
                 });
