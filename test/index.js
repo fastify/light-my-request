@@ -373,6 +373,38 @@ describe('inject()', function () {
             done();
         });
     });
+
+    it('adds a content-length header if none set when payload specified', function(done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers['content-length']);
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 }}, function (res) {
+
+            expect(res.payload).to.equal('{"a":1}'.length.toString());
+            done();
+        });
+
+    });
+
+    it('retains a content-length header when payload specified', function(done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers['content-length']);
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: '', headers: { 'content-length': '10' }}, function (res) {
+
+            expect(res.payload).to.equal('10');
+            done();
+        });
+
+    });
 });
 
 describe('writeHead()', function () {
