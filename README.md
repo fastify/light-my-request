@@ -5,7 +5,7 @@ connection so can be run against an inactive server (server not in listen mode).
 
 [![Build Status](https://secure.travis-ci.org/hapijs/shot.png)](http://travis-ci.org/hapijs/shot)
 
-Lead Maintainer: [Chris Dickinson](https://github.com/chrisdickinson)
+Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 For example:
 
