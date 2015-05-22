@@ -175,7 +175,7 @@ describe('inject()', function () {
 
             Fs.readFile('./package.json', { encoding: 'utf-8' }, function (err, file) {
 
-                Zlib.unzip(new Buffer(res.payload, 'binary'), function (err, unzipped) {
+                Zlib.unzip(res.payloadBuffer, function (err, unzipped) {
 
                     expect(err).to.not.exist();
                     expect(unzipped.toString('utf-8')).to.deep.equal(file);
@@ -339,6 +339,22 @@ describe('inject()', function () {
 
             expect(res.headers['content-type']).to.equal('application/json');
             expect(res.payload).to.equal('{"a":1}');
+            done();
+        });
+    });
+
+    it('echos object payload with non-english utf-8 string', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'content-type': req.headers['content-type'] });
+            req.pipe(res);
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: '½½א' } }, function (res) {
+
+            expect(res.headers['content-type']).to.equal('application/json');
+            expect(res.payload).to.equal('{"a":"½½א"}');
             done();
         });
     });
