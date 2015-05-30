@@ -39,6 +39,7 @@ describe('inject()', function () {
             expect(res.headers.connection).to.exist();
             expect(res.headers['transfer-encoding']).to.not.exist();
             expect(res.payload).to.equal(output);
+            expect(res.rawPayload.toString()).to.equal('example.com:8080|/hello');
             done();
         });
     });
@@ -57,6 +58,7 @@ describe('inject()', function () {
             expect(res.headers.connection).to.exist();
             expect(res.headers['transfer-encoding']).to.equal('chunked');
             expect(res.payload).to.equal('example.com:8080|/hello');
+            expect(res.rawPayload.toString()).to.equal('example.com:8080|/hello');
             done();
         });
     });
