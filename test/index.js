@@ -343,6 +343,21 @@ describe('inject()', function () {
         });
     });
 
+    it('echos buffer payload', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'content-type': req.headers['content-type'] });
+            req.pipe(res);
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: new Buffer('test!') }, function (res) {
+
+            expect(res.payload).to.equal('test!');
+            done();
+        });
+    });
+
     it('echos object payload with non-english utf-8 string', function (done) {
 
         var dispatch = function (req, res) {

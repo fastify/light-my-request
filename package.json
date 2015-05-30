@@ -1,9 +1,9 @@
 {
   "name": "shot",
   "description": "Injects a fake HTTP request/response into a node HTTP server",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "repository": "git://github.com/hapijs/shot",
-  "main": "index",
+  "main": "lib/index.js",
   "keywords": [
     "utilities",
     "http",
@@ -11,7 +11,7 @@
     "test"
   ],
   "engines": {
-    "node": ">=0.10.30"
+    "node": ">=0.10.32"
   },
   "dependencies": {
     "hoek": "2.x.x"
@@ -21,14 +21,8 @@
     "code": "1.x.x"
   },
   "scripts": {
-    "test": "lab -a code -L",
-    "test-cov": "lab -a code -t 100 -L",
+    "test": "lab -a code -t 100 -L",
     "test-cov-html": "lab -a code -r html -o coverage.html -L"
   },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/hapijs/shot/raw/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }
