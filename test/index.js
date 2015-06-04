@@ -175,7 +175,7 @@ describe('inject()', function () {
 
             Fs.readFile('./package.json', { encoding: 'utf-8' }, function (err, file) {
 
-                Zlib.unzip(res.payloadBuffer, function (err, unzipped) {
+                Zlib.unzip(res.rawPayload, function (err, unzipped) {
 
                     expect(err).to.not.exist();
                     expect(unzipped.toString('utf-8')).to.deep.equal(file);
