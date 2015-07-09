@@ -83,7 +83,7 @@ describe('inject()', function () {
         var dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end(req.info.remoteAddress);
+            res.end(req.connection.remoteAddress);
         };
 
         Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', remote: '1.2.3.4' }, function (res) {
