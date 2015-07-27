@@ -86,7 +86,7 @@ describe('inject()', function () {
             res.end(req.connection.remoteAddress);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', remote: '1.2.3.4' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, function (res) {
 
             expect(res.payload).to.equal('1.2.3.4');
             done();
