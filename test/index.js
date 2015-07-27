@@ -93,6 +93,21 @@ describe('inject()', function () {
         });
     });
 
+    it('passes localhost as default remote address', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.connection.remoteAddress);
+        };
+
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+
+            expect(res.payload).to.equal('127.0.0.1');
+            done();
+        });
+    });
+
     it('optionally accepts an object as url', function (done) {
 
         var output = 'example.com:8080|/hello?test=1234';
