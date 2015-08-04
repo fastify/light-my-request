@@ -1,7 +1,7 @@
 {
   "name": "shot",
   "description": "Injects a fake HTTP request/response into a node HTTP server",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "repository": "git://github.com/hapijs/shot",
   "main": "lib/index.js",
   "keywords": [
