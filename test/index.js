@@ -108,6 +108,51 @@ describe('inject()', function () {
         });
     });
 
+    it('passes host option as host header', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers.host);
+        };
+
+        Shot.inject(dispatch, { method: 'get', url: '/hello', headers: { host: 'test.example.com' } }, function (res) {
+
+            expect(res.payload).to.equal('test.example.com');
+            done();
+        });
+    });
+
+    it('passes localhost as default host header', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers.host);
+        };
+
+        Shot.inject(dispatch, { method: 'get', url: '/hello' }, function (res) {
+
+            expect(res.payload).to.equal('localhost');
+            done();
+        });
+    });
+
+    it('passes uri host as host header', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers.host);
+        };
+
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+
+            expect(res.payload).to.equal('example.com:8080');
+            done();
+        });
+    });
+
     it('optionally accepts an object as url', function (done) {
 
         var output = 'example.com:8080|/hello?test=1234';
