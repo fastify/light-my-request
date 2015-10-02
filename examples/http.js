@@ -1,6 +1,5 @@
 // Load modules
 
-var Http = require('http');
 var Shot = require('..');
 
 
@@ -17,10 +16,6 @@ internals.main = function () {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(reply);
     };
-
-    var server = Http.createServer(dispatch);
-
-    // server.listen(1337, '127.0.0.1');
 
     Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
 
