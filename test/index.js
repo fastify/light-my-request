@@ -138,6 +138,21 @@ describe('inject()', function () {
         });
     });
 
+    it('passes authority as host header', function (done) {
+
+        var dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers.host);
+        };
+
+        Shot.inject(dispatch, { method: 'get', url: '/hello', authority: 'something' }, function (res) {
+
+            expect(res.payload).to.equal('something');
+            done();
+        });
+    });
+
     it('passes uri host as host header', function (done) {
 
         var dispatch = function (req, res) {
