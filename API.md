@@ -10,7 +10,7 @@ Injects a fake request into an HTTP server.
 - `options` - request options object where:
   - `url` - a string specifying the request URL.
   - `method` - a string specifying the HTTP request method, defaulting to `'GET'`.
-  - `authority` - a string specifying the HTTP HOST header value is no header is provided and the `url`
+  - `authority` - a string specifying the HTTP HOST header value to be used if no header is provided, and the `url`
     does not include an authority component. Defaults to `'localhost'`.
   - `headers` - an optional object containing request headers.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
