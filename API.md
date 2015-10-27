@@ -24,7 +24,7 @@ Injects a fake request into an HTTP server.
   - `res` - a response object where:
     - `raw` - an object containing the raw request and response objects where:
       - `req` - the simulated request object.
-      - `req` - the simulated response object.
+      - `res` - the simulated response object.
     - `headers` - an object containing the response headers.
     - `statusCode` - the HTTP status code.
     - `payload` - the payload as a UTF-8 encoded string.
