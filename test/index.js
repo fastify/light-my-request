@@ -1,39 +1,41 @@
+'use strict';
+
 // Load modules
 
-var Util = require('util');
-var Stream = require('stream');
-var Fs = require('fs');
-var Zlib = require('zlib');
-var Lab = require('lab');
-var Shot = require('../lib');
-var Code = require('code');
+const Util = require('util');
+const Stream = require('stream');
+const Fs = require('fs');
+const Zlib = require('zlib');
+const Lab = require('lab');
+const Shot = require('../lib');
+const Code = require('code');
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
-describe('inject()', function () {
+describe('inject()', () => {
 
-    it('returns non-chunked payload', function (done) {
+    it('returns non-chunked payload', (done) => {
 
-        var output = 'example.com:8080|/hello';
+        const output = 'example.com:8080|/hello';
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': output.length });
             res.end(req.headers.host + '|' + req.url);
         };
 
-        Shot.inject(dispatch, 'http://example.com:8080/hello', function (res) {
+        Shot.inject(dispatch, 'http://example.com:8080/hello', (res) => {
 
             expect(res.headers.date).to.exist();
             expect(res.headers.connection).to.exist();
@@ -44,15 +46,15 @@ describe('inject()', function () {
         });
     });
 
-    it('returns single buffer payload', function (done) {
+    it('returns single buffer payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers.host + '|' + req.url);
         };
 
-        Shot.inject(dispatch, { url: 'http://example.com:8080/hello' }, function (res) {
+        Shot.inject(dispatch, { url: 'http://example.com:8080/hello' }, (res) => {
 
             expect(res.headers.date).to.exist();
             expect(res.headers.connection).to.exist();
@@ -63,122 +65,122 @@ describe('inject()', function () {
         });
     });
 
-    it('passes headers', function (done) {
+    it('passes headers', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers.super);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (res) => {
 
             expect(res.payload).to.equal('duper');
             done();
         });
     });
 
-    it('passes remote address', function (done) {
+    it('passes remote address', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.connection.remoteAddress);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, (res) => {
 
             expect(res.payload).to.equal('1.2.3.4');
             done();
         });
     });
 
-    it('passes localhost as default remote address', function (done) {
+    it('passes localhost as default remote address', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.connection.remoteAddress);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (res) => {
 
             expect(res.payload).to.equal('127.0.0.1');
             done();
         });
     });
 
-    it('passes host option as host header', function (done) {
+    it('passes host option as host header', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers.host);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/hello', headers: { host: 'test.example.com' } }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/hello', headers: { host: 'test.example.com' } }, (res) => {
 
             expect(res.payload).to.equal('test.example.com');
             done();
         });
     });
 
-    it('passes localhost as default host header', function (done) {
+    it('passes localhost as default host header', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers.host);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/hello' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/hello' }, (res) => {
 
             expect(res.payload).to.equal('localhost');
             done();
         });
     });
 
-    it('passes authority as host header', function (done) {
+    it('passes authority as host header', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers.host);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/hello', authority: 'something' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/hello', authority: 'something' }, (res) => {
 
             expect(res.payload).to.equal('something');
             done();
         });
     });
 
-    it('passes uri host as host header', function (done) {
+    it('passes uri host as host header', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers.host);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (res) => {
 
             expect(res.payload).to.equal('example.com:8080');
             done();
         });
     });
 
-    it('optionally accepts an object as url', function (done) {
+    it('optionally accepts an object as url', (done) => {
 
-        var output = 'example.com:8080|/hello?test=1234';
+        const output = 'example.com:8080|/hello?test=1234';
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': output.length });
             res.end(req.headers.host + '|' + req.url);
         };
 
-        var url = {
+        const url = {
             protocol: 'http',
             hostname: 'example.com',
             port: '8080',
@@ -188,7 +190,7 @@ describe('inject()', function () {
             }
         };
 
-        Shot.inject(dispatch, { url: url }, function (res) {
+        Shot.inject(dispatch, { url: url }, (res) => {
 
             expect(res.headers.date).to.exist();
             expect(res.headers.connection).to.exist();
@@ -198,24 +200,24 @@ describe('inject()', function () {
         });
     });
 
-    it('leaves user-agent unmodified', function (done) {
+    it('leaves user-agent unmodified', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers['user-agent']);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { 'user-agent': 'duper' } }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { 'user-agent': 'duper' } }, (res) => {
 
             expect(res.payload).to.equal('duper');
             done();
         });
     });
 
-    it('returns chunked payload', function (done) {
+    it('returns chunked payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, 'OK');
             res.write('a');
@@ -223,7 +225,7 @@ describe('inject()', function () {
             res.end();
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(res.headers.date).to.exist();
             expect(res.headers.connection).to.exist();
@@ -233,9 +235,9 @@ describe('inject()', function () {
         });
     });
 
-    it('returns chunked payload with trailer', function (done) {
+    it('returns chunked payload with trailer', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.setHeader('Trailer', 'Server-Authorization');
             res.setHeader('Transfer-Encoding', 'chunked');
@@ -246,7 +248,7 @@ describe('inject()', function () {
             res.end();
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(res.payload).to.equal('ab');
             expect(res.headers.test).to.equal('123');
@@ -254,20 +256,20 @@ describe('inject()', function () {
         });
     });
 
-    it('parses zipped payload', function (done) {
+    it('parses zipped payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, 'OK');
-            var stream = Fs.createReadStream('./package.json');
+            const stream = Fs.createReadStream('./package.json');
             stream.pipe(Zlib.createGzip()).pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
-            Fs.readFile('./package.json', { encoding: 'utf-8' }, function (err, file) {
+            Fs.readFile('./package.json', { encoding: 'utf-8' }, (err, file) => {
 
-                Zlib.unzip(res.rawPayload, function (err, unzipped) {
+                Zlib.unzip(res.rawPayload, (err, unzipped) => {
 
                     expect(err).to.not.exist();
                     expect(unzipped.toString('utf-8')).to.deep.equal(file);
@@ -277,9 +279,9 @@ describe('inject()', function () {
         });
     });
 
-    it('returns multi buffer payload', function (done) {
+    it('returns multi buffer payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200);
             res.write('a');
@@ -287,47 +289,47 @@ describe('inject()', function () {
             res.end();
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(res.payload).to.equal('ab');
             done();
         });
     });
 
-    it('returns null payload', function (done) {
+    it('returns null payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Length': 0 });
             res.end();
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(res.payload).to.equal('');
             done();
         });
     });
 
-    it('allows ending twice', function (done) {
+    it('allows ending twice', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Length': 0 });
             res.end();
             res.end();
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(res.payload).to.equal('');
             done();
         });
     });
 
-    it('identifies injection object', function (done) {
+    it('identifies injection object', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             expect(Shot.isInjection(req)).to.equal(true);
             expect(Shot.isInjection(res)).to.equal(true);
@@ -336,15 +338,15 @@ describe('inject()', function () {
             res.end();
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             done();
         });
     });
 
-    it('pipes response', function (done) {
+    it('pipes response', (done) => {
 
-        var Read = function () {
+        const Read = function () {
 
             Stream.Readable.call(this);
         };
@@ -357,13 +359,13 @@ describe('inject()', function () {
             this.push(null);
         };
 
-        var finished = false;
-        var dispatch = function (req, res) {
+        let finished = false;
+        const dispatch = function (req, res) {
 
             res.writeHead(200);
-            var stream = new Read();
+            const stream = new Read();
 
-            res.on('finish', function () {
+            res.on('finish', () => {
 
                 finished = true;
             });
@@ -371,7 +373,7 @@ describe('inject()', function () {
             stream.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(finished).to.equal(true);
             expect(res.payload).to.equal('hi');
@@ -379,9 +381,9 @@ describe('inject()', function () {
         });
     });
 
-    it('pipes response with old stream', function (done) {
+    it('pipes response with old stream', (done) => {
 
-        var Read = function () {
+        const Read = function () {
 
             Stream.Readable.call(this);
         };
@@ -394,16 +396,16 @@ describe('inject()', function () {
             this.push(null);
         };
 
-        var finished = false;
-        var dispatch = function (req, res) {
+        let finished = false;
+        const dispatch = function (req, res) {
 
             res.writeHead(200);
-            var stream = new Read();
+            const stream = new Read();
             stream.pause();
-            var stream2 = new Stream.Readable().wrap(stream);
+            const stream2 = new Stream.Readable().wrap(stream);
             stream.resume();
 
-            res.on('finish', function () {
+            res.on('finish', () => {
 
                 finished = true;
             });
@@ -411,7 +413,7 @@ describe('inject()', function () {
             stream2.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(finished).to.equal(true);
             expect(res.payload).to.equal('hi');
@@ -419,15 +421,15 @@ describe('inject()', function () {
         });
     });
 
-    it('echos object payload', function (done) {
+    it('echos object payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'content-type': req.headers['content-type'] });
             req.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, (res) => {
 
             expect(res.headers['content-type']).to.equal('application/json');
             expect(res.payload).to.equal('{"a":1}');
@@ -435,30 +437,30 @@ describe('inject()', function () {
         });
     });
 
-    it('echos buffer payload', function (done) {
+    it('echos buffer payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'content-type': req.headers['content-type'] });
             req.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test', payload: new Buffer('test!') }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: new Buffer('test!') }, (res) => {
 
             expect(res.payload).to.equal('test!');
             done();
         });
     });
 
-    it('echos object payload with non-english utf-8 string', function (done) {
+    it('echos object payload with non-english utf-8 string', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'content-type': req.headers['content-type'] });
             req.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: '½½א' } }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: '½½א' } }, (res) => {
 
             expect(res.headers['content-type']).to.equal('application/json');
             expect(res.payload).to.equal('{"a":"½½א"}');
@@ -466,30 +468,30 @@ describe('inject()', function () {
         });
     });
 
-    it('echos object payload without payload', function (done) {
+    it('echos object payload without payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200);
             req.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test' }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test' }, (res) => {
 
             expect(res.payload).to.equal('');
             done();
         });
     });
 
-    it('retains content-type header', function (done) {
+    it('retains content-type header', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'content-type': req.headers['content-type'] });
             req.pipe(res);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 }, headers: { 'content-type': 'something' } }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 }, headers: { 'content-type': 'something' } }, (res) => {
 
             expect(res.headers['content-type']).to.equal('something');
             expect(res.payload).to.equal('{"a":1}');
@@ -497,15 +499,15 @@ describe('inject()', function () {
         });
     });
 
-    it('adds a content-length header if none set when payload specified', function (done) {
+    it('adds a content-length header if none set when payload specified', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers['content-length']);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, (res) => {
 
             expect(res.payload).to.equal('{"a":1}'.length.toString());
             done();
@@ -513,15 +515,15 @@ describe('inject()', function () {
 
     });
 
-    it('retains a content-length header when payload specified', function (done) {
+    it('retains a content-length header when payload specified', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(req.headers['content-length']);
         };
 
-        Shot.inject(dispatch, { method: 'post', url: '/test', payload: '', headers: { 'content-length': '10' } }, function (res) {
+        Shot.inject(dispatch, { method: 'post', url: '/test', payload: '', headers: { 'content-length': '10' } }, (res) => {
 
             expect(res.payload).to.equal('10');
             done();
@@ -530,18 +532,18 @@ describe('inject()', function () {
     });
 });
 
-describe('writeHead()', function () {
+describe('writeHead()', () => {
 
-    it('returns single buffer payload', function (done) {
+    it('returns single buffer payload', (done) => {
 
-        var reply = 'Hello World';
-        var dispatch = function (req, res) {
+        const reply = 'Hello World';
+        const dispatch = function (req, res) {
 
             res.writeHead(200, 'OK', { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
             res.end(reply);
         };
 
-        Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+        Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
             expect(res.payload).to.equal(reply);
             done();
@@ -549,25 +551,25 @@ describe('writeHead()', function () {
     });
 });
 
-describe('_read()', function () {
+describe('_read()', () => {
 
-    it('plays payload', function (done) {
+    it('plays payload', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
-            var buffer = '';
-            req.on('readable', function () {
+            let buffer = '';
+            req.on('readable', () => {
 
-                buffer += req.read() || '';
+                buffer = buffer + req.read() || '';
             });
 
-            req.on('error', function (err) {
+            req.on('error', (err) => {
             });
 
-            req.on('close', function () {
+            req.on('close', () => {
             });
 
-            req.on('end', function () {
+            req.on('end', () => {
 
                 res.writeHead(200, { 'Content-Length': 0 });
                 res.end(buffer);
@@ -575,31 +577,31 @@ describe('_read()', function () {
             });
         };
 
-        var body = 'something special just for you';
-        Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, function (res) {
+        const body = 'something special just for you';
+        Shot.inject(dispatch, { method: 'get', url: '/', payload: body }, (res) => {
 
             expect(res.payload).to.equal(body);
             done();
         });
     });
 
-    it('simulates split', function (done) {
+    it('simulates split', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
-            var buffer = '';
-            req.on('readable', function () {
+            let buffer = '';
+            req.on('readable', () => {
 
-                buffer += req.read() || '';
+                buffer = buffer + req.read() || '';
             });
 
-            req.on('error', function (err) {
+            req.on('error', (err) => {
             });
 
-            req.on('close', function () {
+            req.on('close', () => {
             });
 
-            req.on('end', function () {
+            req.on('end', () => {
 
                 res.writeHead(200, { 'Content-Length': 0 });
                 res.end(buffer);
@@ -607,55 +609,55 @@ describe('_read()', function () {
             });
         };
 
-        var body = 'something special just for you';
-        Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { split: true } }, function (res) {
+        const body = 'something special just for you';
+        Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { split: true } }, (res) => {
 
             expect(res.payload).to.equal(body);
             done();
         });
     });
 
-    it('simulates error', function (done) {
+    it('simulates error', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
-            req.on('readable', function () {
+            req.on('readable', () => {
             });
 
-            req.on('error', function (err) {
+            req.on('error', (err) => {
 
                 res.writeHead(200, { 'Content-Length': 0 });
                 res.end('error');
             });
         };
 
-        var body = 'something special just for you';
-        Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { error: true } }, function (res) {
+        const body = 'something special just for you';
+        Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { error: true } }, (res) => {
 
             expect(res.payload).to.equal('error');
             done();
         });
     });
 
-    it('simulates no end without payload', function (done) {
+    it('simulates no end without payload', (done) => {
 
-        var end = false;
-        var dispatch = function (req, res) {
+        let end = false;
+        const dispatch = function (req, res) {
 
             req.resume();
-            req.on('end', function () {
+            req.on('end', () => {
 
                 end = true;
             });
         };
 
-        var replied = false;
-        Shot.inject(dispatch, { method: 'get', url: '/', simulate: { end: false } }, function (res) {
+        let replied = false;
+        Shot.inject(dispatch, { method: 'get', url: '/', simulate: { end: false } }, (res) => {
 
             replied = true;
         });
 
-        setTimeout(function () {
+        setTimeout(() => {
 
             expect(end).to.equal(false);
             expect(replied).to.equal(false);
@@ -663,25 +665,25 @@ describe('_read()', function () {
         }, 10);
     });
 
-    it('simulates no end with payload', function (done) {
+    it('simulates no end with payload', (done) => {
 
-        var end = false;
-        var dispatch = function (req, res) {
+        let end = false;
+        const dispatch = function (req, res) {
 
             req.resume();
-            req.on('end', function () {
+            req.on('end', () => {
 
                 end = true;
             });
         };
 
-        var replied = false;
-        Shot.inject(dispatch, { method: 'get', url: '/', payload: '1234567', simulate: { end: false } }, function (res) {
+        let replied = false;
+        Shot.inject(dispatch, { method: 'get', url: '/', payload: '1234567', simulate: { end: false } }, (res) => {
 
             replied = true;
         });
 
-        setTimeout(function () {
+        setTimeout(() => {
 
             expect(end).to.equal(false);
             expect(replied).to.equal(false);
@@ -689,31 +691,31 @@ describe('_read()', function () {
         }, 10);
     });
 
-    it('simulates close', function (done) {
+    it('simulates close', (done) => {
 
-        var dispatch = function (req, res) {
+        const dispatch = function (req, res) {
 
-            var buffer = '';
-            req.on('readable', function () {
+            let buffer = '';
+            req.on('readable', () => {
 
-                buffer += req.read() || '';
+                buffer = buffer + req.read() || '';
             });
 
-            req.on('error', function (err) {
+            req.on('error', (err) => {
             });
 
-            req.on('close', function () {
+            req.on('close', () => {
 
                 res.writeHead(200, { 'Content-Length': 0 });
                 res.end('close');
             });
 
-            req.on('end', function () {
+            req.on('end', () => {
             });
         };
 
-        var body = 'something special just for you';
-        Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { close: true } }, function (res) {
+        const body = 'something special just for you';
+        Shot.inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { close: true } }, (res) => {
 
             expect(res.payload).to.equal('close');
             done();

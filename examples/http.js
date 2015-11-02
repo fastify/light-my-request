@@ -1,23 +1,25 @@
+'use strict';
+
 // Load modules
 
-var Shot = require('..');
+const Shot = require('..');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 internals.main = function () {
 
-    var dispatch = function (req, res) {
+    const dispatch = function (req, res) {
 
-        var reply = 'Hello World';
+        const reply = 'Hello World';
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(reply);
     };
 
-    Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+    Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
         console.log(res.payload);
     });
