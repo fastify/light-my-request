@@ -560,7 +560,7 @@ describe('_read()', () => {
             let buffer = '';
             req.on('readable', () => {
 
-                buffer = buffer + req.read() || '';
+                buffer = buffer + (req.read() || '');
             });
 
             req.on('error', (err) => {
@@ -592,7 +592,7 @@ describe('_read()', () => {
             let buffer = '';
             req.on('readable', () => {
 
-                buffer = buffer + req.read() || '';
+                buffer = buffer + (req.read() || '');
             });
 
             req.on('error', (err) => {
@@ -698,7 +698,7 @@ describe('_read()', () => {
             let buffer = '';
             req.on('readable', () => {
 
-                buffer = buffer + req.read() || '';
+                buffer = buffer + (req.read() || '');
             });
 
             req.on('error', (err) => {
