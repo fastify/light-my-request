@@ -29,6 +29,7 @@ Injects a fake request into an HTTP server.
     - `statusCode` - the HTTP status code.
     - `payload` - the payload as a UTF-8 encoded string.
     - `rawPayload` - the raw payload as a Buffer.
+    - `trailers` - an object containing the response trailers.
 
 ### `Shot.isInjection(obj)`
 

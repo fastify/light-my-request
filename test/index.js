@@ -235,23 +235,20 @@ describe('inject()', () => {
         });
     });
 
-    it('returns chunked payload with trailer', (done) => {
+    it('sets trailers in response object', (done) => {
 
         const dispatch = function (req, res) {
 
-            res.setHeader('Trailer', 'Server-Authorization');
-            res.setHeader('Transfer-Encoding', 'chunked');
-            res.writeHead(200, 'OK');
-            res.write('a');
-            res.write('b');
+            res.setHeader('Trailer', 'Test');
             res.addTrailers({ 'Test': 123 });
             res.end();
         };
 
         Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
-            expect(res.payload).to.equal('ab');
-            expect(res.headers.test).to.equal('123');
+            expect(res.headers.trailer).to.equal('Test');
+            expect(res.headers.test).to.be.undefined();
+            expect(res.trailers.test).to.equal('123');
             done();
         });
     });
