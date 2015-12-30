@@ -12,27 +12,27 @@ Lead Maintainer: [Matt Harrison](https://github.com/mtharrison)
 ```javascript
 // Load modules
 
-var Http = require('http');
-var Shot = require('shot');
+const Http = require('http');
+const Shot = require('shot');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 internals.main = function () {
 
-    var dispatch = function (req, res) {
+    const dispatch = function (req, res) {
 
-        var reply = 'Hello World';
+        const reply = 'Hello World';
         res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
         res.end(reply);
     };
 
-    var server = Http.createServer(dispatch);
+    const server = Http.createServer(dispatch);
 
-    Shot.inject(dispatch, { method: 'get', url: '/' }, function (res) {
+    Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
         console.log(res.payload);
     });
