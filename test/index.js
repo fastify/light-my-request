@@ -135,7 +135,7 @@ describe('inject()', () => {
 
         Shot.inject(dispatch, { method: 'get', url: '/hello' }, (res) => {
 
-            expect(res.payload).to.equal('localhost');
+            expect(res.payload).to.equal('localhost:80');
             done();
         });
     });
@@ -166,6 +166,36 @@ describe('inject()', () => {
         Shot.inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (res) => {
 
             expect(res.payload).to.equal('example.com:8080');
+            done();
+        });
+    });
+
+    it('includes default http port in host header', (done) => {
+
+        const dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers.host);
+        };
+
+        Shot.inject(dispatch, 'http://example.com', (res) => {
+
+            expect(res.payload).to.equal('example.com:80');
+            done();
+        });
+    });
+
+    it('includes default https port in host header', (done) => {
+
+        const dispatch = function (req, res) {
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers.host);
+        };
+
+        Shot.inject(dispatch, 'https://example.com', (res) => {
+
+            expect(res.payload).to.equal('example.com:443');
             done();
         });
     });
