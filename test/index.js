@@ -373,24 +373,11 @@ describe('inject()', () => {
 
     it('pipes response', (done) => {
 
-        const Read = function () {
-
-            Stream.Readable.call(this);
-        };
-
-        Util.inherits(Read, Stream.Readable);
-
-        Read.prototype._read = function (size) {
-
-            this.push('hi');
-            this.push(null);
-        };
-
         let finished = false;
         const dispatch = function (req, res) {
 
             res.writeHead(200);
-            const stream = new Read();
+            const stream = internals.getTestStream();
 
             res.on('finish', () => {
 
@@ -410,24 +397,11 @@ describe('inject()', () => {
 
     it('pipes response with old stream', (done) => {
 
-        const Read = function () {
-
-            Stream.Readable.call(this);
-        };
-
-        Util.inherits(Read, Stream.Readable);
-
-        Read.prototype._read = function (size) {
-
-            this.push('hi');
-            this.push(null);
-        };
-
         let finished = false;
         const dispatch = function (req, res) {
 
             res.writeHead(200);
-            const stream = new Read();
+            const stream = internals.getTestStream();
             stream.pause();
             const stream2 = new Stream.Readable().wrap(stream);
             stream.resume();
@@ -555,7 +529,47 @@ describe('inject()', () => {
             expect(res.payload).to.equal('10');
             done();
         });
+    });
 
+    it('can handle a stream payload', (done) => {
+
+        const dispatch = function (req, res) {
+
+            internals.readStream(req, (buff) => {
+
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(buff);
+            });
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/', payload: internals.getTestStream() }, (res) => {
+
+            expect(res.payload).to.equal('hi');
+            done();
+        });
+
+    });
+
+    it('can override stream payload content-length header', (done) => {
+
+        const dispatch = function (req, res) {
+
+            internals.readStream(req, (buff) => {
+
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(buff);
+            });
+        };
+
+        const headers = {
+            'content-length': '100'
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/', payload: internals.getTestStream(), headers }, (res) => {
+
+            expect(res.payload).to.equal('hi');
+            done();
+        });
     });
 });
 
@@ -749,3 +763,37 @@ describe('_read()', () => {
         });
     });
 });
+
+
+internals.getTestStream = function () {
+
+    const Read = function () {
+
+        Stream.Readable.call(this);
+    };
+
+    Util.inherits(Read, Stream.Readable);
+
+    const word = 'hi';
+    let i = 0;
+
+    Read.prototype._read = function (size) {
+
+        this.push(word[i] ? word[i++] : null);
+    };
+
+    return new Read();
+};
+
+
+internals.readStream = function (stream, callback) {
+
+    const chunks = [];
+
+    stream.on('data', (chunk) => chunks.push(chunk));
+
+    stream.on('end', () => {
+
+        return callback(Buffer.concat(chunks));
+    });
+};
