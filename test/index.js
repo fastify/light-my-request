@@ -296,6 +296,8 @@ describe('inject()', () => {
 
             Fs.readFile('./package.json', { encoding: 'utf-8' }, (err, file) => {
 
+                expect(err).to.not.exist();
+
                 Zlib.unzip(res.rawPayload, (err, unzipped) => {
 
                     expect(err).to.not.exist();
@@ -604,9 +606,6 @@ describe('_read()', () => {
                 buffer = buffer + (req.read() || '');
             });
 
-            req.on('error', (err) => {
-            });
-
             req.on('close', () => {
             });
 
@@ -636,9 +635,6 @@ describe('_read()', () => {
                 buffer = buffer + (req.read() || '');
             });
 
-            req.on('error', (err) => {
-            });
-
             req.on('close', () => {
             });
 
@@ -665,7 +661,7 @@ describe('_read()', () => {
             req.on('readable', () => {
             });
 
-            req.on('error', (err) => {
+            req.on('error', () => {
 
                 res.writeHead(200, { 'Content-Length': 0 });
                 res.end('error');
@@ -740,9 +736,6 @@ describe('_read()', () => {
             req.on('readable', () => {
 
                 buffer = buffer + (req.read() || '');
-            });
-
-            req.on('error', (err) => {
             });
 
             req.on('close', () => {
