@@ -556,20 +556,15 @@ describe('inject()', () => {
 
         const dispatch = function (req, res) {
 
-            internals.readStream(req, (buff) => {
-
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.end(buff);
-            });
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(req.headers['content-length']);
         };
 
-        const headers = {
-            'content-length': '100'
-        };
+        const headers = { 'content-length': '100' };
 
         Shot.inject(dispatch, { method: 'post', url: '/', payload: internals.getTestStream(), headers }, (res) => {
 
-            expect(res.payload).to.equal('hi');
+            expect(res.payload).to.equal('100');
             done();
         });
     });
