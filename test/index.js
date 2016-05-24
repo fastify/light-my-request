@@ -301,7 +301,7 @@ describe('inject()', () => {
                 Zlib.unzip(res.rawPayload, (err, unzipped) => {
 
                     expect(err).to.not.exist();
-                    expect(unzipped.toString('utf-8')).to.deep.equal(file);
+                    expect(unzipped.toString('utf-8')).to.equal(file);
                     done();
                 });
             });
