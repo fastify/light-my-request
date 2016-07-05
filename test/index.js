@@ -552,7 +552,24 @@ describe('inject()', () => {
             expect(res.payload).to.equal('hi');
             done();
         });
+    });
 
+    it('can handle a stream payload of utf-8 strings', (done) => {
+
+        const dispatch = function (req, res) {
+
+            internals.readStream(req, (buff) => {
+
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(buff);
+            });
+        };
+
+        Shot.inject(dispatch, { method: 'post', url: '/', payload: internals.getTestStream('utf8') }, (res) => {
+
+            expect(res.payload).to.equal('hi');
+            done();
+        });
     });
 
     it('can override stream payload content-length header', (done) => {
@@ -816,7 +833,7 @@ describe('_read()', () => {
 });
 
 
-internals.getTestStream = function () {
+internals.getTestStream = function (encoding) {
 
     const Read = function () {
 
@@ -833,7 +850,13 @@ internals.getTestStream = function () {
         this.push(word[i] ? word[i++] : null);
     };
 
-    return new Read();
+    const stream = new Read();
+
+    if (encoding) {
+        stream.setEncoding(encoding);
+    }
+
+    return stream;
 };
 
 
