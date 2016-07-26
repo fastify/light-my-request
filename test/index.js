@@ -750,6 +750,31 @@ describe('_read()', () => {
             done();
         });
     });
+
+    it('errors for invalid input options', (done) => {
+
+        try {
+            Shot.inject({}, {}, (res) => {});
+        }
+        catch (err) {
+
+            expect(err).to.exist();
+            expect(err.isJoi).to.be.true();
+            done();
+        }
+    });
+
+    it('errors for missing url', (done) => {
+
+        try {
+            Shot.inject((req, res) => {}, {}, (res) => {});
+        }
+        catch (err) {
+            expect(err).to.exist();
+            expect(err.isJoi).to.be.true();
+            done();
+        }
+    });
 });
 
 
