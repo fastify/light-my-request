@@ -27,6 +27,7 @@ Injects a fake request into an HTTP server.
       - `res` - the simulated response object.
     - `headers` - an object containing the response headers.
     - `statusCode` - the HTTP status code.
+    - `statusMessage` - the HTTP status message.
     - `payload` - the payload as a UTF-8 encoded string.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
