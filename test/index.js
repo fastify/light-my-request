@@ -575,14 +575,18 @@ describe('writeHead()', () => {
     it('returns single buffer payload', (done) => {
 
         const reply = 'Hello World';
+        const statusCode = 200;
+        const statusMessage = 'OK';
         const dispatch = function (req, res) {
 
-            res.writeHead(200, 'OK', { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
+            res.writeHead(statusCode, statusMessage, { 'Content-Type': 'text/plain', 'Content-Length': reply.length });
             res.end(reply);
         };
 
         Shot.inject(dispatch, { method: 'get', url: '/' }, (res) => {
 
+            expect(res.statusCode).to.equal(statusCode);
+            expect(res.statusMessage).to.equal(statusMessage);
             expect(res.payload).to.equal(reply);
             done();
         });
