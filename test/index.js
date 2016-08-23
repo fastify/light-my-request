@@ -31,12 +31,15 @@ describe('inject()', () => {
 
         const dispatch = function (req, res) {
 
+            res.statusMessage = 'Super';
             res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': output.length });
             res.end(req.headers.host + '|' + req.url);
         };
 
         Shot.inject(dispatch, 'http://example.com:8080/hello', (res) => {
 
+            expect(res.statusCode).to.equal(200);
+            expect(res.statusMessage).to.equal('Super');
             expect(res.headers.date).to.exist();
             expect(res.headers.connection).to.exist();
             expect(res.headers['transfer-encoding']).to.not.exist();
@@ -220,7 +223,7 @@ describe('inject()', () => {
             }
         };
 
-        Shot.inject(dispatch, { url: url }, (res) => {
+        Shot.inject(dispatch, { url }, (res) => {
 
             expect(res.headers.date).to.exist();
             expect(res.headers.connection).to.exist();
