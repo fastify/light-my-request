@@ -760,15 +760,12 @@ describe('_read()', () => {
 
     it('errors for invalid input options', (done) => {
 
-        try {
-            Shot.inject({}, {}, (res) => {});
-        }
-        catch (err) {
+        expect(() => {
 
-            expect(err).to.exist();
-            expect(err.isJoi).to.be.true();
-            done();
-        }
+            Shot.inject({}, {}, (res) => {});
+        }).to.throw('Invalid dispatch function');
+
+        done();
     });
 
     it('errors for missing url', (done) => {
@@ -793,6 +790,16 @@ describe('_read()', () => {
             expect(err.isJoi).to.be.true();
             done();
         }
+    });
+
+    it('ignores incorrect simulation object', (done) => {
+
+        expect(() => {
+
+            Shot.inject((req, res) => { }, { url: '/', simulate: 'sample string', validate: false }, (res) => { });
+        }).to.not.throw();
+
+        done();
     });
 
     it('errors for an incorrect simulation object values', (done) => {
