@@ -753,6 +753,55 @@ describe('_read()', () => {
             done();
         });
     });
+
+    it('errors for invalid input options', (done) => {
+
+        try {
+            Shot.inject({}, {}, (res) => {});
+        }
+        catch (err) {
+
+            expect(err).to.exist();
+            expect(err.isJoi).to.be.true();
+            done();
+        }
+    });
+
+    it('errors for missing url', (done) => {
+
+        try {
+            Shot.inject((req, res) => {}, {}, (res) => {});
+        }
+        catch (err) {
+            expect(err).to.exist();
+            expect(err.isJoi).to.be.true();
+            done();
+        }
+    });
+
+    it('errors for an incorrect simulation object', (done) => {
+
+        try {
+            Shot.inject((req, res) => {}, { url: '/', simulate: 'sample string' }, (res) => {});
+        }
+        catch (err) {
+            expect(err).to.exist();
+            expect(err.isJoi).to.be.true();
+            done();
+        }
+    });
+
+    it('errors for an incorrect simulation object values', (done) => {
+
+        try {
+            Shot.inject((req, res) => {}, { url: '/', simulate: { end: 'wrong input' } }, (res) => {});
+        }
+        catch (err) {
+            expect(err).to.exist();
+            expect(err.isJoi).to.be.true();
+            done();
+        }
+    });
 });
 
 

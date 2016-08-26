@@ -13,6 +13,9 @@
   "engines": {
     "node": ">=4.0.0"
   },
+  "dependencies": {
+    "joi": "9.x.x"
+  },
   "devDependencies": {
     "code": "3.x.x",
     "lab": "11.x.x"
