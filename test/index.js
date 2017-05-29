@@ -447,7 +447,7 @@ describe('inject()', () => {
 
         const dispatch = function (req, res) {
 
-            res.writeHead(200, { 'content-type': req.headers['content-type'] });
+            res.writeHead(200);
             req.pipe(res);
         };
 
