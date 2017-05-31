@@ -32,6 +32,7 @@ describe('inject()', () => {
         const dispatch = function (req, res) {
 
             res.statusMessage = 'Super';
+            res.setHeader('x-extra', 'hello');
             res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': output.length });
             res.end(req.headers.host + '|' + req.url);
         };
@@ -41,8 +42,13 @@ describe('inject()', () => {
             expect(res.statusCode).to.equal(200);
             expect(res.statusMessage).to.equal('Super');
             expect(res.headers.date).to.exist();
-            expect(res.headers.connection).to.exist();
-            expect(res.headers['transfer-encoding']).to.not.exist();
+            expect(res.headers).to.equal({
+                date: res.headers.date,
+                connection: 'keep-alive',
+                'x-extra': 'hello',
+                'content-type': 'text/plain',
+                'content-length': output.length
+            });
             expect(res.payload).to.equal(output);
             expect(res.rawPayload.toString()).to.equal('example.com:8080|/hello');
             done();
@@ -447,7 +453,7 @@ describe('inject()', () => {
 
         const dispatch = function (req, res) {
 
-            res.writeHead(200, { 'content-type': req.headers['content-type'] });
+            res.writeHead(200);
             req.pipe(res);
         };
 
