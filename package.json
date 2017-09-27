@@ -1,7 +1,7 @@
 {
   "name": "light-my-request",
   "version": "0.1.0",
-  "description": "",
+  "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
     "ajv": "^5.2.3"
@@ -15,13 +15,19 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/fastify/light-my-request.git"
   },
-  "keywords": [],
+  "keywords": [
+    "http",
+    "inject",
+    "fake",
+    "request"
+    "server"
+  ],
   "author": "Tomas Della Vedova - @delvedor (http://delved.org)",
   "license": "MIT",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/fastify/light-my-request/issues"
   },
-  "homepage": ""
+  "homepage": "https://github.com/fastify/light-my-request/blob/master/README.md"
 }
