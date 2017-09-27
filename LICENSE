@@ -1,4 +1,5 @@
-Copyright (c) 2012-2017, Project contributors
+Copyright (c) 2017-2017, Fastify contributors
+Copyright (c) 2012-2016, Shot contributors
 Copyright (c) 2012-2014, Walmart
 All rights reserved.
 
@@ -26,4 +27,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
                                   *   *   *
 
-The complete list of contributors can be found at: https://github.com/hapijs/shot/graphs/contributors
+The complete list of contributors can be found at:
+- https://github.com/hapijs/shot/graphs/contributors
+- https://github.com/fastify/light-my-request/graphs/contributors

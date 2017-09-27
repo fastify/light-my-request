@@ -1,0 +1,76 @@
+'use strict'
+
+const assert = require('assert')
+const Ajv = require('ajv')
+const Request = require('./lib/request')
+const Response = require('./lib/response')
+
+const ajv = new Ajv()
+const schema = {
+  type: 'object',
+  properties: {
+    url: {
+      oneOf: [
+        { type: 'string' },
+        {
+          type: 'object',
+          properties: {
+            protocol: { type: 'string' },
+            hostname: { type: 'string' },
+            pathname: { type: 'string' }
+            // port type => any
+            // query type => any
+          },
+          additionalProperties: true,
+          required: ['pathname']
+        }
+      ]
+    },
+    headers: {
+      type: 'object',
+      additionalProperties: true
+    },
+    simulate: {
+      type: 'object',
+      properties: {
+        end: { type: 'boolean' },
+        split: { type: 'boolean' },
+        error: { type: 'boolean' },
+        close: { type: 'boolean' }
+      }
+    },
+    authority: { type: 'string' },
+    remoteAddress: { type: 'string' },
+    method: { type: 'string' },
+    validate: { type: 'boolean' }
+    // payload type => any
+  },
+  additionalProperties: true,
+  required: ['url']
+}
+
+const optsValidator = ajv.compile(schema)
+
+function inject (dispatchFunc, options, callback) {
+  options = (typeof options === 'string' ? { url: options } : options)
+
+  if (options.validate !== false) {
+    assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
+    const isOptionValid = optsValidator(options)
+    if (!isOptionValid) {
+      throw new Error(optsValidator.errors.map(e => e.message))
+    }
+  }
+
+  const req = new Request(options)
+  const res = new Response(req, callback)
+
+  return req.prepare(() => dispatchFunc(req, res))
+}
+
+function isInjection (obj) {
+  return (obj instanceof Request || obj instanceof Response)
+}
+
+module.exports = inject
+module.exports.isInjection = isInjection

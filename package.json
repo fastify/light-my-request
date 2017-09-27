@@ -1,29 +1,27 @@
 {
-  "name": "shot",
-  "description": "Injects a fake HTTP request/response into a node HTTP server",
-  "version": "4.0.0",
-  "repository": "git://github.com/hapijs/shot",
-  "main": "lib/index.js",
-  "keywords": [
-    "utilities",
-    "http",
-    "debug",
-    "test"
-  ],
-  "engines": {
-    "node": ">=8.0.0"
-  },
+  "name": "light-my-request",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
   "dependencies": {
-    "hoek": "4.x.x",
-    "joi": "11.x.x"
+    "ajv": "^5.2.3"
   },
   "devDependencies": {
-    "code": "5.x.x",
-    "lab": "14.x.x"
+    "standard": "^10.0.3",
+    "tap": "^10.7.2"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
-    "test-cov-html": "lab -a code -r html -o coverage.html -L"
+    "test": "standard && tap test.js"
   },
-  "license": "BSD-3-Clause"
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [],
+  "author": "Tomas Della Vedova - @delvedor (http://delved.org)",
+  "license": "MIT",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": ""
 }
