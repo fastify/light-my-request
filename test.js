@@ -30,7 +30,7 @@ test('returns non-chunked payload', (t) => {
       'content-type': 'text/plain',
       'content-length': output.length
     })
-    t.equal(res.payload, (output))
+    t.equal(res.payload, output)
     t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
   })
 })
