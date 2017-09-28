@@ -6,7 +6,7 @@ const util = require('util')
 const Stream = require('stream')
 const fs = require('fs')
 const zlib = require('zlib')
-const inject = require('./index')
+const inject = require('../index')
 
 test('returns non-chunked payload', (t) => {
   t.plan(6)
@@ -666,6 +666,26 @@ test('errors for an incorrect simulation object values', (t) => {
     inject((req, res) => {}, { url: '/', simulate: { end: 'wrong input' } }, (res) => {})
   } catch (err) {
     t.ok(err)
+  }
+})
+
+test('promises support', (t) => {
+  t.plan(1)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' })
+    .then(res => t.equal(res.payload, 'hello'))
+})
+
+test('async wait support', t => {
+  if (Number(process.versions.node[0]) >= 8) {
+    require('./async-await')(t, inject)
+  } else {
+    t.pass('Skip because Node version < 8')
+    t.end()
   }
 })
 
