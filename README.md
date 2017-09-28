@@ -23,8 +23,18 @@ inject(dispatch, { method: 'get', url: '/' }, (res) => {
   console.log(res.payload)
 })
 ```
-
 Note how `server.listen` is never called.
+
+Async await and promises are supported as well!
+```javascript
+// promises
+inject(dispatch, { method: 'get', url: '/' })
+  .then(res => console.log(res.payload))
+
+// async-await
+const res = await inject(dispatch, { method: 'get', url: '/' })
+console.log(res.payload)
+```
 
 ## API
 
