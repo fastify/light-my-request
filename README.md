@@ -78,12 +78,8 @@ Checks if given object `obj` is a Shot `Request` object.
 ## Acknowledgements
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  
 All the credits before the commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) goes to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).  
-Since the commit [db8bced](https://github.com/fastify/light-my-request/commit/db8bced10b4367731688c8738621d42f39680efc) the project has been relicensed under the MIT license and will be maintained by the Fastify team.
+Since the commit [db8bced](https://github.com/fastify/light-my-request/commit/db8bced10b4367731688c8738621d42f39680efc) the project will be maintained by the Fastify team.
 
 ## License
 
-Licensed under [MIT](./LICENSE).
-
-*Copyright (c) 2017, Fastify team  
-Copyright (c) 2012-2016, Shot contributors  
-Copyright (c) 2012-2014, Walmart*
+Licensed under [BSD-3-Clause](./LICENSE).
