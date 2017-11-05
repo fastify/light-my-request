@@ -62,17 +62,19 @@ function inject (dispatchFunc, options, callback) {
     }
   }
 
+  const that = options.server || {}
+
   if (typeof callback === 'function') {
     const req = new Request(options)
     const res = new Response(req, callback)
 
-    return req.prepare(() => dispatchFunc(req, res))
+    return req.prepare(() => dispatchFunc.call(that, req, res))
   } else {
     return new Promise((resolve) => {
       const req = new Request(options)
       const res = new Response(req, resolve)
 
-      req.prepare(() => dispatchFunc(req, res))
+      req.prepare(() => dispatchFunc.call(that, req, res))
     })
   }
 }

@@ -7,6 +7,7 @@ const Stream = require('stream')
 const fs = require('fs')
 const zlib = require('zlib')
 const inject = require('../index')
+const http = require('http')
 
 test('returns non-chunked payload', (t) => {
   t.plan(6)
@@ -687,6 +688,20 @@ test('async wait support', t => {
     t.pass('Skip because Node version < 8')
     t.end()
   }
+})
+
+test('this should be the server instance', t => {
+  t.plan(2)
+
+  const server = http.createServer()
+
+  const dispatch = function (req, res) {
+    t.equal(this, server)
+    res.end('hello')
+  }
+
+  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', server: server })
+    .then(res => t.equal(res.statusCode, 200))
 })
 
 function getTestStream (encoding) {
