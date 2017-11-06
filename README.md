@@ -59,6 +59,7 @@ Injects a fake request into an HTTP server.
     - `error` - whether the request will emit an `error` event. Defaults to `undefined`, meaning no `error` event will be emitted. If set to `true`, the emitted error will have a message of `'Simulated'`.
     - `close` - whether the request will emit a `close` event. Defaults to `undefined`, meaning no `close` event will be emitted.
   - `validate` - Optional flag to validate this options object. Defaults to `true`.
+  - `server` - Optional http server. It is used for binding the `dispatchFunc`.
 - `callback` - the callback function using the signature `function (res)` where:
   - `res` - a response object where:
     - `raw` - an object containing the raw request and response objects where:
