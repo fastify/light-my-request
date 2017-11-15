@@ -479,12 +479,10 @@ test('can override stream payload content-length header without request content-
   t.plan(1)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.headers['content-length'])
+    t.equal(req.headers['content-length'], '2')
   }
 
-  inject(dispatch, { method: 'post', url: '/', payload: getTestStream() }, (res) => {
-    t.equal(res.payload, '2')
-  })
+  inject(dispatch, { method: 'post', url: '/', payload: getTestStream() }, () => {})
 })
 
 test('writeHead returns single buffer payload', (t) => {
