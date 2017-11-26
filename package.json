@@ -9,7 +9,7 @@
   "devDependencies": {
     "pre-commit": "^1.2.2",
     "standard": "^10.0.3",
-    "tap": "^10.7.2"
+    "tap": "^11.0.0"
   },
   "scripts": {
     "test": "standard && tap test/test.js"
