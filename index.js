@@ -70,9 +70,9 @@ function inject (dispatchFunc, options, callback) {
 
     return req.prepare(() => dispatchFunc.call(server, req, res))
   } else {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const req = new Request(options)
-      const res = new Response(req, resolve)
+      const res = new Response(req, resolve, reject)
 
       req.prepare(() => dispatchFunc.call(server, req, res))
     })
