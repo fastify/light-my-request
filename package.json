@@ -4,13 +4,13 @@
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
-    "ajv": "^5.2.3",
+    "ajv": "^5.5.2",
     "safe-buffer": "^5.1.1"
   },
   "devDependencies": {
     "pre-commit": "^1.2.2",
     "standard": "^10.0.3",
-    "tap": "^10.7.2"
+    "tap": "^11.0.1"
   },
   "scripts": {
     "test": "standard && tap test/test.js"
