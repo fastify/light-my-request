@@ -19,7 +19,7 @@ const dispatch = function (req, res) {
 
 const server = http.createServer(dispatch)
 
-inject(dispatch, { method: 'get', url: '/' }, (res) => {
+inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   console.log(res.payload)
 })
 ```
@@ -30,10 +30,15 @@ Async await and promises are supported as well!
 // promises
 inject(dispatch, { method: 'get', url: '/' })
   .then(res => console.log(res.payload))
+  .catch(console.log)
 
 // async-await
-const res = await inject(dispatch, { method: 'get', url: '/' })
-console.log(res.payload)
+try {
+  const res = await inject(dispatch, { method: 'get', url: '/' })
+  console.log(res.payload)
+} catch (err) {
+  console.log(err)
+}
 ```
 
 ## API
@@ -60,7 +65,8 @@ Injects a fake request into an HTTP server.
     - `close` - whether the request will emit a `close` event. Defaults to `undefined`, meaning no `close` event will be emitted.
   - `validate` - Optional flag to validate this options object. Defaults to `true`.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
-- `callback` - the callback function using the signature `function (res)` where:
+- `callback` - the callback function using the signature `function (err, res)` where:
+  - `err` - error object
   - `res` - a response object where:
     - `raw` - an object containing the raw request and response objects where:
       - `req` - the simulated request object.
@@ -74,7 +80,7 @@ Injects a fake request into an HTTP server.
 
 #### `inject.isInjection(obj)`
 
-Checks if given object `obj` is a Shot `Request` object.
+Checks if given object `obj` is a *light-my-request* `Request` object.
 
 ## Acknowledgements
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  
