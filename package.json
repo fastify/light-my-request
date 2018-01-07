@@ -4,7 +4,7 @@
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
-    "ajv": "^5.5.2",
+    "ajv": "^6.0.0",
     "readable-stream": "^2.3.3",
     "safe-buffer": "^5.1.1"
   },
