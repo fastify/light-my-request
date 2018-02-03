@@ -78,6 +78,8 @@ Injects a fake request into an HTTP server.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
 
+Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
+
 #### `inject.isInjection(obj)`
 
 Checks if given object `obj` is a *light-my-request* `Request` object.
