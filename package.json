@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "pre-commit": "^1.2.2",
-    "standard": "^10.0.3",
+    "standard": "^11.0.0",
     "tap": "^11.0.1"
   },
   "scripts": {
