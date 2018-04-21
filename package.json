@@ -14,7 +14,10 @@
     "tap": "^11.0.1"
   },
   "scripts": {
-    "test": "standard && tap test/test.js"
+    "test": "npm run lint && npm run unit",
+    "lint": "standard",
+    "unit": "tap test/test.js",
+    "coverage": "npm run unit -- --cov --coverage-report=html"
   },
   "repository": {
     "type": "git",

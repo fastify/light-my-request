@@ -61,7 +61,7 @@ test('passes headers', (t) => {
     res.end(req.headers.super)
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'duper')
   })
@@ -74,7 +74,7 @@ test('passes remote address', (t) => {
     res.end(req.connection.remoteAddress)
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '1.2.3.4')
   })
@@ -87,7 +87,7 @@ test('passes localhost as default remote address', (t) => {
     res.end(req.connection.remoteAddress)
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '127.0.0.1')
   })
@@ -100,7 +100,7 @@ test('passes host option as host header', (t) => {
     res.end(req.headers.host)
   }
 
-  inject(dispatch, { method: 'get', url: '/hello', headers: { host: 'test.example.com' } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/hello', headers: { host: 'test.example.com' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'test.example.com')
   })
@@ -113,7 +113,7 @@ test('passes localhost as default host header', (t) => {
     res.end(req.headers.host)
   }
 
-  inject(dispatch, { method: 'get', url: '/hello' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/hello' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'localhost:80')
   })
@@ -126,7 +126,7 @@ test('passes authority as host header', (t) => {
     res.end(req.headers.host)
   }
 
-  inject(dispatch, { method: 'get', url: '/hello', authority: 'something' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/hello', authority: 'something' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'something')
   })
@@ -139,7 +139,7 @@ test('passes uri host as host header', (t) => {
     res.end(req.headers.host)
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'example.com:8080')
   })
@@ -206,7 +206,7 @@ test('leaves user-agent unmodified', (t) => {
     res.end(req.headers['user-agent'])
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', headers: { 'user-agent': 'duper' } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { 'user-agent': 'duper' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'duper')
   })
@@ -221,7 +221,7 @@ test('returns chunked payload', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.ok(res.headers.date)
     t.ok(res.headers.connection)
@@ -238,7 +238,7 @@ test('sets trailers in response object', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(res.headers.trailer, 'Test')
     t.equal(res.headers.test, undefined)
@@ -254,7 +254,7 @@ test('parses zipped payload', (t) => {
     stream.pipe(zlib.createGzip()).pipe(res)
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     fs.readFile('./package.json', { encoding: 'utf-8' }, (err, file) => {
       t.error(err)
@@ -276,7 +276,7 @@ test('returns multi buffer payload', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'ab')
   })
@@ -289,7 +289,7 @@ test('returns null payload', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '')
   })
@@ -303,7 +303,7 @@ test('allows ending twice', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '')
   })
@@ -319,7 +319,7 @@ test('identifies injection object', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
   })
 })
@@ -338,7 +338,7 @@ test('pipes response', (t) => {
     stream.pipe(res)
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(finished, true)
     t.equal(res.payload, 'hi')
@@ -362,7 +362,7 @@ test('pipes response with old stream', (t) => {
     stream2.pipe(res)
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(finished, true)
     t.equal(res.payload, 'hi')
@@ -376,7 +376,7 @@ test('echos object payload', (t) => {
     req.pipe(res)
   }
 
-  inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test', payload: { a: 1 } }, (err, res) => {
     t.error(err)
     t.equal(res.headers['content-type'], 'application/json')
     t.equal(res.payload, '{"a":1}')
@@ -390,7 +390,7 @@ test('echos buffer payload', (t) => {
     req.pipe(res)
   }
 
-  inject(dispatch, { method: 'post', url: '/test', payload: Buffer.from('test!') }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test', payload: Buffer.from('test!') }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'test!')
   })
@@ -403,7 +403,7 @@ test('echos object payload with non-english utf-8 string', (t) => {
     req.pipe(res)
   }
 
-  inject(dispatch, { method: 'post', url: '/test', payload: { a: '½½א' } }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test', payload: { a: '½½א' } }, (err, res) => {
     t.error(err)
     t.equal(res.headers['content-type'], 'application/json')
     t.equal(res.payload, '{"a":"½½א"}')
@@ -417,7 +417,7 @@ test('echos object payload without payload', (t) => {
     req.pipe(res)
   }
 
-  inject(dispatch, { method: 'post', url: '/test' }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '')
   })
@@ -430,7 +430,7 @@ test('retains content-type header', (t) => {
     req.pipe(res)
   }
 
-  inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 }, headers: { 'content-type': 'something' } }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test', payload: { a: 1 }, headers: { 'content-type': 'something' } }, (err, res) => {
     t.error(err)
     t.equal(res.headers['content-type'], 'something')
     t.equal(res.payload, '{"a":1}')
@@ -444,7 +444,7 @@ test('adds a content-length header if none set when payload specified', (t) => {
     res.end(req.headers['content-length'])
   }
 
-  inject(dispatch, { method: 'post', url: '/test', payload: { a: 1 } }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test', payload: { a: 1 } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '{"a":1}'.length.toString())
   })
@@ -457,7 +457,7 @@ test('retains a content-length header when payload specified', (t) => {
     res.end(req.headers['content-length'])
   }
 
-  inject(dispatch, { method: 'post', url: '/test', payload: '', headers: { 'content-length': '10' } }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/test', payload: '', headers: { 'content-length': '10' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '10')
   })
@@ -472,7 +472,7 @@ test('can handle a stream payload', (t) => {
     })
   }
 
-  inject(dispatch, { method: 'post', url: '/', payload: getTestStream() }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/', payload: getTestStream() }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'hi')
   })
@@ -487,7 +487,7 @@ test('can handle a stream payload of utf-8 strings', (t) => {
     })
   }
 
-  inject(dispatch, { method: 'post', url: '/', payload: getTestStream('utf8') }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/', payload: getTestStream('utf8') }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'hi')
   })
@@ -502,7 +502,7 @@ test('can override stream payload content-length header', (t) => {
 
   const headers = { 'content-length': '100' }
 
-  inject(dispatch, { method: 'post', url: '/', payload: getTestStream(), headers }, (err, res) => {
+  inject(dispatch, { method: 'POST', url: '/', payload: getTestStream(), headers }, (err, res) => {
     t.error(err)
     t.equal(res.payload, '100')
   })
@@ -515,7 +515,7 @@ test('can override stream payload content-length header without request content-
     t.equal(req.headers['content-length'], '2')
   }
 
-  inject(dispatch, { method: 'post', url: '/', payload: getTestStream() }, () => {})
+  inject(dispatch, { method: 'POST', url: '/', payload: getTestStream() }, () => {})
 })
 
 test('writeHead returns single buffer payload', (t) => {
@@ -528,7 +528,7 @@ test('writeHead returns single buffer payload', (t) => {
     res.end(reply)
   }
 
-  inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
     t.equal(res.statusCode, statusCode)
     t.equal(res.statusMessage, statusMessage)
@@ -555,7 +555,7 @@ test('_read() plays payload', (t) => {
   }
 
   const body = 'something special just for you'
-  inject(dispatch, { method: 'get', url: '/', payload: body }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/', payload: body }, (err, res) => {
     t.error(err)
     t.equal(res.payload, body)
   })
@@ -580,7 +580,7 @@ test('simulates split', (t) => {
   }
 
   const body = 'something special just for you'
-  inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { split: true } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { split: true } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, body)
   })
@@ -599,7 +599,7 @@ test('simulates error', (t) => {
   }
 
   const body = 'something special just for you'
-  inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { error: true } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { error: true } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'error')
   })
@@ -616,7 +616,7 @@ test('simulates no end without payload', (t) => {
   }
 
   let replied = false
-  inject(dispatch, { method: 'get', url: '/', simulate: { end: false } }, (notHandledErr, res) => {
+  inject(dispatch, { method: 'GET', url: '/', simulate: { end: false } }, (notHandledErr, res) => {
     replied = true
   })
 
@@ -637,7 +637,7 @@ test('simulates no end with payload', (t) => {
   }
 
   let replied = false
-  inject(dispatch, { method: 'get', url: '/', payload: '1234567', simulate: { end: false } }, (notHandledErr, res) => {
+  inject(dispatch, { method: 'GET', url: '/', payload: '1234567', simulate: { end: false } }, (notHandledErr, res) => {
     replied = true
   })
 
@@ -665,7 +665,7 @@ test('simulates close', (t) => {
   }
 
   const body = 'something special just for you'
-  inject(dispatch, { method: 'get', url: '/', payload: body, simulate: { close: true } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { close: true } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'close')
   })
@@ -725,7 +725,7 @@ test('promises support', (t) => {
     res.end('hello')
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
     .then(res => t.equal(res.payload, 'hello'))
     .catch(err => t.fail(err))
 })
@@ -749,7 +749,7 @@ test('this should be the server instance', t => {
     res.end('hello')
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello', server: server })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server: server })
     .then(res => t.equal(res.statusCode, 200))
     .catch(err => t.fail(err))
 })
@@ -771,9 +771,16 @@ test('should handle response errors (promises)', (t) => {
     res.connection.destroy(new Error('kaboom'))
   }
 
-  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
     .then(res => t.fail('should throw'))
     .catch(err => t.ok(err))
+})
+
+test('should handle unknown HTTP method', (t) => {
+  t.plan(1)
+  const dispatch = function (req, res) { }
+
+  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }), Error)
 })
 
 function getTestStream (encoding) {
