@@ -776,11 +776,25 @@ test('should handle response errors (promises)', (t) => {
     .catch(err => t.ok(err))
 })
 
-test('should handle unknown HTTP method', (t) => {
+test('should throw on unknown HTTP method', (t) => {
   t.plan(1)
   const dispatch = function (req, res) { }
 
   t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }), Error)
+})
+
+test('HTTP method is case insensitive', (t) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    res.end('Hi!')
+  }
+
+  inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, 'Hi!')
+  })
 })
 
 function getTestStream (encoding) {
