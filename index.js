@@ -1,6 +1,7 @@
 'use strict'
 
 const assert = require('assert')
+const http = require('http')
 const Ajv = require('ajv')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
@@ -41,7 +42,7 @@ const schema = {
     },
     authority: { type: 'string' },
     remoteAddress: { type: 'string' },
-    method: { type: 'string' },
+    method: { type: 'string', enum: http.METHODS.concat(http.METHODS.map(toLowerCase)) },
     validate: { type: 'boolean' }
     // payload type => any
   },
@@ -82,6 +83,8 @@ function inject (dispatchFunc, options, callback) {
 function isInjection (obj) {
   return (obj instanceof Request || obj instanceof Response)
 }
+
+function toLowerCase (m) { return m.toLowerCase() }
 
 module.exports = inject
 module.exports.isInjection = isInjection

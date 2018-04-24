@@ -10,7 +10,7 @@ function asyncAwaitTest (t, inject) {
     }
 
     try {
-      const res = await inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' })
+      const res = await inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
       t.equal(res.payload, 'hello')
     } catch (err) {
       t.fail(err)
@@ -23,7 +23,7 @@ function asyncAwaitTest (t, inject) {
     }
 
     try {
-      await inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' })
+      await inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
       t.fail('should throw')
     } catch (err) {
       t.ok(err)
