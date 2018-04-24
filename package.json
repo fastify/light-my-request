@@ -1,6 +1,6 @@
 {
   "name": "light-my-request",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
