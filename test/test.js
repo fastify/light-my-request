@@ -813,7 +813,6 @@ test('form-data should be handled correctly', (t) => {
   }
 
   const form = new FormData()
-  form._boundary = 'the-boundary'
   form.append('my_field', 'my value')
 
   inject(dispatch, {
@@ -823,7 +822,7 @@ test('form-data should be handled correctly', (t) => {
   }, (err, res) => {
     t.error(err)
     t.equal(res.statusCode, 200)
-    t.equal(res.payload, '--the-boundary\r\nContent-Disposition: form-data; name="my_field"\r\n\r\nmy value\r\n--the-boundary--\r\n')
+    t.ok(/--.+\r\nContent-Disposition: form-data; name="my_field"\r\n\r\nmy value\r\n--.+--\r\n/.test(res.payload))
   })
 })
 
