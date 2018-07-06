@@ -9,6 +9,8 @@ const zlib = require('zlib')
 const inject = require('../index')
 const http = require('http')
 
+const FormData = require('form-data')
+
 test('returns non-chunked payload', (t) => {
   t.plan(7)
   const output = 'example.com:8080|/hello'
@@ -797,7 +799,6 @@ test('HTTP method is case insensitive', (t) => {
   })
 })
 
-const FormData = require('form-data')
 test('form-data should be handled correctly', (t) => {
   t.plan(3)
 
