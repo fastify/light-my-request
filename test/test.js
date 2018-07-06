@@ -797,6 +797,35 @@ test('HTTP method is case insensitive', (t) => {
   })
 })
 
+const FormData = require('form-data')
+test('form-data should be handled correctly', (t) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    let body = ''
+    req.on('data', d => {
+      body += d
+    })
+    req.on('end', () => {
+      res.end(body)
+    })
+  }
+
+  const form = new FormData()
+  form._boundary = 'the-boundary'
+  form.append('my_field', 'my value')
+
+  inject(dispatch, {
+    method: 'POST',
+    url: 'http://example.com:8080/hello',
+    payload: form
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, '--the-boundary\r\nContent-Disposition: form-data; name="my_field"\r\n\r\nmy value\r\n--the-boundary--\r\n')
+  })
+})
+
 function getTestStream (encoding) {
   const Read = function () {
     Stream.Readable.call(this)
