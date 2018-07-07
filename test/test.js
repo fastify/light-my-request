@@ -9,6 +9,8 @@ const zlib = require('zlib')
 const inject = require('../index')
 const http = require('http')
 
+const FormData = require('form-data')
+
 test('returns non-chunked payload', (t) => {
   t.plan(7)
   const output = 'example.com:8080|/hello'
@@ -794,6 +796,33 @@ test('HTTP method is case insensitive', (t) => {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.equal(res.payload, 'Hi!')
+  })
+})
+
+test('form-data should be handled correctly', (t) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    let body = ''
+    req.on('data', d => {
+      body += d
+    })
+    req.on('end', () => {
+      res.end(body)
+    })
+  }
+
+  const form = new FormData()
+  form.append('my_field', 'my value')
+
+  inject(dispatch, {
+    method: 'POST',
+    url: 'http://example.com:8080/hello',
+    payload: form
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.ok(/--.+\r\nContent-Disposition: form-data; name="my_field"\r\n\r\nmy value\r\n--.+--\r\n/.test(res.payload))
   })
 })
 
