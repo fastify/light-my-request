@@ -5,8 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "ajv": "^6.0.0",
-    "readable-stream": "^2.3.6",
-    "safe-buffer": "^5.1.2"
+    "readable-stream": "^3.0.0"
   },
   "devDependencies": {
     "form-data": "^2.3.2",
