@@ -2,8 +2,7 @@
 
 const t = require('tap')
 const test = t.test
-const util = require('util')
-const Stream = require('stream')
+const { Readable } = require('readable-stream')
 const fs = require('fs')
 const zlib = require('zlib')
 const inject = require('../index')
@@ -354,7 +353,7 @@ test('pipes response with old stream', (t) => {
     res.writeHead(200)
     const stream = getTestStream()
     stream.pause()
-    const stream2 = new Stream.Readable().wrap(stream)
+    const stream2 = new Readable().wrap(stream)
     stream.resume()
 
     res.on('finish', () => {
@@ -827,20 +826,14 @@ test('form-data should be handled correctly', (t) => {
 })
 
 function getTestStream (encoding) {
-  const Read = function () {
-    Stream.Readable.call(this)
-  }
-
-  util.inherits(Read, Stream.Readable)
-
   const word = 'hi'
   let i = 0
 
-  Read.prototype._read = function (size) {
-    this.push(word[i] ? word[i++] : null)
-  }
-
-  const stream = new Read()
+  const stream = new Readable({
+    read (n) {
+      this.push(word[i] ? word[i++] : null)
+    }
+  })
 
   if (encoding) {
     stream.setEncoding(encoding)
