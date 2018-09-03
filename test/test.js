@@ -384,6 +384,20 @@ test('echos object payload', (t) => {
   })
 })
 
+test('supports body option in Request and property in Response', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-type': req.headers['content-type'] })
+    req.pipe(res)
+  }
+
+  inject(dispatch, { method: 'POST', url: '/test', body: { a: 1 } }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['content-type'], 'application/json')
+    t.equal(res.body, '{"a":1}')
+  })
+})
+
 test('echos buffer payload', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
