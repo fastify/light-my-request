@@ -5,6 +5,7 @@ const test = t.test
 const { Readable } = require('readable-stream')
 const qs = require('querystring')
 const fs = require('fs')
+const url = require('url')
 const zlib = require('zlib')
 const inject = require('../index')
 const http = require('http')
@@ -82,6 +83,11 @@ test('passes remote address', (t) => {
   })
 })
 
+const parseQuery = inputURL => {
+  const parsedURL = url.parse(inputURL)
+  return qs.parse(parsedURL.query)
+}
+
 test('passes query', (t) => {
   t.plan(2)
 
@@ -92,12 +98,12 @@ test('passes query', (t) => {
 
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.query)
+    res.end(req.url)
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', query }, (err, res) => {
     t.error(err)
-    t.deepEqual(qs.parse(res.payload), query)
+    t.deepEqual(parseQuery(res.payload), query)
   })
 })
 
@@ -110,12 +116,12 @@ test('query will be merged into that in url', (t) => {
 
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.query)
+    res.end(req.url)
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello?message=OK', query }, (err, res) => {
     t.error(err)
-    t.deepEqual(qs.parse(res.payload), Object.assign({ message: 'OK' }, query))
+    t.deepEqual(parseQuery(res.payload), Object.assign({ message: 'OK' }, query))
   })
 })
 
