@@ -59,6 +59,7 @@ Injects a fake request into an HTTP server.
     does not include an authority component. Defaults to `'localhost'`.
   - `headers` - an optional object containing request headers.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
+  - `query` - an optional object containing query parameters.
   - `payload` - an optional request payload. Can be a string, Buffer, Stream or object.
   - `body` - alias for payload.
   - `simulate` - an object containing flags to simulate various conditions:
