@@ -85,7 +85,7 @@ test('passes remote address', (t) => {
 })
 
 const parseQuery = url => {
-  const parsedURL = parseURL({ url })
+  const parsedURL = parseURL(url)
   return qs.parse(parsedURL.search.slice(1))
 }
 
