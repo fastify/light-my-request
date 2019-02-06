@@ -31,6 +31,10 @@ const schema = {
       type: 'object',
       additionalProperties: true
     },
+    query: {
+      type: 'object',
+      additionalProperties: true
+    },
     simulate: {
       type: 'object',
       properties: {
