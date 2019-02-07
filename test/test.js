@@ -5,10 +5,11 @@ const test = t.test
 const { Readable } = require('readable-stream')
 const qs = require('querystring')
 const fs = require('fs')
-const url = require('url')
 const zlib = require('zlib')
-const inject = require('../index')
 const http = require('http')
+
+const inject = require('../index')
+const parseURL = require('../lib/parseURL')
 
 const FormData = require('form-data')
 
@@ -83,9 +84,9 @@ test('passes remote address', (t) => {
   })
 })
 
-const parseQuery = inputURL => {
-  const parsedURL = url.parse(inputURL)
-  return qs.parse(parsedURL.query)
+const parseQuery = url => {
+  const parsedURL = parseURL(url)
+  return qs.parse(parsedURL.search.slice(1))
 }
 
 test('passes query', (t) => {
