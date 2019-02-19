@@ -46,16 +46,23 @@ try {
 File uploads (multipart/form-data) can be achieved by using [form-data](https://github.com/form-data/form-data) package as shown below:
 
 ```js
-  const FormData = require('form-data')
+const FormData = require('form-data')
+const fs = require('fs')
+ 
+try {
   const form = new FormData()
   form.append('myfile', fs.createReadStream(`./path/to/file`))
 
-  const res = await app.inject({
-    url: '/api/upload'
-    method: 'POST',
-    payload: form,
-    headers: form.getHeaders()
+  const res = await inject(dispatch, { 
+    method: 'post', 
+    url: '/upload', 
+    payload: form, 
+    headers: form.getHeaders() 
   })
+  console.log(res.payload)
+} catch (err) {
+  console.log(err)
+}
 ```
 
 ## API
