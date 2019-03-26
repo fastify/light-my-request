@@ -7,7 +7,6 @@
     "noImplicitAny": true
   },
   "files": [
-    "./test.ts",
     "./test/index.test-d.ts"
   ]
 }

@@ -65,6 +65,42 @@ try {
 }
 ```
 
+This module ships with a handwritten TypeScript declaration file for TS support. The declaration exports a single namespace `LightMyRequest`. You can import it one of two ways:
+```typescript
+import * as LightMyRequest from 'light-my-request'
+
+const dispatch: LightMyRequest.DispatchFunc = function (req, res) {
+  const reply = 'Hello World'
+  res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length })
+  res.end(reply)
+}
+
+LightMyRequest.inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  console.log(res.payload)
+})
+
+// or
+import { inject, DistpatchFunc } from 'light-my-request'
+
+const dispatch: DispatchFunc = function (req, res) {
+  const reply = 'Hello World'
+  res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length })
+  res.end(reply)
+}
+
+inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  console.log(res.payload)
+})
+```
+The declaration file exports types for the following parts of the API:
+- `inject` - standard light-my-request `inject` method
+- `DispatchFunc` - the fake HTTP dispatch function
+- `InjectPayload` - a union type for valid payload types
+- `isInjection` - standard light-my-request `isInjection` method
+- `InjectOptions` - options object for `inject` method
+- `Request` - custom light-my-request `request` object interface. Extends Node.js `stream.Readable` type
+- `Response` - custom light-my-re uest `response` object interface. Extends Node.js `http.ServerResponse` type
+
 ## API
 
 #### `inject(dispatchFunc, options, callback)`
