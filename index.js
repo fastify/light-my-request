@@ -6,27 +6,30 @@ const Ajv = require('ajv')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
+const urlSchema = {
+  oneOf: [
+    { type: 'string' },
+    {
+      type: 'object',
+      properties: {
+        protocol: { type: 'string' },
+        hostname: { type: 'string' },
+        pathname: { type: 'string' }
+        // port type => any
+        // query type => any
+      },
+      additionalProperties: true,
+      required: ['pathname']
+    }
+  ]
+}
+
 const ajv = new Ajv()
 const schema = {
   type: 'object',
   properties: {
-    url: {
-      oneOf: [
-        { type: 'string' },
-        {
-          type: 'object',
-          properties: {
-            protocol: { type: 'string' },
-            hostname: { type: 'string' },
-            pathname: { type: 'string' }
-            // port type => any
-            // query type => any
-          },
-          additionalProperties: true,
-          required: ['pathname']
-        }
-      ]
-    },
+    url: urlSchema,
+    path: urlSchema,
     headers: {
       type: 'object',
       additionalProperties: true
@@ -51,7 +54,10 @@ const schema = {
     // payload type => any
   },
   additionalProperties: true,
-  required: ['url']
+  oneOf: [
+    { required: ['url'] },
+    { required: ['path'] }
+  ]
 }
 
 const optsValidator = ajv.compile(schema)

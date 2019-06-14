@@ -27,7 +27,14 @@ declare namespace LightMyRequest {
   function isInjection (obj: Request | Response): boolean
 
   interface InjectOptions {
-    url: string | {
+    url?: string | {
+      pathname: string
+      protocal?: string
+      hostname?: string
+      port?: string | number
+      query?: string
+    }
+    path?: string | {
       pathname: string
       protocal?: string
       hostname?: string
