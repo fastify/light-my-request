@@ -48,16 +48,16 @@ File uploads (multipart/form-data) can be achieved by using [form-data](https://
 ```js
 const FormData = require('form-data')
 const fs = require('fs')
- 
+
 try {
   const form = new FormData()
   form.append('myfile', fs.createReadStream(`./path/to/file`))
 
-  const res = await inject(dispatch, { 
-    method: 'post', 
-    url: '/upload', 
-    payload: form, 
-    headers: form.getHeaders() 
+  const res = await inject(dispatch, {
+    method: 'post',
+    url: '/upload',
+    payload: form,
+    headers: form.getHeaders()
   })
   console.log(res.payload)
 } catch (err) {
@@ -111,7 +111,7 @@ Injects a fake request into an HTTP server.
     - `req` - a simulated request object. Inherits from `Stream.Readable`.
     - `res` - a simulated response object. Inherits from node's `Http.ServerResponse`.
 - `options` - request options object where:
-  - `url` - a string specifying the request URL.
+  - `url` | `path` - a string specifying the request URL.
   - `method` - a string specifying the HTTP request method, defaulting to `'GET'`.
   - `authority` - a string specifying the HTTP HOST header value to be used if no header is provided, and the `url`
     does not include an authority component. Defaults to `'localhost'`.
