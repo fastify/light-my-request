@@ -884,6 +884,31 @@ test('form-data should be handled correctly', (t) => {
   })
 })
 
+test('path as alias to url', (t) => {
+  t.plan(2)
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.url)
+  }
+
+  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.strictEqual(res.payload, '/hello')
+  })
+})
+
+test('Should throw if both path and url are missing', (t) => {
+  t.plan(1)
+
+  try {
+    inject(() => {}, { method: 'GET' }, () => {})
+    t.fail('Should throw')
+  } catch (err) {
+    t.ok(err)
+  }
+})
+
 function getTestStream (encoding) {
   const word = 'hi'
   let i = 0
