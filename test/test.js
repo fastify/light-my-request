@@ -280,7 +280,7 @@ test('sets trailers in response object', (t) => {
   t.plan(4)
   const dispatch = function (req, res) {
     res.setHeader('Trailer', 'Test')
-    res.addTrailers({ 'Test': 123 })
+    res.addTrailers({ Test: 123 })
     res.end()
   }
 
