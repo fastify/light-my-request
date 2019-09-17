@@ -99,7 +99,7 @@ The declaration file exports types for the following parts of the API:
 - `isInjection` - standard light-my-request `isInjection` method
 - `InjectOptions` - options object for `inject` method
 - `Request` - custom light-my-request `request` object interface. Extends Node.js `stream.Readable` type
-- `Response` - custom light-my-re uest `response` object interface. Extends Node.js `http.ServerResponse` type
+- `Response` - custom light-my-request `response` object interface. Extends Node.js `http.ServerResponse` type
 
 ## API
 
