@@ -14,7 +14,7 @@
     "pre-commit": "^1.2.2",
     "standard": "^14.0.2",
     "tap": "^12.6.6",
-    "tsd": "^0.7.0"
+    "tsd": "^0.8.0"
   },
   "scripts": {
     "test": "npm run lint && npm run unit && npm run tsd",
