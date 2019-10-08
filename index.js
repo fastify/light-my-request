@@ -63,6 +63,14 @@ const schema = {
 const optsValidator = ajv.compile(schema)
 
 function inject (dispatchFunc, options, callback) {
+  if (typeof callback === 'undefined') {
+    return new Chain(dispatchFunc, options)
+  } else {
+    return doInject(dispatchFunc, options, callback)
+  }
+}
+
+function doInject (dispatchFunc, options, callback) {
   options = (typeof options === 'string' ? { url: options } : options)
 
   if (options.validate !== false) {
@@ -89,6 +97,57 @@ function inject (dispatchFunc, options, callback) {
     })
   }
 }
+
+function Chain (dispatch, option = {}) {
+  this.option = {
+    ...option
+  }
+  this.dispatch = dispatch
+}
+
+const httpMethods = [
+  'delete',
+  'get',
+  'head',
+  'options',
+  'patch',
+  'post',
+  'put',
+  'trace'
+]
+
+httpMethods.forEach(method => {
+  Chain.prototype[method] = function (url) {
+    this.option.url = url
+    this.option.method = method.toUpperCase()
+    return this
+  }
+})
+
+const chainMethods = [
+  'body',
+  'headers',
+  'payload',
+  'query'
+]
+
+chainMethods.forEach(method => {
+  Chain.prototype[method] = function (value) {
+    this.option[method] = value
+    return this
+  }
+})
+
+Chain.prototype.end = function (callback) {
+  doInject(this.dispatch, this.option, callback)
+}
+
+Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
+  if (method === 'constructor') return
+  Chain.prototype[method] = function (...args) {
+    return doInject(this.dispatch, this.option)[method](...args)
+  }
+})
 
 function isInjection (obj) {
   return (obj instanceof Request || obj instanceof Response)
