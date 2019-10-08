@@ -13,6 +13,17 @@ const parseURL = require('../lib/parseURL')
 
 const FormData = require('form-data')
 
+const httpMethods = [
+  'delete',
+  'get',
+  'head',
+  'options',
+  'patch',
+  'post',
+  'put',
+  'trace'
+]
+
 test('returns non-chunked payload', (t) => {
   t.plan(7)
   const output = 'example.com:8080|/hello'
@@ -840,7 +851,17 @@ test('should throw on unknown HTTP method', (t) => {
   t.plan(1)
   const dispatch = function (req, res) { }
 
-  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }), Error)
+  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.ok(err)
+  }), Error)
+})
+
+test('should throw on unknown HTTP method (promises)', (t) => {
+  t.plan(1)
+  const dispatch = function (req, res) { }
+
+  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' })
+    .then(res => {}), Error)
 })
 
 test('HTTP method is case insensitive', (t) => {
@@ -907,6 +928,122 @@ test('Should throw if both path and url are missing', (t) => {
   } catch (err) {
     t.ok(err)
   }
+})
+
+test('chainable api: backwards compatibility for promise (then)', (t) => {
+  t.plan(1)
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('/')
+    .then(res => t.equal(res.payload, 'hello'))
+    .catch(err => t.fail(err))
+})
+
+test('chainable api: backwards compatibility for promise (catch)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    throw Error
+  }
+
+  inject(dispatch)
+    .get('/')
+    .catch(err => t.ok(err))
+})
+
+test('chainable api: http methods should work correctly', (t) => {
+  t.plan(16)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.method)
+  }
+
+  httpMethods.forEach(method => {
+    inject(dispatch)[method]('http://example.com:8080/hello')
+      .end((err, res) => {
+        t.error(err)
+        t.equal(res.body, method.toUpperCase())
+      })
+  })
+})
+
+test('chainable api: body method should work correctly', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    req.pipe(res)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .body('test')
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.body, 'test')
+    })
+})
+
+test('chainable api: headers method should work correctly', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.foo)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .headers({ foo: 'bar' })
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.payload, 'bar')
+    })
+})
+
+test('chainable api: payload method should work correctly', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    req.pipe(res)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .payload('payload')
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.payload, 'payload')
+    })
+})
+
+test('chainable api: query method should work correctly', (t) => {
+  t.plan(2)
+
+  const query = {
+    message: 'OK',
+    xs: ['foo', 'bar']
+  }
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.url)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .query(query)
+    .end((err, res) => {
+      t.error(err)
+      t.deepEqual(parseQuery(res.payload), query)
+    })
 })
 
 function getTestStream (encoding) {
