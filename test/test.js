@@ -909,6 +909,25 @@ test('Should throw if both path and url are missing', (t) => {
   }
 })
 
+test('Response.json() should send a JSON response', (t) => {
+  t.plan(3)
+
+  const json = {
+    a: 1,
+    b: '2'
+  }
+
+  const dispatch = function (req, res) {
+    res.json(json)
+  }
+
+  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['content-type'], 'application/json')
+    t.strictEqual(res.payload, JSON.stringify(json))
+  })
+})
+
 function getTestStream (encoding) {
   const word = 'hi'
   let i = 0
