@@ -4,17 +4,17 @@
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
-    "ajv": "^6.8.1",
-    "readable-stream": "^3.1.1"
+    "ajv": "^6.10.2",
+    "readable-stream": "^3.4.0"
   },
   "types": "index.d.ts",
   "devDependencies": {
-    "@types/node": "^11.11.4",
-    "form-data": "^2.3.3",
+    "@types/node": "^11.13.22",
+    "form-data": "^2.5.1",
     "pre-commit": "^1.2.2",
     "standard": "^14.0.2",
     "tap": "^12.6.6",
-    "tsd": "^0.7.0"
+    "tsd": "^0.7.4"
   },
   "scripts": {
     "test": "npm run lint && npm run unit && npm run tsd",
