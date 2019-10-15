@@ -76,7 +76,6 @@ declare namespace LightMyRequest {
     trailers: { [key: string]: string }
     payload: string
     body: string
-    addTrailers: (trailers: { [key: string]: string }) => void
   }
 }
 
