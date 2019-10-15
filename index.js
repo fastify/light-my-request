@@ -101,6 +101,7 @@ function doInject (dispatchFunc, options, callback) {
 function Chain (dispatch, option) {
   this.option = Object.assign({}, option)
   this.dispatch = dispatch
+  this._promise = null
 }
 
 const httpMethods = [
@@ -143,7 +144,10 @@ Chain.prototype.end = function (callback) {
 Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
   if (method === 'constructor') return
   Chain.prototype[method] = function (...args) {
-    return doInject(this.dispatch, this.option)[method](...args)
+    if (!this._promise) {
+      this._promise = doInject(this.dispatch, this.option)[method](...args)
+    }
+    return this._promise
   }
 })
 
