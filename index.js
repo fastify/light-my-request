@@ -139,17 +139,25 @@ chainMethods.forEach(method => {
 })
 
 Chain.prototype.end = function (callback) {
-  if (this._hasInvoked === true) {
+  if (this._hasInvoked === true || this._promise) {
     throw new Error('The dispatch function has already been invoked')
   }
-  doInject(this.dispatch, this.option, callback)
+  if (typeof callback === 'function') {
+    doInject(this.dispatch, this.option, callback)
+  } else {
+    this._promise = doInject(this.dispatch, this.option)
+  }
   this._hasInvoked = true
+  return this
 }
 
 Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
   if (method === 'constructor') return
   Chain.prototype[method] = function (...args) {
     if (!this._promise) {
+      if (this._hasInvoked === true) {
+        throw new Error('The dispatch function has already been invoked')
+      }
       this._promise = doInject(this.dispatch, this.option)
       this._hasInvoked = true
     }

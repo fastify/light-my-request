@@ -1062,6 +1062,50 @@ test('chainable api: query method should work correctly', (t) => {
     })
 })
 
+test('chainable api: invoking end method after promise method should throw', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch).get('http://example.com:8080/hello')
+
+  chain.then()
+  t.throws(chain.end, Error)
+})
+
+test('chainable api: invoking promise method after end method with a callback function should throw', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch).get('http://example.com:8080/hello')
+
+  chain.end((err, res) => {
+    t.error(err)
+  })
+  t.throws(chain.then, Error)
+})
+
+test('chainable api: invoking promise method after end method without a callback function should work properly', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .end()
+    .then(res => t.equal(res.payload, 'hello'))
+})
+
 test('chainable api: invoking end method multiple times should throw', (t) => {
   t.plan(1)
 
