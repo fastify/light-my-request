@@ -145,9 +145,9 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
   if (method === 'constructor') return
   Chain.prototype[method] = function (...args) {
     if (!this._promise) {
-      this._promise = doInject(this.dispatch, this.option)[method](...args)
+      this._promise = doInject(this.dispatch, this.option)
     }
-    return this._promise
+    return this._promise[method](...args)
   }
 })
 
