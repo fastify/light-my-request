@@ -101,6 +101,7 @@ function doInject (dispatchFunc, options, callback) {
 function Chain (dispatch, option) {
   this.option = Object.assign({}, option)
   this.dispatch = dispatch
+  this._hasInvoked = false
   this._promise = null
 }
 
@@ -138,7 +139,11 @@ chainMethods.forEach(method => {
 })
 
 Chain.prototype.end = function (callback) {
+  if (this._hasInvoked === true) {
+    throw new Error('The dispatch function has already been invoked')
+  }
   doInject(this.dispatch, this.option, callback)
+  this._hasInvoked = true
 }
 
 Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
@@ -146,6 +151,7 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
   Chain.prototype[method] = function (...args) {
     if (!this._promise) {
       this._promise = doInject(this.dispatch, this.option)
+      this._hasInvoked = true
     }
     return this._promise[method](...args)
   }
