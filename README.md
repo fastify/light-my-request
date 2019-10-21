@@ -43,6 +43,21 @@ try {
 }
 ```
 
+You can also use chaining methods if you do not pass the callback function. Check [here](#method-chaining) for details.
+
+```js
+// chaining methods
+inject(dispatch)
+  .get('/')                   // set the request method to GET, and request URL to '/'
+  .headers({ foo: 'bar' })    // set the request headers
+  .payload('request payload') // set the request payload
+  .body('request body')       // alias for payload
+  .query({ foo: 'bar' })      // set the query parameters
+  .end((err, res) => {
+    console.log(res.payload)
+  })
+```
+
 File uploads (multipart/form-data) can be achieved by using [form-data](https://github.com/form-data/form-data) package as shown below:
 
 ```js
@@ -103,7 +118,7 @@ The declaration file exports types for the following parts of the API:
 
 ## API
 
-#### `inject(dispatchFunc, options, callback)`
+#### `inject(dispatchFunc[, options, callback])`
 
 Injects a fake request into an HTTP server.
 
@@ -146,6 +161,15 @@ Note: You can also pass a string in place of the `options` object as a shorthand
 #### `inject.isInjection(obj)`
 
 Checks if given object `obj` is a *light-my-request* `Request` object.
+
+#### Method chaining
+
+There are following methods you can used as chaining:
+- `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and also the request URL.
+- `body`, `headers`, `payload`, `query`. They can be used to set the request options object.
+And finally you need to call `end`. It has the signature `function (callback)`.
+
+Note: The application would not response multiple times. If you try to do so by calling `end()` twice for example, the application would throw an error.
 
 ## Acknowledgements
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  
