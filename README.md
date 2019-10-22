@@ -155,6 +155,7 @@ Injects a fake request into an HTTP server.
     - `body` - alias for payload.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
+    - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
 
 Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
 
