@@ -9,7 +9,7 @@
   },
   "types": "index.d.ts",
   "devDependencies": {
-    "@types/node": "^11.13.22",
+    "@types/node": "^12.11.6",
     "form-data": "^2.5.1",
     "pre-commit": "^1.2.2",
     "standard": "^14.0.2",
