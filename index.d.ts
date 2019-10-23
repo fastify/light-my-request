@@ -94,7 +94,7 @@ declare namespace LightMyRequest {
     headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
     payload: (payload: InjectPayload) => Chain
     query: (query: object) => Chain
-    end: (callback: CallbackFunc) => Chain
+    end: (callback?: CallbackFunc) => Chain | Promise<Response>
   }
 }
 

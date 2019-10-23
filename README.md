@@ -168,7 +168,42 @@ Checks if given object `obj` is a *light-my-request* `Request` object.
 There are following methods you can used as chaining:
 - `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and also the request URL.
 - `body`, `headers`, `payload`, `query`. They can be used to set the request options object.
+
 And finally you need to call `end`. It has the signature `function (callback)`.
+If you invoke `end` without a callback function, the method will return a promise, thus you can:
+
+```js
+const chain = inject(dispatch).get('/')
+
+try {
+  const res = await chain.end()
+  console.log(res.payload)
+} catch (err) {
+  // handle error
+}
+
+// or
+chain.end()
+  .then(res => {
+    console.log(res.payload)
+  })
+  .catch(err => {
+    // handle error
+  })
+```
+
+By the way, you can also use promises without calling `end`!
+
+```js
+inject(dispatch)
+  .get('/')
+  .then(res => {
+    console.log(res.payload)
+  })
+  .catch(err => {
+    // handle error
+  })
+```
 
 Note: The application would not response multiple times. If you try to do so by calling `end()` twice for example, the application would throw an error.
 

@@ -142,13 +142,13 @@ Chain.prototype.end = function (callback) {
   if (this._hasInvoked === true || this._promise) {
     throw new Error('The dispatch function has already been invoked')
   }
+  this._hasInvoked = true
   if (typeof callback === 'function') {
     doInject(this.dispatch, this.option, callback)
   } else {
     this._promise = doInject(this.dispatch, this.option)
+    return this._promise
   }
-  this._hasInvoked = true
-  return this
 }
 
 Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
