@@ -50,9 +50,15 @@ You can also use chaining methods if you do not pass the callback function. Chec
 inject(dispatch)
   .get('/')                   // set the request method to GET, and request URL to '/'
   .headers({ foo: 'bar' })    // set the request headers
+  .query({ foo: 'bar' })      // set the query parameters
+  .end((err, res) => {
+    console.log(res.payload)
+  })
+
+inject(dispatch)
+  .post('/')                  // set the request method to POST, and request URL to '/'
   .payload('request payload') // set the request payload
   .body('request body')       // alias for payload
-  .query({ foo: 'bar' })      // set the query parameters
   .end((err, res) => {
     console.log(res.payload)
   })
