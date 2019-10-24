@@ -989,6 +989,21 @@ test('chainable api: http methods should work correctly', (t) => {
   })
 })
 
+test('chainable api: http methods should throw if already invoked', (t) => {
+  t.plan(8)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  httpMethods.forEach(method => {
+    const chain = inject(dispatch)[method]('http://example.com:8080/hello')
+    chain.end()
+    t.throws(() => chain[method]('/'), Error)
+  })
+})
+
 test('chainable api: body method should work correctly', (t) => {
   t.plan(2)
 
@@ -1004,6 +1019,21 @@ test('chainable api: body method should work correctly', (t) => {
       t.error(err)
       t.equal(res.body, 'test')
     })
+})
+
+test('chainable api: body method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.body('test'), Error)
 })
 
 test('chainable api: headers method should work correctly', (t) => {
@@ -1023,6 +1053,21 @@ test('chainable api: headers method should work correctly', (t) => {
     })
 })
 
+test('chainable api: headers method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.headers({ foo: 'bar' }), Error)
+})
+
 test('chainable api: payload method should work correctly', (t) => {
   t.plan(2)
 
@@ -1038,6 +1083,21 @@ test('chainable api: payload method should work correctly', (t) => {
       t.error(err)
       t.equal(res.payload, 'payload')
     })
+})
+
+test('chainable api: payload method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.payload('payload'), Error)
 })
 
 test('chainable api: query method should work correctly', (t) => {
@@ -1062,6 +1122,21 @@ test('chainable api: query method should work correctly', (t) => {
     })
 })
 
+test('chainable api: query method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.query({ foo: 'bar' }), Error)
+})
+
 test('chainable api: invoking end method after promise method should throw', (t) => {
   t.plan(1)
 
@@ -1073,7 +1148,7 @@ test('chainable api: invoking end method after promise method should throw', (t)
   const chain = inject(dispatch).get('http://example.com:8080/hello')
 
   chain.then()
-  t.throws(chain.end, Error)
+  t.throws(() => chain.end(), Error)
 })
 
 test('chainable api: invoking promise method after end method with a callback function should throw', (t) => {
@@ -1089,7 +1164,7 @@ test('chainable api: invoking promise method after end method with a callback fu
   chain.end((err, res) => {
     t.error(err)
   })
-  t.throws(chain.then, Error)
+  t.throws(() => chain.then(), Error)
 })
 
 test('chainable api: invoking promise method after end method without a callback function should work properly', (t) => {
@@ -1117,7 +1192,7 @@ test('chainable api: invoking end method multiple times should throw', (t) => {
   const chain = inject(dispatch).get('http://example.com:8080/hello')
 
   chain.end()
-  t.throws(chain.end, Error)
+  t.throws(() => chain.end(), Error)
 })
 
 test('Response.json() should parse the JSON payload', (t) => {

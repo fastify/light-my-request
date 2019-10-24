@@ -205,7 +205,7 @@ inject(dispatch)
   })
 ```
 
-Note: The application would not response multiple times. If you try to do so by calling `end()` twice for example, the application would throw an error.
+Note: The application would not respond multiple times. If you try to invoking any method after the application has responded, the application would throw an error.
 
 ## Acknowledgements
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  

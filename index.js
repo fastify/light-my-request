@@ -118,6 +118,9 @@ const httpMethods = [
 
 httpMethods.forEach(method => {
   Chain.prototype[method] = function (url) {
+    if (this._hasInvoked === true || this._promise) {
+      throwIfAlreadyInvoked()
+    }
     this.option.url = url
     this.option.method = method.toUpperCase()
     return this
@@ -133,6 +136,9 @@ const chainMethods = [
 
 chainMethods.forEach(method => {
   Chain.prototype[method] = function (value) {
+    if (this._hasInvoked === true || this._promise) {
+      throwIfAlreadyInvoked()
+    }
     this.option[method] = value
     return this
   }
@@ -140,7 +146,7 @@ chainMethods.forEach(method => {
 
 Chain.prototype.end = function (callback) {
   if (this._hasInvoked === true || this._promise) {
-    throw new Error('The dispatch function has already been invoked')
+    throwIfAlreadyInvoked()
   }
   this._hasInvoked = true
   if (typeof callback === 'function') {
@@ -156,7 +162,7 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
   Chain.prototype[method] = function (...args) {
     if (!this._promise) {
       if (this._hasInvoked === true) {
-        throw new Error('The dispatch function has already been invoked')
+        throwIfAlreadyInvoked()
       }
       this._promise = doInject(this.dispatch, this.option)
       this._hasInvoked = true
@@ -170,6 +176,10 @@ function isInjection (obj) {
 }
 
 function toLowerCase (m) { return m.toLowerCase() }
+
+function throwIfAlreadyInvoked () {
+  throw new Error('The dispatch function has already been invoked')
+}
 
 module.exports = inject
 module.exports.isInjection = isInjection
