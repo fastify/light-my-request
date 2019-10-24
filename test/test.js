@@ -956,18 +956,19 @@ test('chainable api: backwards compatibility for promise (catch)', (t) => {
     .catch(err => t.ok(err))
 })
 
-test('chainable api: multiple call of then should returns the same promise', (t) => {
+test('chainable api: multiple call of then should return the same promise', (t) => {
   t.plan(1)
+  let id = 0
 
   function dispatch (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.writeHead(200, { 'Content-Type': 'text/plain', 'Request-Id': id++ })
     res.end('hello')
   }
 
   const chain = inject(dispatch).get('/')
   chain.then(res => {
     chain.then(rep => {
-      t.equal(res, rep)
+      t.equal(res.headers['request-id'], rep.headers['request-id'])
     })
   })
 })
