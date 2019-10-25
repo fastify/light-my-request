@@ -957,11 +957,13 @@ test('chainable api: backwards compatibility for promise (catch)', (t) => {
 })
 
 test('chainable api: multiple call of then should return the same promise', (t) => {
-  t.plan(1)
+  t.plan(2)
   let id = 0
 
   function dispatch (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain', 'Request-Id': id++ })
+    res.writeHead(200, { 'Content-Type': 'text/plain', 'Request-Id': id })
+    ++id
+    t.pass('request id incremented')
     res.end('hello')
   }
 
