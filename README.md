@@ -62,6 +62,15 @@ inject(dispatch)
   .end((err, res) => {
     console.log(res.payload)
   })
+
+// async-await is also supported
+try {
+  const chain = inject(dispatch).get('/')
+  const res = await chain.end()
+  console.log(res.payload)
+} catch (err) {
+  console.log(err)
+}
 ```
 
 File uploads (multipart/form-data) can be achieved by using [form-data](https://github.com/form-data/form-data) package as shown below:
