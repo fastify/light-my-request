@@ -18,6 +18,7 @@ inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
+  expectType<Function>(res.json)
 })
 
 expectType<Promise<Response>>(inject(dispatch, { method: 'get', url: '/' }))
