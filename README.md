@@ -43,6 +43,36 @@ try {
 }
 ```
 
+You can also use chaining methods if you do not pass the callback function. Check [here](#method-chaining) for details.
+
+```js
+// chaining methods
+inject(dispatch)
+  .get('/')                   // set the request method to GET, and request URL to '/'
+  .headers({ foo: 'bar' })    // set the request headers
+  .query({ foo: 'bar' })      // set the query parameters
+  .end((err, res) => {
+    console.log(res.payload)
+  })
+
+inject(dispatch)
+  .post('/')                  // set the request method to POST, and request URL to '/'
+  .payload('request payload') // set the request payload
+  .body('request body')       // alias for payload
+  .end((err, res) => {
+    console.log(res.payload)
+  })
+
+// async-await is also supported
+try {
+  const chain = inject(dispatch).get('/')
+  const res = await chain.end()
+  console.log(res.payload)
+} catch (err) {
+  console.log(err)
+}
+```
+
 File uploads (multipart/form-data) can be achieved by using [form-data](https://github.com/form-data/form-data) package as shown below:
 
 ```js
@@ -103,7 +133,7 @@ The declaration file exports types for the following parts of the API:
 
 ## API
 
-#### `inject(dispatchFunc, options, callback)`
+#### `inject(dispatchFunc[, options, callback])`
 
 Injects a fake request into an HTTP server.
 
@@ -147,6 +177,50 @@ Note: You can also pass a string in place of the `options` object as a shorthand
 #### `inject.isInjection(obj)`
 
 Checks if given object `obj` is a *light-my-request* `Request` object.
+
+#### Method chaining
+
+There are following methods you can used as chaining:
+- `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and also the request URL.
+- `body`, `headers`, `payload`, `query`. They can be used to set the request options object.
+
+And finally you need to call `end`. It has the signature `function (callback)`.
+If you invoke `end` without a callback function, the method will return a promise, thus you can:
+
+```js
+const chain = inject(dispatch).get('/')
+
+try {
+  const res = await chain.end()
+  console.log(res.payload)
+} catch (err) {
+  // handle error
+}
+
+// or
+chain.end()
+  .then(res => {
+    console.log(res.payload)
+  })
+  .catch(err => {
+    // handle error
+  })
+```
+
+By the way, you can also use promises without calling `end`!
+
+```js
+inject(dispatch)
+  .get('/')
+  .then(res => {
+    console.log(res.payload)
+  })
+  .catch(err => {
+    // handle error
+  })
+```
+
+Note: The application would not respond multiple times. If you try to invoking any method after the application has responded, the application would throw an error.
 
 ## Acknowledgements
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  

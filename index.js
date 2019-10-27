@@ -63,6 +63,14 @@ const schema = {
 const optsValidator = ajv.compile(schema)
 
 function inject (dispatchFunc, options, callback) {
+  if (typeof callback === 'undefined') {
+    return new Chain(dispatchFunc, options)
+  } else {
+    return doInject(dispatchFunc, options, callback)
+  }
+}
+
+function doInject (dispatchFunc, options, callback) {
   options = (typeof options === 'string' ? { url: options } : options)
 
   if (options.validate !== false) {
@@ -90,11 +98,88 @@ function inject (dispatchFunc, options, callback) {
   }
 }
 
+function Chain (dispatch, option) {
+  this.option = Object.assign({}, option)
+  this.dispatch = dispatch
+  this._hasInvoked = false
+  this._promise = null
+}
+
+const httpMethods = [
+  'delete',
+  'get',
+  'head',
+  'options',
+  'patch',
+  'post',
+  'put',
+  'trace'
+]
+
+httpMethods.forEach(method => {
+  Chain.prototype[method] = function (url) {
+    if (this._hasInvoked === true || this._promise) {
+      throwIfAlreadyInvoked()
+    }
+    this.option.url = url
+    this.option.method = method.toUpperCase()
+    return this
+  }
+})
+
+const chainMethods = [
+  'body',
+  'headers',
+  'payload',
+  'query'
+]
+
+chainMethods.forEach(method => {
+  Chain.prototype[method] = function (value) {
+    if (this._hasInvoked === true || this._promise) {
+      throwIfAlreadyInvoked()
+    }
+    this.option[method] = value
+    return this
+  }
+})
+
+Chain.prototype.end = function (callback) {
+  if (this._hasInvoked === true || this._promise) {
+    throwIfAlreadyInvoked()
+  }
+  this._hasInvoked = true
+  if (typeof callback === 'function') {
+    doInject(this.dispatch, this.option, callback)
+  } else {
+    this._promise = doInject(this.dispatch, this.option)
+    return this._promise
+  }
+}
+
+Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
+  if (method === 'constructor') return
+  Chain.prototype[method] = function (...args) {
+    if (!this._promise) {
+      if (this._hasInvoked === true) {
+        throwIfAlreadyInvoked()
+      }
+      this._promise = doInject(this.dispatch, this.option)
+      this._hasInvoked = true
+    }
+    return this._promise[method](...args)
+  }
+})
+
 function isInjection (obj) {
   return (obj instanceof Request || obj instanceof Response)
 }
 
 function toLowerCase (m) { return m.toLowerCase() }
+
+function throwIfAlreadyInvoked () {
+  throw new Error('The dispatch function has already been invoked')
+}
 
 module.exports = inject
 module.exports.isInjection = isInjection

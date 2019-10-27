@@ -12,15 +12,17 @@ type HTTPMethods = 'DELETE' | 'delete' |
 declare namespace LightMyRequest {
   function inject (
     dispatchFunc: DispatchFunc,
-    options: string | InjectOptions
-  ): Promise<Response>
+    options?: string | InjectOptions
+  ): Chain
   function inject (
     dispatchFunc: DispatchFunc,
     options: string | InjectOptions,
-    callback: (err: Error, response: Response) => void
+    callback: CallbackFunc
   ): void
 
   type DispatchFunc = (req: Request, res: Response) => void
+
+  type CallbackFunc = (err: Error, response: Response) => void
 
   type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
@@ -77,6 +79,22 @@ declare namespace LightMyRequest {
     payload: string
     body: string
     json: () => object
+  }
+
+  interface Chain {
+    delete: (url: string) => Chain
+    get: (url: string) => Chain
+    head: (url: string) => Chain
+    options: (url: string) => Chain
+    patch: (url: string) => Chain
+    post: (url: string) => Chain
+    put: (url: string) => Chain
+    trace: (url: string) => Chain
+    body: (body: InjectPayload) => Chain
+    headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
+    payload: (payload: InjectPayload) => Chain
+    query: (query: object) => Chain
+    end: (callback?: CallbackFunc) => Chain | Promise<Response>
   }
 }
 

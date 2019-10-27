@@ -1,7 +1,7 @@
 'use strict'
 
 function asyncAwaitTest (t, inject) {
-  t.plan(2)
+  t.plan(3)
 
   t.test('basic async await', async t => {
     const dispatch = function (req, res) {
@@ -27,6 +27,21 @@ function asyncAwaitTest (t, inject) {
       t.fail('should throw')
     } catch (err) {
       t.ok(err)
+    }
+  })
+
+  t.test('chainable api with async await', async t => {
+    const dispatch = function (req, res) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end('hello')
+    }
+
+    try {
+      const chain = inject(dispatch).get('http://example.com:8080/hello')
+      const res = await chain.end()
+      t.equal(res.payload, 'hello')
+    } catch (err) {
+      t.fail(err)
     }
   })
 }
