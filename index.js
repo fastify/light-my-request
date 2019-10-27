@@ -6,6 +6,7 @@ const Ajv = require('ajv')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
+const errorMessage = 'The dispatch function has already been invoked'
 const urlSchema = {
   oneOf: [
     { type: 'string' },
@@ -119,7 +120,7 @@ const httpMethods = [
 httpMethods.forEach(method => {
   Chain.prototype[method] = function (url) {
     if (this._hasInvoked === true || this._promise) {
-      throwIfAlreadyInvoked()
+      throw new Error(errorMessage)
     }
     this.option.url = url
     this.option.method = method.toUpperCase()
@@ -137,7 +138,7 @@ const chainMethods = [
 chainMethods.forEach(method => {
   Chain.prototype[method] = function (value) {
     if (this._hasInvoked === true || this._promise) {
-      throwIfAlreadyInvoked()
+      throw new Error(errorMessage)
     }
     this.option[method] = value
     return this
@@ -146,7 +147,7 @@ chainMethods.forEach(method => {
 
 Chain.prototype.end = function (callback) {
   if (this._hasInvoked === true || this._promise) {
-    throwIfAlreadyInvoked()
+    throw new Error(errorMessage)
   }
   this._hasInvoked = true
   if (typeof callback === 'function') {
@@ -162,7 +163,7 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
   Chain.prototype[method] = function (...args) {
     if (!this._promise) {
       if (this._hasInvoked === true) {
-        throwIfAlreadyInvoked()
+        throw new Error(errorMessage)
       }
       this._promise = doInject(this.dispatch, this.option)
       this._hasInvoked = true
@@ -176,10 +177,6 @@ function isInjection (obj) {
 }
 
 function toLowerCase (m) { return m.toLowerCase() }
-
-function throwIfAlreadyInvoked () {
-  throw new Error('The dispatch function has already been invoked')
-}
 
 module.exports = inject
 module.exports.isInjection = isInjection
