@@ -1198,6 +1198,20 @@ test('chainable api: invoking end method multiple times should throw', (t) => {
   t.throws(() => chain.end(), Error)
 })
 
+test('chainable api: string url', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+    t.pass()
+  }
+
+  const chain = inject(dispatch, 'http://example.com:8080/hello')
+
+  chain.then(() => t.pass())
+})
+
 test('Response.json() should parse the JSON payload', (t) => {
   t.plan(2)
 
