@@ -100,9 +100,11 @@ function doInject (dispatchFunc, options, callback) {
 
 function Chain (dispatch, option) {
   if (typeof option === 'string') {
-    option = { url: option }
+    this.option = { url: option }
+  } else {
+    this.option = Object.assign({}, option)
   }
-  this.option = Object.assign({}, option)
+
   this.dispatch = dispatch
   this._hasInvoked = false
   this._promise = null
