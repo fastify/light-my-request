@@ -157,6 +157,8 @@ Injects a fake request into an HTTP server.
     - `close` - whether the request will emit a `close` event. Defaults to `undefined`, meaning no `close` event will be emitted.
   - `validate` - Optional flag to validate this options object. Defaults to `true`.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
+  - `autoStart` - Automatically start the request as soon as the method
+    is called. It is only valid when not passing a callback. Defaults to `true`.
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:

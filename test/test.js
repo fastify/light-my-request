@@ -1264,6 +1264,43 @@ test('Response.json() should throw an error if the payload is not of valid JSON 
   })
 })
 
+test('promise api should auto start (fire and forget)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    t.pass('dispatch called')
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  inject(dispatch, 'http://example.com:8080/hello')
+})
+
+test('disabling autostart', (t) => {
+  t.plan(3)
+
+  let called = false
+
+  function dispatch (req, res) {
+    t.pass('dispatch called')
+    called = true
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const p = inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    autoStart: false
+  })
+
+  setImmediate(() => {
+    t.equal(called, false)
+    p.then(() => {
+      t.equal(called, true)
+    })
+  })
+})
+
 function getTestStream (encoding) {
   const word = 'hi'
   let i = 0
