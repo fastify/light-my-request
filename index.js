@@ -109,6 +109,14 @@ function Chain (dispatch, option) {
   this.dispatch = dispatch
   this._hasInvoked = false
   this._promise = null
+
+  if (this.option.autoStart !== false) {
+    process.nextTick(() => {
+      if (!this._hasInvoked) {
+        this.end()
+      }
+    })
+  }
 }
 
 const httpMethods = [
@@ -170,8 +178,8 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
       if (this._hasInvoked === true) {
         throw new Error(errorMessage)
       }
-      this._promise = doInject(this.dispatch, this.option)
       this._hasInvoked = true
+      this._promise = doInject(this.dispatch, this.option)
     }
     return this._promise[method](...args)
   }
