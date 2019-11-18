@@ -75,9 +75,6 @@ function inject (dispatchFunc, options, callback) {
 function doInject (dispatchFunc, options, callback) {
   options = (typeof options === 'string' ? { url: options } : options)
 
-  let express = false;
-  ({ express, ...options } = options)
-
   if (options.validate !== false) {
     assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
     const isOptionValid = optsValidator(options)
@@ -86,6 +83,7 @@ function doInject (dispatchFunc, options, callback) {
     }
   }
 
+  const express = options.express
   const server = options.server || {}
 
   if (typeof callback === 'function') {
