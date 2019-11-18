@@ -4,8 +4,8 @@ const test = t.test
 const Request = require('../lib/request')
 const Response = require('../lib/response')
 
-test('proto methods are frozen', (t) => {
-  t.plan(2)
+test('fixProto freezes proto methods', (t) => {
+  t.plan(5)
 
   const opts = {
     path: '/dummy',
@@ -15,6 +15,7 @@ test('proto methods are frozen', (t) => {
 
   const req = new Request(opts)
   const res = new Response(req, cb)
+  res.fixProto()
 
   const { write, end, writeHead, destroy, addTrailers } = res
 

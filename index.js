@@ -74,6 +74,9 @@ function inject (dispatchFunc, options, callback) {
 function doInject (dispatchFunc, options, callback) {
   options = (typeof options === 'string' ? { url: options } : options)
 
+  let express = false;
+  ({ express, ...options } = options)
+
   if (options.validate !== false) {
     assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
     const isOptionValid = optsValidator(options)
@@ -87,12 +90,14 @@ function doInject (dispatchFunc, options, callback) {
   if (typeof callback === 'function') {
     const req = new Request(options)
     const res = new Response(req, callback)
+    if (express) res.fixProto()
 
     return req.prepare(() => dispatchFunc.call(server, req, res))
   } else {
     return new Promise((resolve, reject) => {
       const req = new Request(options)
       const res = new Response(req, resolve, reject)
+      if (express) res.fixProto()
 
       req.prepare(() => dispatchFunc.call(server, req, res))
     })
