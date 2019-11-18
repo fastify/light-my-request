@@ -1,5 +1,5 @@
 /**
- * This is needed for express as it replaces our res's proto.
+ * This is needed for express as it replaces our prototype.
  * https://github.com/expressjs/express/blob/master/lib/middleware/init.js#L36
  * Which is why we loose our overridden prototype methods.
  * This function ensures that those remain intact.
