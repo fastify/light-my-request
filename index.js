@@ -5,6 +5,7 @@ const http = require('http')
 const Ajv = require('ajv')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
+const fixProto = require('./util')
 
 const errorMessage = 'The dispatch function has already been invoked'
 const urlSchema = {
@@ -90,14 +91,22 @@ function doInject (dispatchFunc, options, callback) {
   if (typeof callback === 'function') {
     const req = new Request(options)
     const res = new Response(req, callback)
-    if (express) res.fixProto()
+
+    if (express) {
+      fixProto(req)
+      fixProto(res)
+    }
 
     return req.prepare(() => dispatchFunc.call(server, req, res))
   } else {
     return new Promise((resolve, reject) => {
       const req = new Request(options)
       const res = new Response(req, resolve, reject)
-      if (express) res.fixProto()
+
+      if (express) {
+        fixProto(req)
+        fixProto(res)
+      }
 
       req.prepare(() => dispatchFunc.call(server, req, res))
     })
