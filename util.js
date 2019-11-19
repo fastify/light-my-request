@@ -6,7 +6,7 @@
  *
  * @param instance
  */
-function fixProto (instance) {
+function freezeProto (instance) {
   Object.keys(Object.getPrototypeOf(instance)).forEach((method) => {
     Object.defineProperty(instance, method, {
       writable: false,
@@ -17,4 +17,4 @@ function fixProto (instance) {
   })
 }
 
-module.exports = fixProto
+module.exports = freezeProto
