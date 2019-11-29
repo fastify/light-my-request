@@ -4,8 +4,8 @@
 
 [![Build Status](https://travis-ci.org/fastify/light-my-request.svg?branch=master)](https://travis-ci.org/fastify/light-my-request) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
-Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.
-Does not use a socket connection so can be run against an inactive server (server not in listen mode).
+Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.  
+Does not use a socket connection so can be run against an inactive server (server not in listen mode).  
 
 ## Example
 
@@ -131,26 +131,6 @@ The declaration file exports types for the following parts of the API:
 - `Request` - custom light-my-request `request` object interface. Extends Node.js `stream.Readable` type
 - `Response` - custom light-my-request `response` object interface. Extends Node.js `http.ServerResponse` type
 
-### Example with Express
-
-```javascript
-const http = require('http')
-const inject = require('light-my-request')
-
-const dispatch = function (req, res) {
-  const reply = 'Hello World'
-  res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length })
-  res.end(reply)
-}
-
-const server = http.createServer(dispatch)
-
-inject(dispatch, { method: 'get', url: '/', express: true }, (err, res) => {
-  console.log(res.payload)
-})
-```
-Note the `express: true` in the above example. This flag makes sure that we still get the correct behaviour with express framework.
-
 ## API
 
 #### `inject(dispatchFunc[, options, callback])`
@@ -179,7 +159,6 @@ Injects a fake request into an HTTP server.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
   - `autoStart` - Automatically start the request as soon as the method
     is called. It is only valid when not passing a callback. Defaults to `true`.
-  - `express` - A boolean flag to enable working with express framework. By default express doesn't support request injection, this enforces.
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:
@@ -246,8 +225,8 @@ inject(dispatch)
 Note: The application would not respond multiple times. If you try to invoking any method after the application has responded, the application would throw an error.
 
 ## Acknowledgements
-This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.
-All the credits before the commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) goes to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).
+This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  
+All the credits before the commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) goes to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).  
 Since the commit [db8bced](https://github.com/fastify/light-my-request/commit/db8bced10b4367731688c8738621d42f39680efc) the project will be maintained by the Fastify team.
 
 ## License
