@@ -847,6 +847,26 @@ test('should handle response errors (promises)', (t) => {
     .catch(err => t.ok(err))
 })
 
+test('should handle response timeout handler', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    const handle = setTimeout(() => {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end('incorrect')
+    }, 200)
+    res.setTimeout(100, () => {
+      clearTimeout(handle)
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end('correct')
+    })
+  }
+
+  inject(dispatch, { method: 'GET', url: '/test' }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'correct')
+  })
+})
+
 test('should throw on unknown HTTP method', (t) => {
   t.plan(1)
   const dispatch = function (req, res) { }
