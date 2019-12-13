@@ -848,7 +848,7 @@ test('should handle response errors (promises)', (t) => {
 })
 
 test('should handle response timeout handler', (t) => {
-  t.plan(2)
+  t.plan(3)
   const dispatch = function (req, res) {
     const handle = setTimeout(() => {
       res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -859,8 +859,10 @@ test('should handle response timeout handler', (t) => {
       res.writeHead(200, { 'Content-Type': 'text/plain' })
       res.end('correct')
     })
+    res.socket.on('timeout', () => {
+      t.ok(true, 'Socket timeout event not emitted')
+    })
   }
-
   inject(dispatch, { method: 'GET', url: '/test' }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'correct')
