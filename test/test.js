@@ -859,8 +859,8 @@ test('should handle response timeout handler', (t) => {
       res.writeHead(200, { 'Content-Type': 'text/plain' })
       res.end('correct')
     })
-    res.socket.on('timeout', () => {
-      t.ok(true, 'Socket timeout event not emitted')
+    res.on('timeout', () => {
+      t.ok(true, 'Response timeout event not emitted')
     })
   }
   inject(dispatch, { method: 'GET', url: '/test' }, (err, res) => {
