@@ -147,6 +147,7 @@ httpMethods.forEach(method => {
 
 const chainMethods = [
   'body',
+  'cookies',
   'headers',
   'payload',
   'query'

@@ -1046,6 +1046,24 @@ test('chainable api: body method should work correctly', (t) => {
     })
 })
 
+test('chainable api: cookie', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .body('test')
+    .cookies({ hello: 'world', fastify: 'rulez' })
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.body, 'hello=world; fastify=rulez')
+    })
+})
+
 test('chainable api: body method should throw if already invoked', (t) => {
   t.plan(1)
 
