@@ -31,6 +31,10 @@ const schema = {
   properties: {
     url: urlSchema,
     path: urlSchema,
+    cookies: {
+      type: 'object',
+      additionalProperties: true
+    },
     headers: {
       type: 'object',
       additionalProperties: true

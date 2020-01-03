@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "ajv": "^6.10.2",
+    "cookie": "^0.4.0",
     "readable-stream": "^3.4.0"
   },
   "types": "index.d.ts",
