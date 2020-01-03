@@ -1363,3 +1363,34 @@ test('send cookie', (t) => {
     t.equal(res.rawPayload.toString(), 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
   })
 })
+
+test('read cookie', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.setHeader('Set-Cookie', [
+      'type=ninja',
+      'dev=me; Expires=Fri, 17 Jan 2020 20:26:08 -0000; Max-Age=1234; Domain=.home.com; Path=/wow; Secure; HttpOnly; SameSite=Strict'
+    ])
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|foo=bar')
+    t.deepEqual(res.cookies(), [
+      { name: 'type', value: 'ninja' },
+      {
+        name: 'dev',
+        value: 'me',
+        expires: new Date('Fri, 17 Jan 2020 20:26:08 -0000'),
+        maxAge: 1234,
+        domain: '.home.com',
+        path: '/wow',
+        secure: true,
+        httpOnly: true,
+        sameSite: 'Strict'
+      }
+    ])
+  })
+})

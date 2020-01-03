@@ -6,7 +6,8 @@
   "dependencies": {
     "ajv": "^6.10.2",
     "cookie": "^0.4.0",
-    "readable-stream": "^3.4.0"
+    "readable-stream": "^3.4.0",
+    "set-cookie-parser": "^2.4.1"
   },
   "types": "index.d.ts",
   "devDependencies": {
