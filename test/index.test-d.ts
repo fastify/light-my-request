@@ -19,7 +19,7 @@ inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   expectType<Response>(res)
   console.log(res.payload)
   expectType<Function>(res.json)
-  expectType<Function>(res.cookies)
+  console.log(res.cookies)
 })
 
 inject(dispatch)

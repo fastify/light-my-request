@@ -1414,7 +1414,7 @@ test('read cookie', (t) => {
   inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'example.com:8080|foo=bar')
-    t.deepEqual(res.cookies(), [
+    t.deepEqual(res.cookies, [
       { name: 'type', value: 'ninja' },
       {
         name: 'dev',

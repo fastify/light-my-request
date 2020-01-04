@@ -174,7 +174,7 @@ Injects a fake request into an HTTP server.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
     - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
-    - `cookies` - a function that parses the `set-cookie` response header and will return an array with all the cookies and their metadata.
+    - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
 Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
 

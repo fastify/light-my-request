@@ -79,7 +79,7 @@ declare namespace LightMyRequest {
     payload: string
     body: string
     json: () => object
-    cookies: () => Array<object>
+    cookies: Array<object>
   }
 
   interface Chain {
