@@ -146,7 +146,7 @@ Injects a fake request into an HTTP server.
   - `authority` - a string specifying the HTTP HOST header value to be used if no header is provided, and the `url`
     does not include an authority component. Defaults to `'localhost'`.
   - `headers` - an optional object containing request headers.
-  - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header.
+  - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header. If the header is already set, the data will be appended.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
   - `payload` - an optional request payload. Can be a string, Buffer, Stream or object. If the payload is string, Buffer or Stream is used as is as the request payload. Oherwise it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`
   - `query` - an optional object containing query parameters.

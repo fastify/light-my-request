@@ -1382,6 +1382,24 @@ test('send cookie', (t) => {
   })
 })
 
+test('send cookie with header already set', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    headers: { cookie: 'custom=one' },
+    cookies: { foo: 'bar', grass: 'àìùòlé' }
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+  })
+})
+
 test('read cookie', (t) => {
   t.plan(3)
   const dispatch = function (req, res) {
