@@ -79,6 +79,7 @@ declare namespace LightMyRequest {
     payload: string
     body: string
     json: () => object
+    cookies: Array<object>
   }
 
   interface Chain {
@@ -94,6 +95,7 @@ declare namespace LightMyRequest {
     headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
     payload: (payload: InjectPayload) => Chain
     query: (query: object) => Chain
+    cookies: (query: object) => Chain
     end: (callback?: CallbackFunc) => Chain | Promise<Response>
   }
 }

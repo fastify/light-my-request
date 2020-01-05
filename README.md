@@ -1,8 +1,8 @@
 # Light my Request
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/fastify/light-my-request.svg)](https://greenkeeper.io/)
-
-[![Build Status](https://travis-ci.org/fastify/light-my-request.svg?branch=master)](https://travis-ci.org/fastify/light-my-request) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
+[![Build Status](https://travis-ci.org/fastify/light-my-request.svg?branch=master)](https://travis-ci.org/fastify/light-my-request)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.  
 Does not use a socket connection so can be run against an inactive server (server not in listen mode).  
@@ -146,6 +146,7 @@ Injects a fake request into an HTTP server.
   - `authority` - a string specifying the HTTP HOST header value to be used if no header is provided, and the `url`
     does not include an authority component. Defaults to `'localhost'`.
   - `headers` - an optional object containing request headers.
+  - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header. If the header is already set, the data will be appended.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
   - `payload` - an optional request payload. Can be a string, Buffer, Stream or object. If the payload is string, Buffer or Stream is used as is as the request payload. Oherwise it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`
   - `query` - an optional object containing query parameters.
@@ -173,6 +174,7 @@ Injects a fake request into an HTTP server.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
     - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
+    - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
 Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
 
@@ -184,7 +186,7 @@ Checks if given object `obj` is a *light-my-request* `Request` object.
 
 There are following methods you can used as chaining:
 - `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and also the request URL.
-- `body`, `headers`, `payload`, `query`. They can be used to set the request options object.
+- `body`, `headers`, `payload`, `query`, `cookies`. They can be used to set the request options object.
 
 And finally you need to call `end`. It has the signature `function (callback)`.
 If you invoke `end` without a callback function, the method will return a promise, thus you can:

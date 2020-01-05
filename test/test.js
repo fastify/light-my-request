@@ -1046,6 +1046,24 @@ test('chainable api: body method should work correctly', (t) => {
     })
 })
 
+test('chainable api: cookie', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .body('test')
+    .cookies({ hello: 'world', fastify: 'rulez' })
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.body, 'hello=world; fastify=rulez')
+    })
+})
+
 test('chainable api: body method should throw if already invoked', (t) => {
   t.plan(1)
 
@@ -1349,3 +1367,66 @@ function readStream (stream, callback) {
     return callback(Buffer.concat(chunks))
   })
 }
+
+test('send cookie', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar', grass: 'àìùòlé' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+  })
+})
+
+test('send cookie with header already set', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    headers: { cookie: 'custom=one' },
+    cookies: { foo: 'bar', grass: 'àìùòlé' }
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+  })
+})
+
+test('read cookie', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.setHeader('Set-Cookie', [
+      'type=ninja',
+      'dev=me; Expires=Fri, 17 Jan 2020 20:26:08 -0000; Max-Age=1234; Domain=.home.com; Path=/wow; Secure; HttpOnly; SameSite=Strict'
+    ])
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|foo=bar')
+    t.deepEqual(res.cookies, [
+      { name: 'type', value: 'ninja' },
+      {
+        name: 'dev',
+        value: 'me',
+        expires: new Date('Fri, 17 Jan 2020 20:26:08 -0000'),
+        maxAge: 1234,
+        domain: '.home.com',
+        path: '/wow',
+        secure: true,
+        httpOnly: true,
+        sameSite: 'Strict'
+      }
+    ])
+  })
+})
