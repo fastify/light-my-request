@@ -37,7 +37,9 @@ const schema = {
     },
     headers: {
       type: 'object',
-      additionalProperties: true
+      additionalProperties: {
+        type: 'string'
+      }
     },
     query: {
       type: 'object',

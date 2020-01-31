@@ -761,6 +761,15 @@ test('errors for missing url', (t) => {
   }
 })
 
+test('errors for invalid headers', (t) => {
+  t.plan(1)
+  try {
+    inject((req, res) => {}, { url: '/', headers: { 'not-a-string': 12 } }, () => {})
+  } catch (err) {
+    t.ok(err)
+  }
+})
+
 test('errors for an incorrect simulation object', (t) => {
   t.plan(1)
   try {
