@@ -1446,7 +1446,9 @@ test('correctly handles no string headers', (t) => {
     string: 'string',
     object: { foo: 'bar' },
     array: [1, 'two', 3],
-    date
+    date,
+    true: true,
+    false: false
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
@@ -1459,6 +1461,8 @@ test('correctly handles no string headers', (t) => {
       object: '[object Object]',
       array: '1,two,3',
       date: date.toString(),
+      true: 'true',
+      false: 'false',
       host: 'example.com:8080',
       'user-agent': 'lightMyRequest'
     })
