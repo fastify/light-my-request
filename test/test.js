@@ -761,15 +761,6 @@ test('errors for missing url', (t) => {
   }
 })
 
-test('errors for invalid headers', (t) => {
-  t.plan(1)
-  try {
-    inject((req, res) => {}, { url: '/', headers: { 'not-a-string': 12 } }, () => {})
-  } catch (err) {
-    t.ok(err)
-  }
-})
-
 test('errors for an incorrect simulation object', (t) => {
   t.plan(1)
   try {
@@ -1438,4 +1429,47 @@ test('read cookie', (t) => {
       }
     ])
   })
+})
+
+test('correctly handles no string headers', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify(req.headers))
+  }
+
+  const date = new Date(0)
+  const headers = {
+    integer: 12,
+    float: 3.14,
+    null: null,
+    string: 'string',
+    object: { foo: 'bar' },
+    array: [1, 'two', 3],
+    date
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
+    t.error(err)
+    t.deepEqual(JSON.parse(res.payload), {
+      integer: '12',
+      float: '3.14',
+      null: 'null',
+      string: 'string',
+      object: '[object Object]',
+      array: '1,two,3',
+      date: date.toString(),
+      host: 'example.com:8080',
+      'user-agent': 'lightMyRequest'
+    })
+  })
+})
+
+test('errors for invalid undefined header value', (t) => {
+  t.plan(1)
+  try {
+    inject((req, res) => {}, { url: '/', headers: { 'header-key': undefined } }, () => {})
+  } catch (err) {
+    t.ok(err)
+  }
 })
