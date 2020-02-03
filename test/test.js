@@ -1430,3 +1430,50 @@ test('read cookie', (t) => {
     ])
   })
 })
+
+test('correctly handles no string headers', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify(req.headers))
+  }
+
+  const date = new Date(0)
+  const headers = {
+    integer: 12,
+    float: 3.14,
+    null: null,
+    string: 'string',
+    object: { foo: 'bar' },
+    array: [1, 'two', 3],
+    date,
+    true: true,
+    false: false
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
+    t.error(err)
+    t.deepEqual(JSON.parse(res.payload), {
+      integer: '12',
+      float: '3.14',
+      null: 'null',
+      string: 'string',
+      object: '[object Object]',
+      array: '1,two,3',
+      date: date.toString(),
+      true: 'true',
+      false: 'false',
+      host: 'example.com:8080',
+      'user-agent': 'lightMyRequest'
+    })
+  })
+})
+
+test('errors for invalid undefined header value', (t) => {
+  t.plan(1)
+  try {
+    inject((req, res) => {}, { url: '/', headers: { 'header-key': undefined } }, () => {})
+  } catch (err) {
+    t.ok(err)
+  }
+})
