@@ -34,7 +34,7 @@ declare namespace LightMyRequest {
       protocal?: string
       hostname?: string
       port?: string | number
-      query?: string
+      query?: string | any
     }
     path?: string | {
       pathname: string
@@ -44,7 +44,7 @@ declare namespace LightMyRequest {
       query?: string
     }
     headers?: http.IncomingHttpHeaders | http.OutgoingHttpHeaders
-    query?: string
+    query?: string | any
     simulate?: {
       end: boolean,
       split: boolean,
