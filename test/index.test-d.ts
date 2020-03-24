@@ -30,6 +30,14 @@ inject(dispatch, { method: 'get', url: '/', cookies: { name1: 'value1', value2: 
   console.log(res.cookies)
 })
 
+inject(dispatch, { method: 'get', url: '/', query: { name1: 'value1', value2: 'value2' } }, (err, res) => {
+  expectType<Error>(err)
+  expectType<Response>(res)
+  console.log(res.payload)
+  expectType<Function>(res.json)
+  console.log(res.cookies)
+})
+
 inject(dispatch)
   .get('/')
   .end((err, res) => {
