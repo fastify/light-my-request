@@ -34,17 +34,17 @@ declare namespace LightMyRequest {
       protocal?: string
       hostname?: string
       port?: string | number
-      query?: string | any
+      query?: string | { [k: string]: string }
     }
     path?: string | {
       pathname: string
       protocal?: string
       hostname?: string
       port?: string | number
-      query?: string
+      query?: string | { [k: string]: string }
     }
     headers?: http.IncomingHttpHeaders | http.OutgoingHttpHeaders
-    query?: string | any
+    query?: string | { [k: string]: string }
     simulate?: {
       end: boolean,
       split: boolean,
