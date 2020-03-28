@@ -1,20 +1,22 @@
 {
   "name": "light-my-request",
-  "version": "3.5.0",
+  "version": "3.7.4",
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
     "ajv": "^6.10.2",
-    "readable-stream": "^3.4.0"
+    "cookie": "^0.4.0",
+    "readable-stream": "^3.4.0",
+    "set-cookie-parser": "^2.4.1"
   },
   "types": "index.d.ts",
   "devDependencies": {
-    "@types/node": "^11.13.22",
-    "form-data": "^2.5.1",
+    "@types/node": "^13.1.0",
+    "form-data": "^3.0.0",
     "pre-commit": "^1.2.2",
     "standard": "^14.0.2",
     "tap": "^12.6.6",
-    "tsd": "^0.7.4"
+    "tsd": "^0.8.0"
   },
   "scripts": {
     "test": "npm run lint && npm run unit && npm run tsd",

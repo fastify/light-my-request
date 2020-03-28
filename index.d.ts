@@ -12,15 +12,17 @@ type HTTPMethods = 'DELETE' | 'delete' |
 declare namespace LightMyRequest {
   function inject (
     dispatchFunc: DispatchFunc,
-    options: string | InjectOptions
-  ): Promise<Response>
+    options?: string | InjectOptions
+  ): Chain
   function inject (
     dispatchFunc: DispatchFunc,
     options: string | InjectOptions,
-    callback: (err: Error, response: Response) => void
+    callback: CallbackFunc
   ): void
 
   type DispatchFunc = (req: Request, res: Response) => void
+
+  type CallbackFunc = (err: Error, response: Response) => void
 
   type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
@@ -32,17 +34,17 @@ declare namespace LightMyRequest {
       protocal?: string
       hostname?: string
       port?: string | number
-      query?: string
+      query?: string | { [k: string]: string | string[] }
     }
     path?: string | {
       pathname: string
       protocal?: string
       hostname?: string
       port?: string | number
-      query?: string
+      query?: string | { [k: string]: string | string[] }
     }
     headers?: http.IncomingHttpHeaders | http.OutgoingHttpHeaders
-    query?: string
+    query?: string | { [k: string]: string | string[] }
     simulate?: {
       end: boolean,
       split: boolean,
@@ -55,6 +57,7 @@ declare namespace LightMyRequest {
     validate?: boolean
     payload?: InjectPayload
     server?: http.Server
+    cookies?: { [k: string]: string }
   }
 
   interface Request extends stream.Readable {
@@ -76,7 +79,25 @@ declare namespace LightMyRequest {
     trailers: { [key: string]: string }
     payload: string
     body: string
-    addTrailers: (trailers: { [key: string]: string }) => void
+    json: () => object
+    cookies: Array<object>
+  }
+
+  interface Chain {
+    delete: (url: string) => Chain
+    get: (url: string) => Chain
+    head: (url: string) => Chain
+    options: (url: string) => Chain
+    patch: (url: string) => Chain
+    post: (url: string) => Chain
+    put: (url: string) => Chain
+    trace: (url: string) => Chain
+    body: (body: InjectPayload) => Chain
+    headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
+    payload: (payload: InjectPayload) => Chain
+    query: (query: object) => Chain
+    cookies: (query: object) => Chain
+    end: (callback?: CallbackFunc) => Chain | Promise<Response>
   }
 }
 

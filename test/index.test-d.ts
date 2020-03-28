@@ -1,4 +1,4 @@
-import { inject, isInjection, Request, Response, DispatchFunc, InjectOptions } from '../index'
+import { inject, isInjection, Request, Response, DispatchFunc, InjectOptions, Chain } from '../index'
 import { expectType } from 'tsd'
 
 expectType<InjectOptions>({ url: '/' })
@@ -18,8 +18,43 @@ inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
+  expectType<Function>(res.json)
+  console.log(res.cookies)
 })
 
-expectType<Promise<Response>>(inject(dispatch, { method: 'get', url: '/' }))
+inject(dispatch, { method: 'get', url: '/', cookies: { name1: 'value1', value2: 'value2' } }, (err, res) => {
+  expectType<Error>(err)
+  expectType<Response>(res)
+  console.log(res.payload)
+  expectType<Function>(res.json)
+  console.log(res.cookies)
+})
+
+inject(dispatch, { method: 'get', url: '/', query: { name1: 'value1', value2: 'value2' } }, (err, res) => {
+  expectType<Error>(err)
+  expectType<Response>(res)
+  console.log(res.payload)
+  expectType<Function>(res.json)
+  console.log(res.cookies)
+})
+
+inject(dispatch, { method: 'get', url: '/', query: { name1: ['value1', 'value2'] } }, (err, res) => {
+  expectType<Error>(err)
+  expectType<Response>(res)
+  console.log(res.payload)
+  expectType<Function>(res.json)
+  console.log(res.cookies)
+})
+
+inject(dispatch)
+  .get('/')
+  .end((err, res) => {
+    expectType<Error>(err)
+    expectType<Response>(res)
+    console.log(res.payload)
+  })
+
+expectType<Chain>(inject(dispatch))
+expectType<Chain>(inject(dispatch, { method: 'get', url: '/' }))
 // @ts-ignore tsd supports top-level await, but normal ts does not so ignore
 expectType<Response>(await inject(dispatch, { method: 'get', url: '/' }))

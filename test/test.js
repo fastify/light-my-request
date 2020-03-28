@@ -13,6 +13,17 @@ const parseURL = require('../lib/parseURL')
 
 const FormData = require('form-data')
 
+const httpMethods = [
+  'delete',
+  'get',
+  'head',
+  'options',
+  'patch',
+  'post',
+  'put',
+  'trace'
+]
+
 test('returns non-chunked payload', (t) => {
   t.plan(7)
   const output = 'example.com:8080|/hello'
@@ -836,11 +847,43 @@ test('should handle response errors (promises)', (t) => {
     .catch(err => t.ok(err))
 })
 
+test('should handle response timeout handler', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    const handle = setTimeout(() => {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end('incorrect')
+    }, 200)
+    res.setTimeout(100, () => {
+      clearTimeout(handle)
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end('correct')
+    })
+    res.on('timeout', () => {
+      t.ok(true, 'Response timeout event not emitted')
+    })
+  }
+  inject(dispatch, { method: 'GET', url: '/test' }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'correct')
+  })
+})
+
 test('should throw on unknown HTTP method', (t) => {
   t.plan(1)
   const dispatch = function (req, res) { }
 
-  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }), Error)
+  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.ok(err)
+  }), Error)
+})
+
+test('should throw on unknown HTTP method (promises)', (t) => {
+  t.plan(1)
+  const dispatch = function (req, res) { }
+
+  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' })
+    .then(res => {}), Error)
 })
 
 test('HTTP method is case insensitive', (t) => {
@@ -909,6 +952,306 @@ test('Should throw if both path and url are missing', (t) => {
   }
 })
 
+test('chainable api: backwards compatibility for promise (then)', (t) => {
+  t.plan(1)
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('/')
+    .then(res => t.equal(res.payload, 'hello'))
+    .catch(err => t.fail(err))
+})
+
+test('chainable api: backwards compatibility for promise (catch)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    throw Error
+  }
+
+  inject(dispatch)
+    .get('/')
+    .catch(err => t.ok(err))
+})
+
+test('chainable api: multiple call of then should return the same promise', (t) => {
+  t.plan(2)
+  let id = 0
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain', 'Request-Id': id })
+    ++id
+    t.pass('request id incremented')
+    res.end('hello')
+  }
+
+  const chain = inject(dispatch).get('/')
+  chain.then(res => {
+    chain.then(rep => {
+      t.equal(res.headers['request-id'], rep.headers['request-id'])
+    })
+  })
+})
+
+test('chainable api: http methods should work correctly', (t) => {
+  t.plan(16)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.method)
+  }
+
+  httpMethods.forEach(method => {
+    inject(dispatch)[method]('http://example.com:8080/hello')
+      .end((err, res) => {
+        t.error(err)
+        t.equal(res.body, method.toUpperCase())
+      })
+  })
+})
+
+test('chainable api: http methods should throw if already invoked', (t) => {
+  t.plan(8)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  httpMethods.forEach(method => {
+    const chain = inject(dispatch)[method]('http://example.com:8080/hello')
+    chain.end()
+    t.throws(() => chain[method]('/'), Error)
+  })
+})
+
+test('chainable api: body method should work correctly', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    req.pipe(res)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .body('test')
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.body, 'test')
+    })
+})
+
+test('chainable api: cookie', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .body('test')
+    .cookies({ hello: 'world', fastify: 'rulez' })
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.body, 'hello=world; fastify=rulez')
+    })
+})
+
+test('chainable api: body method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.body('test'), Error)
+})
+
+test('chainable api: headers method should work correctly', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.foo)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .headers({ foo: 'bar' })
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.payload, 'bar')
+    })
+})
+
+test('chainable api: headers method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.headers({ foo: 'bar' }), Error)
+})
+
+test('chainable api: payload method should work correctly', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    req.pipe(res)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .payload('payload')
+    .end((err, res) => {
+      t.error(err)
+      t.equal(res.payload, 'payload')
+    })
+})
+
+test('chainable api: payload method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.payload('payload'), Error)
+})
+
+test('chainable api: query method should work correctly', (t) => {
+  t.plan(2)
+
+  const query = {
+    message: 'OK',
+    xs: ['foo', 'bar']
+  }
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.url)
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .query(query)
+    .end((err, res) => {
+      t.error(err)
+      t.deepEqual(parseQuery(res.payload), query)
+    })
+})
+
+test('chainable api: query method should throw if already invoked', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch)
+  chain
+    .get('http://example.com:8080/hello')
+    .end()
+  t.throws(() => chain.query({ foo: 'bar' }), Error)
+})
+
+test('chainable api: invoking end method after promise method should throw', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch).get('http://example.com:8080/hello')
+
+  chain.then()
+  t.throws(() => chain.end(), Error)
+})
+
+test('chainable api: invoking promise method after end method with a callback function should throw', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch).get('http://example.com:8080/hello')
+
+  chain.end((err, res) => {
+    t.error(err)
+  })
+  t.throws(() => chain.then(), Error)
+})
+
+test('chainable api: invoking promise method after end method without a callback function should work properly', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('http://example.com:8080/hello')
+    .end()
+    .then(res => t.equal(res.payload, 'hello'))
+})
+
+test('chainable api: invoking end method multiple times should throw', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const chain = inject(dispatch).get('http://example.com:8080/hello')
+
+  chain.end()
+  t.throws(() => chain.end(), Error)
+})
+
+test('chainable api: string url', (t) => {
+  t.plan(2)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+    t.pass()
+  }
+
+  const chain = inject(dispatch, 'http://example.com:8080/hello')
+
+  chain.then(() => t.pass())
+})
+
 test('Response.json() should parse the JSON payload', (t) => {
   t.plan(2)
 
@@ -961,6 +1304,43 @@ test('Response.json() should throw an error if the payload is not of valid JSON 
   })
 })
 
+test('promise api should auto start (fire and forget)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    t.pass('dispatch called')
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  inject(dispatch, 'http://example.com:8080/hello')
+})
+
+test('disabling autostart', (t) => {
+  t.plan(3)
+
+  let called = false
+
+  function dispatch (req, res) {
+    t.pass('dispatch called')
+    called = true
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end()
+  }
+
+  const p = inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    autoStart: false
+  })
+
+  setImmediate(() => {
+    t.equal(called, false)
+    p.then(() => {
+      t.equal(called, true)
+    })
+  })
+})
+
 function getTestStream (encoding) {
   const word = 'hi'
   let i = 0
@@ -987,3 +1367,113 @@ function readStream (stream, callback) {
     return callback(Buffer.concat(chunks))
   })
 }
+
+test('send cookie', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar', grass: 'àìùòlé' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+  })
+})
+
+test('send cookie with header already set', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    headers: { cookie: 'custom=one' },
+    cookies: { foo: 'bar', grass: 'àìùòlé' }
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+  })
+})
+
+test('read cookie', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.setHeader('Set-Cookie', [
+      'type=ninja',
+      'dev=me; Expires=Fri, 17 Jan 2020 20:26:08 -0000; Max-Age=1234; Domain=.home.com; Path=/wow; Secure; HttpOnly; SameSite=Strict'
+    ])
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.headers.cookie)
+  }
+
+  inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|foo=bar')
+    t.deepEqual(res.cookies, [
+      { name: 'type', value: 'ninja' },
+      {
+        name: 'dev',
+        value: 'me',
+        expires: new Date('Fri, 17 Jan 2020 20:26:08 -0000'),
+        maxAge: 1234,
+        domain: '.home.com',
+        path: '/wow',
+        secure: true,
+        httpOnly: true,
+        sameSite: 'Strict'
+      }
+    ])
+  })
+})
+
+test('correctly handles no string headers', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify(req.headers))
+  }
+
+  const date = new Date(0)
+  const headers = {
+    integer: 12,
+    float: 3.14,
+    null: null,
+    string: 'string',
+    object: { foo: 'bar' },
+    array: [1, 'two', 3],
+    date,
+    true: true,
+    false: false
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
+    t.error(err)
+    t.deepEqual(JSON.parse(res.payload), {
+      integer: '12',
+      float: '3.14',
+      null: 'null',
+      string: 'string',
+      object: '[object Object]',
+      array: '1,two,3',
+      date: date.toString(),
+      true: 'true',
+      false: 'false',
+      host: 'example.com:8080',
+      'user-agent': 'lightMyRequest'
+    })
+  })
+})
+
+test('errors for invalid undefined header value', (t) => {
+  t.plan(1)
+  try {
+    inject((req, res) => {}, { url: '/', headers: { 'header-key': undefined } }, () => {})
+  } catch (err) {
+    t.ok(err)
+  }
+})

@@ -1,6 +1,7 @@
 # Light my Request
 
 [![Build Status](https://travis-ci.org/fastify/light-my-request.svg?branch=master)](https://travis-ci.org/fastify/light-my-request) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.  
 Does not use a socket connection so can be run against an inactive server (server not in listen mode).  
@@ -35,6 +36,36 @@ inject(dispatch, { method: 'get', url: '/' })
 // async-await
 try {
   const res = await inject(dispatch, { method: 'get', url: '/' })
+  console.log(res.payload)
+} catch (err) {
+  console.log(err)
+}
+```
+
+You can also use chaining methods if you do not pass the callback function. Check [here](#method-chaining) for details.
+
+```js
+// chaining methods
+inject(dispatch)
+  .get('/')                   // set the request method to GET, and request URL to '/'
+  .headers({ foo: 'bar' })    // set the request headers
+  .query({ foo: 'bar' })      // set the query parameters
+  .end((err, res) => {
+    console.log(res.payload)
+  })
+
+inject(dispatch)
+  .post('/')                  // set the request method to POST, and request URL to '/'
+  .payload('request payload') // set the request payload
+  .body('request body')       // alias for payload
+  .end((err, res) => {
+    console.log(res.payload)
+  })
+
+// async-await is also supported
+try {
+  const chain = inject(dispatch).get('/')
+  const res = await chain.end()
   console.log(res.payload)
 } catch (err) {
   console.log(err)
@@ -101,7 +132,7 @@ The declaration file exports types for the following parts of the API:
 
 ## API
 
-#### `inject(dispatchFunc, options, callback)`
+#### `inject(dispatchFunc[, options, callback])`
 
 Injects a fake request into an HTTP server.
 
@@ -114,6 +145,7 @@ Injects a fake request into an HTTP server.
   - `authority` - a string specifying the HTTP HOST header value to be used if no header is provided, and the `url`
     does not include an authority component. Defaults to `'localhost'`.
   - `headers` - an optional object containing request headers.
+  - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header. If the header is already set, the data will be appended.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
   - `payload` - an optional request payload. Can be a string, Buffer, Stream or object. If the payload is string, Buffer or Stream is used as is as the request payload. Oherwise it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`
   - `query` - an optional object containing query parameters.
@@ -125,6 +157,8 @@ Injects a fake request into an HTTP server.
     - `close` - whether the request will emit a `close` event. Defaults to `undefined`, meaning no `close` event will be emitted.
   - `validate` - Optional flag to validate this options object. Defaults to `true`.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
+  - `autoStart` - Automatically start the request as soon as the method
+    is called. It is only valid when not passing a callback. Defaults to `true`.
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:
@@ -138,12 +172,58 @@ Injects a fake request into an HTTP server.
     - `body` - alias for payload.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
+    - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
+    - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
 Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
 
 #### `inject.isInjection(obj)`
 
 Checks if given object `obj` is a *light-my-request* `Request` object.
+
+#### Method chaining
+
+There are following methods you can used as chaining:
+- `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and also the request URL.
+- `body`, `headers`, `payload`, `query`, `cookies`. They can be used to set the request options object.
+
+And finally you need to call `end`. It has the signature `function (callback)`.
+If you invoke `end` without a callback function, the method will return a promise, thus you can:
+
+```js
+const chain = inject(dispatch).get('/')
+
+try {
+  const res = await chain.end()
+  console.log(res.payload)
+} catch (err) {
+  // handle error
+}
+
+// or
+chain.end()
+  .then(res => {
+    console.log(res.payload)
+  })
+  .catch(err => {
+    // handle error
+  })
+```
+
+By the way, you can also use promises without calling `end`!
+
+```js
+inject(dispatch)
+  .get('/')
+  .then(res => {
+    console.log(res.payload)
+  })
+  .catch(err => {
+    // handle error
+  })
+```
+
+Note: The application would not respond multiple times. If you try to invoking any method after the application has responded, the application would throw an error.
 
 ## Acknowledgements
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  
