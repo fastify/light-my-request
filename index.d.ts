@@ -31,14 +31,14 @@ declare namespace LightMyRequest {
   interface InjectOptions {
     url?: string | {
       pathname: string
-      protocal?: string
+      protocol?: string
       hostname?: string
       port?: string | number
       query?: string | { [k: string]: string | string[] }
     }
     path?: string | {
       pathname: string
-      protocal?: string
+      protocol?: string
       hostname?: string
       port?: string | number
       query?: string | { [k: string]: string | string[] }
