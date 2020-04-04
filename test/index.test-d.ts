@@ -22,6 +22,23 @@ inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   console.log(res.cookies)
 })
 
+const url = {
+  protocol: 'http',
+  hostname: 'example.com',
+  port: '8080',
+  pathname: 'hello',
+  query: {
+    test: '1234'
+  }
+}
+inject(dispatch, { method: 'get', url }, (err, res) => {
+  expectType<Error>(err)
+  expectType<Response>(res)
+  console.log(res.payload)
+  expectType<Function>(res.json)
+  console.log(res.cookies)
+})
+
 inject(dispatch, { method: 'get', url: '/', cookies: { name1: 'value1', value2: 'value2' } }, (err, res) => {
   expectType<Error>(err)
   expectType<Response>(res)
