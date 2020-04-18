@@ -71,7 +71,9 @@ inject(dispatch)
     console.log(res.payload)
   })
 
+expectType<Chain>(inject())
 expectType<Chain>(inject(dispatch))
 expectType<Chain>(inject(dispatch, { method: 'get', url: '/' }))
 // @ts-ignore tsd supports top-level await, but normal ts does not so ignore
 expectType<Response>(await inject(dispatch, { method: 'get', url: '/' }))
+

@@ -14,6 +14,7 @@ declare namespace LightMyRequest {
     dispatchFunc: DispatchFunc,
     options?: string | InjectOptions
   ): Chain
+  function inject (): Chain
   function inject (
     dispatchFunc: DispatchFunc,
     options: string | InjectOptions,
