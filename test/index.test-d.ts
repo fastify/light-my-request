@@ -75,3 +75,9 @@ expectType<Chain>(inject(dispatch))
 expectType<Chain>(inject(dispatch, { method: 'get', url: '/' }))
 // @ts-ignore tsd supports top-level await, but normal ts does not so ignore
 expectType<Response>(await inject(dispatch, { method: 'get', url: '/' }))
+
+type ParsedValue = { field: string }
+// @ts-ignore tsd supports top-level await, but normal ts does not so ignore
+const response: Response = await inject(dispatch)
+const parsedValue: ParsedValue = response.json()
+expectType<ParsedValue>(parsedValue)
