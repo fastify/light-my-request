@@ -80,7 +80,7 @@ declare namespace LightMyRequest {
     trailers: { [key: string]: string }
     payload: string
     body: string
-    json: () => object
+    json: () => any
     cookies: Array<object>
   }
 
@@ -98,7 +98,7 @@ declare namespace LightMyRequest {
     payload: (payload: InjectPayload) => Chain
     query: (query: object) => Chain
     cookies: (query: object) => Chain
-    end: (callback?: CallbackFunc) => Chain | Promise<Response>
+    end: (callback?: CallbackFunc) => Promise<Response>
   }
 }
 
