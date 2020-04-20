@@ -73,7 +73,7 @@ inject(dispatch)
 
 expectType<Chain>(inject(dispatch))
 expectType<Promise<Response>>(inject(dispatch).end())
-expectType<Chain | Promise<Response>>(
+expectType<Promise<Response>>(
     inject()
         .get('/')
         .headers({ foo: 'bar' })
@@ -91,4 +91,3 @@ type ParsedValue = { field: string }
 const response: Response = await inject(dispatch)
 const parsedValue: ParsedValue = response.json()
 expectType<ParsedValue>(parsedValue)
-
