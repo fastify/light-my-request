@@ -10,7 +10,6 @@ const http = require('http')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
-const multiparty = require('multiparty')
 
 const FormData = require('form-data')
 
@@ -438,47 +437,6 @@ test('echos object payload', (t) => {
     t.error(err)
     t.equal(res.headers['content-type'], 'application/json')
     t.equal(res.payload, '{"a":1}')
-  })
-})
-
-test('form payload', (t) => {
-  t.plan(3)
-  const dispatch = function (req, res) {
-    res.writeHead(200, { 'content-type': req.headers['content-type'] })
-    req.pipe(res)
-  }
-
-  inject(dispatch, { method: 'POST', url: '/test', form: true, payload: { a: 1, b: 'foo', c: '👌' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-type'], 'application/x-www-form-urlencoded')
-    t.equal(res.payload, 'a=1&b=foo&c=%F0%9F%91%8C')
-  })
-})
-
-test('form multipart payload', (t) => {
-  t.plan(5)
-  const dispatch = function (req, res) {
-    const form = new multiparty.Form()
-    form.parse(req, function (err, fields, files) {
-      t.error(err)
-      t.equals(fields.c[0], '👌')
-      t.equals(files.foo[0].originalFilename, 'README.md')
-      res.writeHead(200, { 'content-type': req.headers['content-type'] })
-      res.end('')
-    })
-  }
-
-  inject(dispatch, {
-    method: 'POST',
-    url: '/test',
-    form: true,
-    payload: {
-      c: '👌',
-      foo: fs.createReadStream('./README.md')
-    }
-  }, (err, res) => {
-    t.error(err)
-    t.ok(res.headers['content-type'].startsWith('multipart/form-data;'))
   })
 })
 
