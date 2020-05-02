@@ -55,7 +55,7 @@ const schema = {
     authority: { type: 'string' },
     remoteAddress: { type: 'string' },
     method: { type: 'string', enum: http.METHODS.concat(http.METHODS.map(toLowerCase)) },
-    form: { type: 'boolean' },
+    form: { type: ['boolean'] },
     validate: { type: 'boolean' }
     // payload type => any
   },
