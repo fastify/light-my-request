@@ -1,6 +1,6 @@
 # Light my Request
 
-![Ci Workflow](https://github.com/fastify/light-my-request/workflows/CI%20workflow/badge.svg)
+![CI Workflow](https://github.com/fastify/light-my-request/workflows/CI/badge.svg)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.  
