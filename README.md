@@ -87,8 +87,7 @@ try {
   const res = await inject(dispatch, {
     method: 'post',
     url: '/upload',
-    payload: form.payload,
-    headers: form.headers
+    ...form
   })
   console.log(res.payload)
 } catch (err) {
