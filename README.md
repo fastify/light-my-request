@@ -72,21 +72,22 @@ try {
 }
 ```
 
-File uploads (multipart/form-data) can be achieved by using [form-data](https://github.com/form-data/form-data) package as shown below:
+File uploads (`multipart/form-data`) or form submit (`x-www-form-urlencoded`) can be achieved by using [form-auto-content](https://github.com/Eomm/form-auto-content) package as shown below:
 
 ```js
-const FormData = require('form-data')
+const formAutoContent = require('form-auto-content')
 const fs = require('fs')
 
 try {
-  const form = new FormData()
-  form.append('myfile', fs.createReadStream(`./path/to/file`))
+  const form = formAutoContent({
+    myField: 'hello',
+    myFile: fs.createReadStream(`./path/to/file`)
+  })
 
   const res = await inject(dispatch, {
     method: 'post',
     url: '/upload',
-    payload: form,
-    headers: form.getHeaders()
+    ...form
   })
   console.log(res.payload)
 } catch (err) {

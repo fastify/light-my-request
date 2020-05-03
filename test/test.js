@@ -12,6 +12,7 @@ const inject = require('../index')
 const parseURL = require('../lib/parseURL')
 
 const FormData = require('form-data')
+const formAutoContent = require('form-auto-content')
 
 const httpMethods = [
   'delete',
@@ -1476,4 +1477,34 @@ test('errors for invalid undefined header value', (t) => {
   } catch (err) {
     t.ok(err)
   }
+})
+
+test('example with form-auto-content', (t) => {
+  t.plan(4)
+  const dispatch = function (req, res) {
+    let body = ''
+    req.on('data', d => {
+      body += d
+    })
+    req.on('end', () => {
+      res.end(body)
+    })
+  }
+
+  const form = formAutoContent({
+    myField: 'my value',
+    myFile: fs.createReadStream('./LICENSE')
+  })
+
+  inject(dispatch, {
+    method: 'POST',
+    url: 'http://example.com:8080/hello',
+    payload: form.payload,
+    headers: form.headers
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+    t.ok(/--.+\r\nContent-Disposition: form-data; name="myField"\r\n\r\nmy value\r\n--.*/.test(res.payload))
+    t.ok(/--.+\r\nContent-Disposition: form-data; name="myFile"; filename="LICENSE"\r\n.*/.test(res.payload))
+  })
 })
