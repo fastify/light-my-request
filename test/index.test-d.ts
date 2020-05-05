@@ -1,7 +1,7 @@
 import { inject, isInjection, Request, Response, DispatchFunc, InjectOptions, Chain } from '../index'
-import { expectType } from 'tsd'
+import { expectType, expectAssignable } from 'tsd'
 
-expectType<InjectOptions>({ url: '/' })
+expectAssignable<InjectOptions>({ url: '/' })
 
 const dispatch = function (req: Request, res: Response) {
   expectType<boolean>(isInjection(req))
@@ -18,7 +18,7 @@ inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
-  expectType<Function>(res.json)
+  expectAssignable<Function>(res.json)
   console.log(res.cookies)
 })
 
@@ -35,7 +35,7 @@ inject(dispatch, { method: 'get', url }, (err, res) => {
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
-  expectType<Function>(res.json)
+  expectAssignable<Function>(res.json)
   console.log(res.cookies)
 })
 
@@ -43,7 +43,7 @@ inject(dispatch, { method: 'get', url: '/', cookies: { name1: 'value1', value2: 
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
-  expectType<Function>(res.json)
+  expectAssignable<Function>(res.json)
   console.log(res.cookies)
 })
 
@@ -51,7 +51,7 @@ inject(dispatch, { method: 'get', url: '/', query: { name1: 'value1', value2: 'v
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
-  expectType<Function>(res.json)
+  expectAssignable<Function>(res.json)
   console.log(res.cookies)
 })
 
@@ -59,7 +59,7 @@ inject(dispatch, { method: 'get', url: '/', query: { name1: ['value1', 'value2']
   expectType<Error>(err)
   expectType<Response>(res)
   console.log(res.payload)
-  expectType<Function>(res.json)
+  expectAssignable<Function>(res.json)
   console.log(res.cookies)
 })
 
