@@ -4,9 +4,9 @@
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
-    "ajv": "^6.10.2",
+    "ajv": "^6.12.2",
     "cookie": "^0.4.0",
-    "readable-stream": "^3.4.0",
+    "readable-stream": "^3.6.0",
     "set-cookie-parser": "^2.4.1"
   },
   "types": "index.d.ts",
@@ -15,7 +15,7 @@
     "form-auto-content": "^1.0.0",
     "form-data": "^3.0.0",
     "pre-commit": "^1.2.2",
-    "standard": "^14.0.2",
+    "standard": "^14.3.3",
     "tap": "^14.0.0",
     "tsd": "^0.11.0"
   },
