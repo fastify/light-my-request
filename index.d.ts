@@ -70,7 +70,8 @@ declare namespace LightMyRequest {
 
   interface Response extends http.ServerResponse {
     raw: {
-      res: http.ServerResponse
+      res: http.ServerResponse,
+      req: Request
     }
     rawPayload: Buffer
     headers: http.OutgoingHttpHeaders
