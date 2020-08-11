@@ -80,7 +80,7 @@ declare namespace LightMyRequest {
     trailers: { [key: string]: string }
     payload: string
     body: string
-    json: () => any
+    json: <T = any>() => T
     cookies: Array<object>
   }
 

@@ -77,3 +77,6 @@ type ParsedValue = { field: string }
 const response: Response = await inject(dispatch)
 const parsedValue: ParsedValue = response.json()
 expectType<ParsedValue>(parsedValue)
+
+const parsedValueUsingGeneric = response.json<ParsedValue>()
+expectType<ParsedValue>(parsedValueUsingGeneric)
