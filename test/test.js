@@ -87,6 +87,19 @@ test('passes remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.socket.remoteAddress)
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, '1.2.3.4')
+  })
+})
+
+test('includes deprecated connection on request', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end(req.connection.remoteAddress)
   }
 
@@ -142,7 +155,7 @@ test('passes localhost as default remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.connection.remoteAddress)
+    res.end(req.socket.remoteAddress)
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
