@@ -1525,12 +1525,10 @@ test('simulate invalid alter _lightMyRequest.isDone with end', (t) => {
     replied = true
   })
 
-  process.nextTick(() => {
-    setImmediate(() => {
-      t.equal(end, true)
-      t.equal(replied, false)
-    })
-  })
+  setTimeout(() => {
+    t.equal(end, true)
+    t.equal(replied, false)
+  }, 10)
 })
 
 test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
@@ -1549,12 +1547,10 @@ test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
     replied = true
   })
 
-  process.nextTick(() => {
-    setImmediate(() => {
-      t.equal(end, false)
-      t.equal(replied, false)
-    })
-  })
+  setTimeout(() => {
+    t.equal(end, false)
+    t.equal(replied, false)
+  }, 10)
 })
 
 test('no error for response destory', (t) => {
