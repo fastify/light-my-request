@@ -1508,3 +1508,47 @@ test('example with form-auto-content', (t) => {
     t.ok(/--.+\r\nContent-Disposition: form-data; name="myFile"; filename="LICENSE"\r\n.*/.test(res.payload))
   })
 })
+
+test('simulate invalid alter _lightMyRequest.isDone with end', (t) => {
+  t.plan(2)
+  let end = false
+  const dispatch = function (req, res) {
+    req.resume()
+    req._lightMyRequest.isDone = true
+    req.on('end', () => {
+      end = true
+    })
+  }
+
+  let replied = false
+  inject(dispatch, { method: 'GET', url: '/', simulate: { end: true } }, (notHandledErr, res) => {
+    replied = true
+  })
+
+  setTimeout(() => {
+    t.equal(end, true)
+    t.equal(replied, false)
+  }, 10)
+})
+
+test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
+  t.plan(2)
+  let end = false
+  const dispatch = function (req, res) {
+    req.resume()
+    req._lightMyRequest.isDone = true
+    req.on('end', () => {
+      end = true
+    })
+  }
+
+  let replied = false
+  inject(dispatch, { method: 'GET', url: '/', simulate: { end: false } }, (notHandledErr, res) => {
+    replied = true
+  })
+
+  setTimeout(() => {
+    t.equal(end, false)
+    t.equal(replied, false)
+  }, 10)
+})
