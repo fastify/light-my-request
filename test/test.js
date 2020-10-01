@@ -1510,47 +1510,34 @@ test('example with form-auto-content', (t) => {
 })
 
 test('simulate invalid alter _lightMyRequest.isDone with end', (t) => {
-  t.plan(2)
-  let end = false
   const dispatch = function (req, res) {
     req.resume()
     req._lightMyRequest.isDone = true
     req.on('end', () => {
-      end = true
+      t.pass('should have end event')
+      t.end()
     })
   }
 
-  let replied = false
   inject(dispatch, { method: 'GET', url: '/', simulate: { end: true } }, (notHandledErr, res) => {
-    replied = true
+    t.fail('should not have reply')
   })
-
-  setTimeout(() => {
-    t.equal(end, true)
-    t.equal(replied, false)
-  }, 10)
 })
 
 test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
-  t.plan(2)
-  let end = false
   const dispatch = function (req, res) {
     req.resume()
     req._lightMyRequest.isDone = true
     req.on('end', () => {
-      end = true
+      t.fail('should not have end event')
     })
   }
 
-  let replied = false
   inject(dispatch, { method: 'GET', url: '/', simulate: { end: false } }, (notHandledErr, res) => {
-    replied = true
+    t.fail('should not have reply')
   })
 
-  setTimeout(() => {
-    t.equal(end, false)
-    t.equal(replied, false)
-  }, 10)
+  t.end()
 })
 
 test('no error for response destory', (t) => {
