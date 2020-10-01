@@ -6,6 +6,7 @@
   "dependencies": {
     "ajv": "^6.12.2",
     "cookie": "^0.4.0",
+    "fastify-warning": "^0.2.0",
     "readable-stream": "^3.6.0",
     "set-cookie-parser": "^2.4.1"
   },
