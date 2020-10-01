@@ -1552,3 +1552,15 @@ test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
     t.equal(replied, false)
   }, 10)
 })
+
+test('no error for response destory', (t) => {
+  const dispatch = function (req, res) {
+    res.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.error(err)
+  })
+
+  t.end()
+})
