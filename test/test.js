@@ -1521,3 +1521,46 @@ test('example with form-auto-content', (t) => {
     t.ok(/--.+\r\nContent-Disposition: form-data; name="myFile"; filename="LICENSE"\r\n.*/.test(res.payload))
   })
 })
+
+test('simulate invalid alter _lightMyRequest.isDone with end', (t) => {
+  const dispatch = function (req, res) {
+    req.resume()
+    req._lightMyRequest.isDone = true
+    req.on('end', () => {
+      t.pass('should have end event')
+      t.end()
+    })
+  }
+
+  inject(dispatch, { method: 'GET', url: '/', simulate: { end: true } }, (notHandledErr, res) => {
+    t.fail('should not have reply')
+  })
+})
+
+test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
+  const dispatch = function (req, res) {
+    req.resume()
+    req._lightMyRequest.isDone = true
+    req.on('end', () => {
+      t.fail('should not have end event')
+    })
+  }
+
+  inject(dispatch, { method: 'GET', url: '/', simulate: { end: false } }, (notHandledErr, res) => {
+    t.fail('should not have reply')
+  })
+
+  t.end()
+})
+
+test('no error for response destory', (t) => {
+  const dispatch = function (req, res) {
+    res.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.error(err)
+  })
+
+  t.end()
+})

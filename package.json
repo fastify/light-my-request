@@ -23,7 +23,7 @@
   "scripts": {
     "test": "npm run lint && npm run unit && npm run tsd",
     "lint": "standard",
-    "unit": "tap test/test.js",
+    "unit": "tap test/test.js --100",
     "coverage": "npm run unit -- --cov --coverage-report=html",
     "tsd": "tsd"
   },
