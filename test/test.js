@@ -96,6 +96,20 @@ test('passes remote address', (t) => {
   })
 })
 
+test('passes a socket which emits events like a normal one does', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    req.socket.on('timeout', () => {})
+    res.end('added')
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'added')
+  })
+})
+
 test('includes deprecated connection on request', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
