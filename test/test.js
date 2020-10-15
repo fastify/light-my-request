@@ -1568,6 +1568,8 @@ test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
 })
 
 test('no error for response destory', (t) => {
+  t.plan(1)
+
   const dispatch = function (req, res) {
     res.destroy()
   }
@@ -1575,6 +1577,32 @@ test('no error for response destory', (t) => {
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
   })
+})
 
-  t.end()
+test('request destory without error', (t) => {
+  t.plan(2)
+
+  const dispatch = function (req, res) {
+    req.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.error(err)
+    t.equal(res, null)
+  })
+})
+
+test('request destory with error', (t) => {
+  t.plan(2)
+
+  const fakeError = new Error('some-err')
+
+  const dispatch = function (req, res) {
+    req.destroy(fakeError)
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.equal(err, fakeError)
+    t.equal(res, null)
+  })
 })

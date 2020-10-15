@@ -88,17 +88,29 @@ function doInject (dispatchFunc, options, callback) {
 
   const server = options.server || {}
 
+  const makeRequest = (req, res) => {
+    req.once('error', function (err) {
+      if (this.destroyed) res.destroy(err)
+    })
+
+    req.once('close', function () {
+      if (this.destroyed && !this._error) res.destroy()
+    })
+
+    return req.prepare(() => dispatchFunc.call(server, req, res))
+  }
+
   if (typeof callback === 'function') {
     const req = new Request(options)
     const res = new Response(req, callback)
 
-    return req.prepare(() => dispatchFunc.call(server, req, res))
+    return makeRequest(req, res)
   } else {
     return new Promise((resolve, reject) => {
       const req = new Request(options)
       const res = new Response(req, resolve, reject)
 
-      req.prepare(() => dispatchFunc.call(server, req, res))
+      makeRequest(req, res)
     })
   }
 }
