@@ -8,7 +8,7 @@ const fs = require('fs')
 const zlib = require('zlib')
 const http = require('http')
 const { finished } = require('stream')
-var eos = require('end-of-stream')
+const eos = require('end-of-stream')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
@@ -1639,6 +1639,39 @@ test('compatible with eos', (t) => {
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
+    t.equal(res, null)
+  })
+})
+
+test('compatible with eos, passes error correctly', (t) => {
+  t.plan(3)
+
+  const fakeError = new Error('some-error')
+
+  const dispatch = function (req, res) {
+    eos(res, (err) => {
+      t.equal(err, fakeError)
+    })
+
+    req.destroy(fakeError)
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.equal(err, fakeError)
+    t.equal(res, null)
+  })
+})
+
+test('multiple calls to req.destroy should not be called', (t) => {
+  t.plan(2)
+
+  const dispatch = function (req, res) {
+    req.destroy()
+    req.destroy() // twice
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.equal(err)
     t.equal(res, null)
   })
 })
