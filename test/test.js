@@ -7,6 +7,8 @@ const qs = require('querystring')
 const fs = require('fs')
 const zlib = require('zlib')
 const http = require('http')
+const { finished } = require('stream')
+var eos = require('end-of-stream')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
@@ -1603,6 +1605,40 @@ test('request destory with error', (t) => {
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.equal(err, fakeError)
+    t.equal(res, null)
+  })
+})
+
+test('compatible with stream.finished', (t) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    finished(res, (err) => {
+      t.ok(err instanceof Error)
+    })
+
+    req.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.error(err)
+    t.equal(res, null)
+  })
+})
+
+test('compatible with eos', (t) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    eos(res, (err) => {
+      t.ok(err instanceof Error)
+    })
+
+    req.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.error(err)
     t.equal(res, null)
   })
 })
