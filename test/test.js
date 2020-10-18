@@ -112,8 +112,21 @@ test('passes a socket which emits events like a normal one does', (t) => {
   })
 })
 
-test('includes deprecated connection on request', (t) => {
-  t.plan(2)
+test('includes deprecated connection on request', { only: true }, (t) => {
+  t.plan(3)
+  const warnings = process.listeners('warning')
+  process.removeAllListeners('warning')
+  function onWarning (err) {
+    t.equal(err.code, 'FST_LIGHTMYREQUEST_DEP01')
+    return false
+  }
+  process.on('warning', onWarning)
+  t.tearDown(() => {
+    process.removeListener('warning', onWarning)
+    for (const fn of warnings) {
+      process.on('warning', fn)
+    }
+  })
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end(req.connection.remoteAddress)
