@@ -209,4 +209,5 @@ function isInjection (obj) {
 function toLowerCase (m) { return m.toLowerCase() }
 
 module.exports = inject
+module.exports.inject = inject
 module.exports.isInjection = isInjection
