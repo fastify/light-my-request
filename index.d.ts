@@ -87,14 +87,14 @@ declare namespace LightMyRequest {
   }
 
   interface Chain {
-    delete: (url: string) => Chain
-    get: (url: string) => Chain
-    head: (url: string) => Chain
-    options: (url: string) => Chain
-    patch: (url: string) => Chain
-    post: (url: string) => Chain
-    put: (url: string) => Chain
-    trace: (url: string) => Chain
+    delete: (url: string) => Chain | Promise<Response>
+    get: (url: string) => Chain | Promise<Response>
+    head: (url: string) => Chain | Promise<Response>
+    options: (url: string) => Chain | Promise<Response>
+    patch: (url: string) => Chain | Promise<Response>
+    post: (url: string) => Chain | Promise<Response>
+    put: (url: string) => Chain | Promise<Response>
+    trace: (url: string) => Chain | Promise<Response>
     body: (body: InjectPayload) => Chain
     headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
     payload: (payload: InjectPayload) => Chain
