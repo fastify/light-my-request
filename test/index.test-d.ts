@@ -66,6 +66,12 @@ inject(dispatch)
     console.log(res.payload)
   })
 
+inject(dispatch)
+  .get('/')
+  .then((value) => {
+    expectType<Response>(value)
+  })
+
 expectType<Chain>(inject(dispatch))
 expectType<Promise<Response>>(inject(dispatch).end())
 expectType<Chain>(inject(dispatch, { method: 'get', url: '/' }))
