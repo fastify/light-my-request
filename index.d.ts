@@ -100,7 +100,8 @@ declare namespace LightMyRequest {
     payload: (payload: InjectPayload) => Chain
     query: (query: object) => Chain
     cookies: (query: object) => Chain
-    end: (callback?: CallbackFunc) => Promise<Response>
+    end(): Promise<Response>
+    end(callback: CallbackFunc): void
   }
 }
 
