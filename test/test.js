@@ -9,6 +9,7 @@ const zlib = require('zlib')
 const http = require('http')
 const { finished } = require('stream')
 const eos = require('end-of-stream')
+const semver = require('semver')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
@@ -845,7 +846,7 @@ test('promises support', (t) => {
 })
 
 test('async wait support', t => {
-  if (Number(process.versions.node[0]) >= 8) {
+  if (semver.gt(process.versions.node, '8.0.0')) {
     require('./async-await')(t, inject)
   } else {
     t.pass('Skip because Node version < 8')

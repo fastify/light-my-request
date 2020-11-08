@@ -86,7 +86,7 @@ declare namespace LightMyRequest {
     cookies: Array<object>
   }
 
-  interface Chain {
+  interface Chain extends Promise<Response> {
     delete: (url: string) => Chain
     get: (url: string) => Chain
     head: (url: string) => Chain
@@ -100,7 +100,8 @@ declare namespace LightMyRequest {
     payload: (payload: InjectPayload) => Chain
     query: (query: object) => Chain
     cookies: (query: object) => Chain
-    end: (callback?: CallbackFunc) => Promise<Response>
+    end(): Promise<Response>
+    end(callback: CallbackFunc): void
   }
 }
 

@@ -58,12 +58,20 @@ inject(dispatch, { method: 'get', url: '/', query: { name1: ['value1', 'value2']
   expectResponse(res)
 })
 
+expectType<void>(
+  inject(dispatch)
+    .get('/')
+    .end((err, res) => {
+      expectType<Error>(err)
+      expectType<Response>(res)
+      console.log(res.payload)
+    })
+)
+
 inject(dispatch)
   .get('/')
-  .end((err, res) => {
-    expectType<Error>(err)
-    expectType<Response>(res)
-    console.log(res.payload)
+  .then((value) => {
+    expectType<Response>(value)
   })
 
 expectType<Chain>(inject(dispatch))
