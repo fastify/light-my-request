@@ -22,6 +22,7 @@
     "tsd": "^0.13.1"
   },
   "scripts": {
+    "prepare": "node build.js",
     "test": "npm run lint && npm run unit && npm run tsd",
     "lint": "standard",
     "unit": "tap test/test.js test/*.test.js",
