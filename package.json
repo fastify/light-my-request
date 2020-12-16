@@ -4,7 +4,6 @@
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
-    "ajv": "^6.12.2",
     "cookie": "^0.4.0",
     "fastify-warning": "^0.2.0",
     "readable-stream": "^3.6.0",
@@ -12,6 +11,7 @@
   },
   "types": "index.d.ts",
   "devDependencies": {
+    "ajv": "^7.0.0",
     "@types/node": "^14.0.1",
     "end-of-stream": "^1.4.4",
     "form-auto-content": "^2.0.0",
@@ -24,7 +24,7 @@
   "scripts": {
     "test": "npm run lint && npm run unit && npm run tsd",
     "lint": "standard",
-    "unit": "tap test/test.js test/*.test.js --100",
+    "unit": "tap test/test.js test/*.test.js",
     "coverage": "npm run unit -- --cov --coverage-report=html",
     "tsd": "tsd"
   },
@@ -47,5 +47,10 @@
   "homepage": "https://github.com/fastify/light-my-request/blob/master/README.md",
   "tsd": {
     "directory": "test"
+  },
+  "standard": {
+    "ignore": [
+      "validate.js"
+    ]
   }
 }
