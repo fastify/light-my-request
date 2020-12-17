@@ -1,0 +1,8 @@
+esm: false
+ts: false
+jsx: false
+flow: false
+coverage: true
+100: true
+nyc-arg:
+  - --exclude=validate.js

@@ -61,4 +61,5 @@ test/type/index.js
 
 .vscode
 
-validate.js
+.dependabot
+.github
