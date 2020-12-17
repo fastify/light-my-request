@@ -60,5 +60,3 @@ examples/typescript-server.js
 test/type/index.js
 
 .vscode
-
-validate.js
