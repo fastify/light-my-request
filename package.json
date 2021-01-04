@@ -4,7 +4,7 @@
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "dependencies": {
-    "ajv": "^6.12.2",
+    "ajv": "^7.0.3",
     "cookie": "^0.4.0",
     "fastify-warning": "^0.2.0",
     "readable-stream": "^3.6.0",
