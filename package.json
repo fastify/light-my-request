@@ -15,7 +15,7 @@
     "@types/node": "^14.0.1",
     "end-of-stream": "^1.4.4",
     "form-auto-content": "^2.0.0",
-    "form-data": "^3.0.0",
+    "form-data": "^4.0.0",
     "pre-commit": "^1.2.2",
     "standard": "^16.0.1",
     "tap": "^14.0.0",
