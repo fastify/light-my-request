@@ -44,7 +44,7 @@ test('returns non-chunked payload', (t) => {
     t.equal(res.statusCode, 200)
     t.equal(res.statusMessage, 'Super')
     t.ok(res.headers.date)
-    t.deepEqual(res.headers, {
+    t.same(res.headers, {
       date: res.headers.date,
       connection: 'keep-alive',
       'x-extra': 'hello',
@@ -122,7 +122,7 @@ test('includes deprecated connection on request', { only: true }, (t) => {
     return false
   }
   process.on('warning', onWarning)
-  t.tearDown(() => {
+  t.teardown(() => {
     process.removeListener('warning', onWarning)
     for (const fn of warnings) {
       process.on('warning', fn)
@@ -159,7 +159,7 @@ test('passes query', (t) => {
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', query }, (err, res) => {
     t.error(err)
-    t.deepEqual(parseQuery(res.payload), query)
+    t.same(parseQuery(res.payload), query)
   })
 })
 
@@ -177,7 +177,7 @@ test('query will be merged into that in url', (t) => {
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello?message=OK', query }, (err, res) => {
     t.error(err)
-    t.deepEqual(parseQuery(res.payload), Object.assign({ message: 'OK' }, query))
+    t.same(parseQuery(res.payload), Object.assign({ message: 'OK' }, query))
   })
 })
 
@@ -792,7 +792,7 @@ test('errors for invalid input options', (t) => {
     inject({}, {}, () => {})
     t.fail('This should throw')
   } catch (err) {
-    t.is(err.message, 'dispatchFunc should be a function')
+    t.equal(err.message, 'dispatchFunc should be a function')
   }
 })
 
@@ -981,7 +981,7 @@ test('path as alias to url', (t) => {
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.payload, '/hello')
+    t.equal(res.payload, '/hello')
   })
 })
 
@@ -1205,7 +1205,7 @@ test('chainable api: query method should work correctly', (t) => {
     .query(query)
     .end((err, res) => {
       t.error(err)
-      t.deepEqual(parseQuery(res.payload), query)
+      t.same(parseQuery(res.payload), query)
     })
 })
 
@@ -1311,7 +1311,7 @@ test('Response.json() should parse the JSON payload', (t) => {
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
-    t.deepEqual(res.json(), json)
+    t.same(res.json(), json)
   })
 })
 
@@ -1458,7 +1458,7 @@ test('read cookie', (t) => {
   inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'example.com:8080|foo=bar')
-    t.deepEqual(res.cookies, [
+    t.same(res.cookies, [
       { name: 'type', value: 'ninja' },
       {
         name: 'dev',
@@ -1497,7 +1497,7 @@ test('correctly handles no string headers', (t) => {
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
     t.error(err)
-    t.deepEqual(JSON.parse(res.payload), {
+    t.same(JSON.parse(res.payload), {
       integer: '12',
       float: '3.14',
       null: 'null',
