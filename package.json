@@ -22,10 +22,10 @@
     "tsd": "^0.14.0"
   },
   "scripts": {
-    "test": "npm run lint && npm run unit && npm run tsd",
+    "coverage": "npm run unit -- --cov --coverage-report=html",
     "lint": "standard",
     "unit": "tap test/test.js test/*.test.js --100",
-    "coverage": "npm run unit -- --cov --coverage-report=html",
+    "test": "npm run lint && npm run unit && npm run tsd",
     "tsd": "tsd"
   },
   "repository": {
