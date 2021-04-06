@@ -187,7 +187,7 @@ Checks if given object `obj` is a *light-my-request* `Request` object.
 #### Method chaining
 
 There are following methods you can used as chaining:
-- `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and also the request URL.
+- `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and the request URL.
 - `body`, `headers`, `payload`, `query`, `cookies`. They can be used to set the request options object.
 
 And finally you need to call `end`. It has the signature `function (callback)`.
