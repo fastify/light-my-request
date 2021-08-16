@@ -48,5 +48,8 @@
   "homepage": "https://github.com/fastify/light-my-request/blob/master/README.md",
   "tsd": {
     "directory": "test"
+  },
+  "standard": {
+    "ignore": ["test/benchmark.js"]
   }
 }
