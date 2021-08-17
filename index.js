@@ -1,11 +1,20 @@
 'use strict'
 
 const assert = require('assert')
-const http = require('http')
 const Ajv = require('ajv')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
+const httpMethods = [
+  'delete',
+  'get',
+  'head',
+  'options',
+  'patch',
+  'post',
+  'put',
+  'trace'
+]
 const errorMessage = 'The dispatch function has already been invoked'
 const urlSchema = {
   oneOf: [
@@ -54,7 +63,7 @@ const schema = {
     },
     authority: { type: 'string' },
     remoteAddress: { type: 'string' },
-    method: { type: 'string', enum: http.METHODS.concat(http.METHODS.map(toLowerCase)) },
+    method: { type: 'string', enum: httpMethods.concat(httpMethods.map(x => x.toUpperCase())) },
     validate: { type: 'boolean' }
     // payload type => any
   },
@@ -135,17 +144,6 @@ function Chain (dispatch, option) {
   }
 }
 
-const httpMethods = [
-  'delete',
-  'get',
-  'head',
-  'options',
-  'patch',
-  'post',
-  'put',
-  'trace'
-]
-
 httpMethods.forEach(method => {
   Chain.prototype[method] = function (url) {
     if (this._hasInvoked === true || this._promise) {
@@ -205,8 +203,6 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
 function isInjection (obj) {
   return (obj instanceof Request || obj instanceof Response)
 }
-
-function toLowerCase (m) { return m.toLowerCase() }
 
 module.exports = inject
 module.exports.inject = inject
