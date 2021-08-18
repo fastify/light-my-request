@@ -10,6 +10,7 @@ const http = require('http')
 const { finished } = require('stream')
 const eos = require('end-of-stream')
 const semver = require('semver')
+const express = require('express')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
@@ -1687,5 +1688,21 @@ test('multiple calls to req.destroy should not be called', (t) => {
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.equal(err)
     t.equal(res, null)
+  })
+})
+
+test('passes headers when using an express app', (t) => {
+  t.plan(2)
+
+  const app = express()
+
+  app.get('/hello', (req, res) => {
+    res.setHeader('Some-Fancy-Header', 'a very cool value')
+    res.end()
+  })
+
+  inject(app, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['some-fancy-header'], 'a very cool value')
   })
 })
