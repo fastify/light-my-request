@@ -1706,3 +1706,19 @@ test('passes headers when using an express app', (t) => {
     t.equal(res.headers['some-fancy-header'], 'a very cool value')
   })
 })
+
+test("passes payload when using express' send", (t) => {
+  t.plan(3)
+
+  const app = express()
+
+  app.get('/hello', (req, res) => {
+    res.send('some text')
+  })
+
+  inject(app, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['content-length'], '9')
+    t.equal(res.payload, 'some text')
+  })
+})
