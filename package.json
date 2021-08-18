@@ -18,6 +18,7 @@
     "form-auto-content": "^2.0.0",
     "form-data": "^4.0.0",
     "pre-commit": "^1.2.2",
+    "semver": "^7.3.5",
     "standard": "^16.0.1",
     "tap": "^15.0.1",
     "tsd": "^0.17.0"
@@ -50,6 +51,8 @@
     "directory": "test"
   },
   "standard": {
-    "ignore": ["test/benchmark.js"]
+    "ignore": [
+      "test/benchmark.js"
+    ]
   }
 }
