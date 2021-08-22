@@ -11,6 +11,7 @@ const { finished } = require('stream')
 const eos = require('end-of-stream')
 const semver = require('semver')
 const express = require('express')
+const fastify = require('fastify')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
@@ -1705,4 +1706,42 @@ test('passes headers when using an express app', (t) => {
     t.error(err)
     t.equal(res.headers['some-fancy-header'], 'a very cool value')
   })
+})
+
+test('value of request url when using inject should not differ', async (t) => {
+  t.plan(1)
+  const ap = fastify()
+  ap.get('*', function (request, reply) {
+    reply.send({ url: request.url })
+  })
+  const res = await ap.inject({
+    method: 'GET',
+    url: 'http://example.com:8080//foo'
+  })
+  const v = JSON.parse((res.body)) // added this Json parse
+  t.equal(v.url, '//foo')
+})
+
+test('Can parse paths with single leading slash', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('/test', undefined)
+  t.equal(parsedURL.href, 'http://localhost/test')
+})
+
+test('Can parse paths with two leading slashes', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('//test', undefined)
+  t.equal(parsedURL.href, 'http://localhost//test')
+})
+
+test('Can parse URLs with two leading slashes', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('https://example.com//test', undefined)
+  t.equal(parsedURL.href, 'https://example.com//test')
+})
+
+test('Can parse URLs with single leading slash', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('https://example.com/test', undefined)
+  t.equal(parsedURL.href, 'https://example.com/test')
 })
