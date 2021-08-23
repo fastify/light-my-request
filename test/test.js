@@ -11,14 +11,12 @@ const { finished } = require('stream')
 const eos = require('end-of-stream')
 const semver = require('semver')
 const express = require('express')
-const fastify = require('fastify')
 
 const inject = require('../index')
 const parseURL = require('../lib/parseURL')
 
 const FormData = require('form-data')
 const formAutoContent = require('form-auto-content')
-
 const httpMethods = [
   'delete',
   'get',
@@ -1708,18 +1706,18 @@ test('passes headers when using an express app', (t) => {
   })
 })
 
-test('value of request url when using inject should not differ', async (t) => {
+test('value of request url when using inject should not differ', (t) => {
   t.plan(1)
-  const ap = fastify()
-  ap.get('*', function (request, reply) {
-    reply.send({ url: request.url })
-  })
-  const res = await ap.inject({
-    method: 'GET',
-    url: 'http://example.com:8080//foo'
-  })
-  const v = JSON.parse((res.body)) // added this Json parse
-  t.equal(v.url, '//foo')
+
+  const server = http.createServer()
+
+  const dispatch = function (req, res) {
+    res.end(req.url)
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server: server })
+    .then(res => { t.equal(res.body, '//hello') })
+    .catch(err => t.error(err))
 })
 
 test('Can parse paths with single leading slash', (t) => {
