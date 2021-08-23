@@ -17,7 +17,6 @@ const parseURL = require('../lib/parseURL')
 
 const FormData = require('form-data')
 const formAutoContent = require('form-auto-content')
-
 const httpMethods = [
   'delete',
   'get',
@@ -1705,4 +1704,42 @@ test('passes headers when using an express app', (t) => {
     t.error(err)
     t.equal(res.headers['some-fancy-header'], 'a very cool value')
   })
+})
+
+test('value of request url when using inject should not differ', (t) => {
+  t.plan(1)
+
+  const server = http.createServer()
+
+  const dispatch = function (req, res) {
+    res.end(req.url)
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server: server })
+    .then(res => { t.equal(res.body, '//hello') })
+    .catch(err => t.error(err))
+})
+
+test('Can parse paths with single leading slash', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('/test', undefined)
+  t.equal(parsedURL.href, 'http://localhost/test')
+})
+
+test('Can parse paths with two leading slashes', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('//test', undefined)
+  t.equal(parsedURL.href, 'http://localhost//test')
+})
+
+test('Can parse URLs with two leading slashes', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('https://example.com//test', undefined)
+  t.equal(parsedURL.href, 'https://example.com//test')
+})
+
+test('Can parse URLs with single leading slash', (t) => {
+  t.plan(1)
+  const parsedURL = parseURL('https://example.com/test', undefined)
+  t.equal(parsedURL.href, 'https://example.com/test')
 })
