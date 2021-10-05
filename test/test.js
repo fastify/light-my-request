@@ -86,6 +86,20 @@ test('passes headers', (t) => {
   })
 })
 
+test('request has rawHeaders', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    t.ok(Array.isArray(req.rawHeaders))
+    t.match(req.rawHeaders, ['super', 'duper', 'user-agent', 'lightMyRequest', 'host', 'example.com:8080'])
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (err, res) => {
+    t.error(err)
+  })
+})
+
 test('passes remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {

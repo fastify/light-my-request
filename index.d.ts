@@ -65,6 +65,7 @@ declare namespace LightMyRequest {
     httpVersion: string
     method: HTTPMethods
     headers: http.IncomingHttpHeaders
+    rawHeaders: string[]
     prepare: (next: () => void) => void
     // @deprecated
     connection: object
