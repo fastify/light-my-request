@@ -87,15 +87,16 @@ test('passes headers', (t) => {
 })
 
 test('request has rawHeaders', (t) => {
-  t.plan(2)
+  t.plan(3)
   const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.rawHeaders.toString())
+    t.ok(Array.isArray(req.rawHeaders))
+    t.match(req.rawHeaders, ['super', 'duper', 'user-agent', 'lightMyRequest', 'host', 'example.com:8080'])
+    res.writeHead(200)
+    res.end()
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (err, res) => {
     t.error(err)
-    t.equal(res.payload, 'super,duper,user-agent,lightMyRequest,host,example.com:8080')
   })
 })
 
