@@ -2,12 +2,11 @@
 
 const t = require('tap')
 const test = t.test
-const { Readable } = require('readable-stream')
+const { Readable, finished } = require('stream')
 const qs = require('querystring')
 const fs = require('fs')
 const zlib = require('zlib')
 const http = require('http')
-const { finished } = require('stream')
 const eos = require('end-of-stream')
 const semver = require('semver')
 const express = require('express')
@@ -127,7 +126,7 @@ test('passes a socket which emits events like a normal one does', (t) => {
   })
 })
 
-test('includes deprecated connection on request', { only: true }, (t) => {
+test('includes deprecated connection on request', (t) => {
   t.plan(3)
   const warnings = process.listeners('warning')
   process.removeAllListeners('warning')
