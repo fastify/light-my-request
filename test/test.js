@@ -1670,6 +1670,28 @@ test('compatible with eos', (t) => {
   })
 })
 
+test('compatible with stream.finished pipe a Stream', (t) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    finished(res, (err) => {
+      t.error(err)
+    })
+
+    new Readable({
+      read () {
+        this.push('hello world')
+        this.push(null)
+      }
+    }).pipe(res)
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.error(err)
+    t.equal(res.body, 'hello world')
+  })
+})
+
 test('compatible with eos, passes error correctly', (t) => {
   t.plan(3)
 
