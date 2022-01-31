@@ -20,13 +20,13 @@ declare namespace LightMyRequest {
     callback: CallbackFunc
   ): void
 
-  type DispatchFunc = (req: Request, res: Response) => void
+  type DispatchFunc = (req: Request, res: ServerResponse) => void
 
   type CallbackFunc = (err: Error, response: Response) => void
 
   type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
-  function isInjection (obj: Request | Response): boolean
+  function isInjection (obj: Request | ServerResponse): boolean
 
   interface InjectOptions {
     url?: string | {
@@ -71,7 +71,9 @@ declare namespace LightMyRequest {
     connection: object
   }
 
-  interface Response extends http.ServerResponse {
+  interface ServerResponse extends http.ServerResponse {} 
+
+  interface Response {
     raw: {
       res: http.ServerResponse,
       req: Request
