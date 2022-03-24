@@ -1312,19 +1312,20 @@ test('chainable api: string url', (t) => {
 test('Response.json() should parse the JSON payload', (t) => {
   t.plan(2)
 
-  const json = {
+  const jsonData = {
     a: 1,
     b: '2'
   }
 
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify(json))
+    res.end(JSON.stringify(jsonData))
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
-    t.same(res.json(), json)
+    const { json } = res
+    t.same(json(), jsonData)
   })
 })
 
