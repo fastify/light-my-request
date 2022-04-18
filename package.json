@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "ajv": "^8.1.0",
-    "cookie": "^0.4.0",
+    "cookie": "^0.5.0",
     "process-warning": "^1.0.0",
     "set-cookie-parser": "^2.4.1"
   },
