@@ -437,8 +437,8 @@ test('allows ending twice', (t) => {
 })
 
 test('identifies injection object', (t) => {
-  t.plan(3)
-  const dispatch = function (req, res) {
+  t.plan(6)
+  const dispatchRequest = function (req, res) {
     t.equal(inject.isInjection(req), true)
     t.equal(inject.isInjection(res), true)
 
@@ -446,9 +446,19 @@ test('identifies injection object', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-  })
+  const dispatchCustomRequest = function (req, res) {
+    t.equal(inject.isInjection(req), true)
+    t.equal(inject.isInjection(res), true)
+
+    res.writeHead(200, { 'Content-Length': 0 })
+    res.end()
+  }
+
+  const options = { method: 'GET', url: '/' }
+  const cb = (err, res) => { t.error(err) }
+
+  inject(dispatchRequest, options, cb)
+  inject(dispatchCustomRequest, { ...options, customRequestType: http.IncomingMessage }, cb)
 })
 
 test('pipes response', (t) => {
