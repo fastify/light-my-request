@@ -99,6 +99,19 @@ test('request has rawHeaders', (t) => {
   })
 })
 
+test('request has custom type', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.ok(req instanceof http.IncomingMessage)
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', customRequestType: http.IncomingMessage }, (err, res) => {
+    t.error(err)
+  })
+})
+
 test('passes remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {

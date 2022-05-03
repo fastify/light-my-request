@@ -162,6 +162,8 @@ Injects a fake request into an HTTP server.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
   - `autoStart` - Automatically start the request as soon as the method
     is called. It is only valid when not passing a callback. Defaults to `true`.
+  - `customRequestType` - Optional type from which the `request` object should
+    inherit besides `stream.Readable`
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:
