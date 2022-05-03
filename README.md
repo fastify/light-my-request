@@ -141,6 +141,8 @@ Injects a fake request into an HTTP server.
 
 - `dispatchFunc` - listener function. The same as you would pass to `Http.createServer` when making a node HTTP server. Has the signature `function (req, res)` where:
     - `req` - a simulated request object. Inherits from `Stream.Readable`.
+      Optionally inherits from another class, managed by
+      `options.customRequestType`
     - `res` - a simulated response object. Inherits from node's `Http.ServerResponse`.
 - `options` - request options object where:
   - `url` | `path` - a string specifying the request URL.
