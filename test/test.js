@@ -99,7 +99,7 @@ test('request has rawHeaders', (t) => {
   })
 })
 
-test('request has custom type', (t) => {
+test('request inherits from custom class', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
     t.ok(req instanceof http.IncomingMessage)
