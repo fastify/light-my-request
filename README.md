@@ -184,7 +184,21 @@ Injects a fake request into an HTTP server.
     - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
     - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
-Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
+Notes:
+
+- You can also pass a string in place of the `options` object as a shorthand
+  for `{url: string, method: 'GET'}`.
+- Beware when using `customRequestType`. That might make _light-my-request_
+  slower. Sample benchmark result run on an i5-8600K CPU:
+
+```
+Request x 155,018 ops/sec ±0.47% (94 runs sampled)
+Custom Request x 30,373 ops/sec ±0.64% (90 runs sampled)
+Request With Cookies x 125,696 ops/sec ±0.29% (96 runs sampled)
+Request With Cookies n payload x 114,391 ops/sec ±0.33% (97 runs sampled)
+ParseUrl x 255,790 ops/sec ±0.23% (99 runs sampled)
+ParseUrl and query x 194,479 ops/sec ±0.16% (99 runs sampled)
+```
 
 #### `inject.isInjection(obj)`
 
