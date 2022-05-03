@@ -100,14 +100,18 @@ function doInject (dispatchFunc, options, callback) {
 
   const server = options.server || {}
 
+  const RequestConstructor = options.customRequestType
+    ? Request.CustomRequest
+    : Request
+
   if (typeof callback === 'function') {
-    const req = new Request(options)
+    const req = new RequestConstructor(options)
     const res = new Response(req, callback)
 
     return makeRequest(dispatchFunc, server, req, res)
   } else {
     return new Promise((resolve, reject) => {
-      const req = new Request(options)
+      const req = new RequestConstructor(options)
       const res = new Response(req, resolve, reject)
 
       makeRequest(dispatchFunc, server, req, res)
@@ -203,7 +207,11 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
 })
 
 function isInjection (obj) {
-  return (obj instanceof Request || obj instanceof Response)
+  return (
+    obj instanceof Request
+    || obj instanceof Response
+    || obj?.constructor?.name === '_CustomLMRRequest'
+  )
 }
 
 function toLowerCase (m) { return m.toLowerCase() }

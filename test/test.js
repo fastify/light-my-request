@@ -890,7 +890,7 @@ test('this should be the server instance', t => {
     res.end('hello')
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server: server })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server })
     .then(res => t.equal(res.statusCode, 200))
     .catch(err => t.fail(err))
 })
@@ -1764,7 +1764,7 @@ test('value of request url when using inject should not differ', (t) => {
     res.end(req.url)
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server: server })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server })
     .then(res => { t.equal(res.body, '//hello') })
     .catch(err => t.error(err))
 })
