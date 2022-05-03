@@ -24,6 +24,7 @@
     "tsd": "^0.20.0"
   },
   "scripts": {
+    "benchmark": "node test/benchmark.js",
     "coverage": "npm run unit -- --cov --coverage-report=html",
     "lint": "standard",
     "unit": "tap test/test.js test/*.test.js --100",
