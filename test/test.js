@@ -99,6 +99,38 @@ test('request has rawHeaders', (t) => {
   })
 })
 
+test('request inherits from custom class', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.ok(req instanceof http.IncomingMessage)
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: http.IncomingMessage }, (err, res) => {
+    t.error(err)
+  })
+})
+
+test('assert Request option has a valid prototype', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.error('should not get here')
+    res.writeHead(500)
+    res.end()
+  }
+
+  const MyInvalidRequest = {}
+
+  t.throws(() => {
+    inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: MyInvalidRequest }, () => {})
+  }, {})
+
+  t.throws(() => {
+    inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: 'InvalidRequest' }, () => {})
+  }, {})
+})
+
 test('passes remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
@@ -424,8 +456,8 @@ test('allows ending twice', (t) => {
 })
 
 test('identifies injection object', (t) => {
-  t.plan(3)
-  const dispatch = function (req, res) {
+  t.plan(6)
+  const dispatchRequest = function (req, res) {
     t.equal(inject.isInjection(req), true)
     t.equal(inject.isInjection(res), true)
 
@@ -433,9 +465,19 @@ test('identifies injection object', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-  })
+  const dispatchCustomRequest = function (req, res) {
+    t.equal(inject.isInjection(req), true)
+    t.equal(inject.isInjection(res), true)
+
+    res.writeHead(200, { 'Content-Length': 0 })
+    res.end()
+  }
+
+  const options = { method: 'GET', url: '/' }
+  const cb = (err, res) => { t.error(err) }
+
+  inject(dispatchRequest, options, cb)
+  inject(dispatchCustomRequest, { ...options, Request: http.IncomingMessage }, cb)
 })
 
 test('pipes response', (t) => {
@@ -877,7 +919,7 @@ test('this should be the server instance', t => {
     res.end('hello')
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server: server })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server })
     .then(res => t.equal(res.statusCode, 200))
     .catch(err => t.fail(err))
 })
@@ -1751,7 +1793,7 @@ test('value of request url when using inject should not differ', (t) => {
     res.end(req.url)
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server: server })
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server })
     .then(res => { t.equal(res.body, '//hello') })
     .catch(err => t.error(err))
 })

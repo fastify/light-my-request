@@ -130,7 +130,9 @@ The declaration file exports types for the following parts of the API:
 - `InjectPayload` - a union type for valid payload types
 - `isInjection` - standard light-my-request `isInjection` method
 - `InjectOptions` - options object for `inject` method
-- `Request` - custom light-my-request `request` object interface. Extends Node.js `stream.Readable` type
+- `Request` - custom light-my-request `request` object interface. Extends
+  Node.js `stream.Readable` type by default. This behavior can be changed by
+  setting the `Request` option in the `inject` method's options
 - `Response` - custom light-my-request `response` object interface. Extends Node.js `http.ServerResponse` type
 
 ## API
@@ -140,7 +142,9 @@ The declaration file exports types for the following parts of the API:
 Injects a fake request into an HTTP server.
 
 - `dispatchFunc` - listener function. The same as you would pass to `Http.createServer` when making a node HTTP server. Has the signature `function (req, res)` where:
-    - `req` - a simulated request object. Inherits from `Stream.Readable`.
+    - `req` - a simulated request object. Inherits from `Stream.Readable` by
+      default. Optionally inherits from another class, set in
+      `options.Request`
     - `res` - a simulated response object. Inherits from node's `Http.ServerResponse`.
 - `options` - request options object where:
   - `url` | `path` - a string specifying the request URL.
@@ -162,6 +166,8 @@ Injects a fake request into an HTTP server.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
   - `autoStart` - Automatically start the request as soon as the method
     is called. It is only valid when not passing a callback. Defaults to `true`.
+  - `Request` - Optional type from which the `request` object should inherit
+    instead of `stream.Readable`
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:
@@ -178,7 +184,22 @@ Injects a fake request into an HTTP server.
     - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
     - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
-Note: You can also pass a string in place of the `options` object as a shorthand for `{url: string, method: 'GET'}`.
+Notes:
+
+- You can also pass a string in place of the `options` object as a shorthand
+  for `{url: string, method: 'GET'}`.
+- Beware when using the `Request` option. That might make _light-my-request_
+  slower. Sample benchmark result run on an i5-8600K CPU with `Request` set to
+  `http.IncomingMessage`:
+
+```
+Request x 155,018 ops/sec ±0.47% (94 runs sampled)
+Custom Request x 30,373 ops/sec ±0.64% (90 runs sampled)
+Request With Cookies x 125,696 ops/sec ±0.29% (96 runs sampled)
+Request With Cookies n payload x 114,391 ops/sec ±0.33% (97 runs sampled)
+ParseUrl x 255,790 ops/sec ±0.23% (99 runs sampled)
+ParseUrl and query x 194,479 ops/sec ±0.16% (99 runs sampled)
+```
 
 #### `inject.isInjection(obj)`
 

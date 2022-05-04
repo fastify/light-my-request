@@ -1,3 +1,5 @@
+const http = require('http')
+
 const Benchmark = require('benchmark')
 const suite = new Benchmark.Suite()
 const Request = require('../lib/request')
@@ -12,6 +14,17 @@ const mockReq = {
     accepts: 'json',
     authorization: 'granted'
   }
+}
+const mockCustomReq = {
+  url: 'http://localhost',
+  method: 'GET',
+  headers: {
+    foo: 'bar',
+    'content-type': 'html',
+    accepts: 'json',
+    authorization: 'granted'
+  },
+  Request: http.IncomingMessage
 }
 const mockReqCookies = {
   url: 'http://localhost',
@@ -42,6 +55,9 @@ const mockReqCookiesPayload = {
 suite.add('Request', function () {
   new Request(mockReq)
 })
+  .add('Custom Request', function () {
+    new Request.CustomRequest(mockCustomReq)
+  })
   .add('Request With Cookies', function () {
     new Request(mockReqCookies)
   })

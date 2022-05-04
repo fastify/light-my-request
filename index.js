@@ -26,6 +26,13 @@ const urlSchema = {
 }
 
 const ajv = new Ajv()
+
+ajv.addKeyword({
+  keyword: 'prototypedType',
+  validate: (_, data) =>
+    data && data.prototype && typeof data.prototype === 'object'
+})
+
 const schema = {
   type: 'object',
   properties: {
@@ -55,7 +62,8 @@ const schema = {
     authority: { type: 'string' },
     remoteAddress: { type: 'string' },
     method: { type: 'string', enum: http.METHODS.concat(http.METHODS.map(toLowerCase)) },
-    validate: { type: 'boolean' }
+    validate: { type: 'boolean' },
+    Request: { prototypedType: true }
     // payload type => any
   },
   additionalProperties: true,
@@ -100,14 +108,18 @@ function doInject (dispatchFunc, options, callback) {
 
   const server = options.server || {}
 
+  const RequestConstructor = options.Request
+    ? Request.CustomRequest
+    : Request
+
   if (typeof callback === 'function') {
-    const req = new Request(options)
+    const req = new RequestConstructor(options)
     const res = new Response(req, callback)
 
     return makeRequest(dispatchFunc, server, req, res)
   } else {
     return new Promise((resolve, reject) => {
-      const req = new Request(options)
+      const req = new RequestConstructor(options)
       const res = new Response(req, resolve, reject)
 
       makeRequest(dispatchFunc, server, req, res)
@@ -203,7 +215,11 @@ Object.getOwnPropertyNames(Promise.prototype).forEach(method => {
 })
 
 function isInjection (obj) {
-  return (obj instanceof Request || obj instanceof Response)
+  return (
+    obj instanceof Request ||
+    obj instanceof Response ||
+    (obj && obj.constructor && obj.constructor.name === '_CustomLMRRequest')
+  )
 }
 
 function toLowerCase (m) { return m.toLowerCase() }
