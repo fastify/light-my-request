@@ -112,6 +112,19 @@ test('request inherits from custom class', (t) => {
   })
 })
 
+test('request with custom class preserves stream data', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.ok(req._readableState)
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: http.IncomingMessage }, (err, res) => {
+    t.error(err)
+  })
+})
+
 test('assert Request option has a valid prototype', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
