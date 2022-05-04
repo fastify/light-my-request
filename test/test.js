@@ -112,6 +112,25 @@ test('request inherits from custom class', (t) => {
   })
 })
 
+test('assert Request option has a valid prototype', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.error('should not get here')
+    res.writeHead(500)
+    res.end()
+  }
+
+  const MyInvalidRequest = {}
+
+  t.throws(() => {
+    inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: MyInvalidRequest }, () => {})
+  }, {})
+
+  t.throws(() => {
+    inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: 'InvalidRequest' }, () => {})
+  }, {})
+})
+
 test('passes remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {

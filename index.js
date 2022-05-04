@@ -26,6 +26,13 @@ const urlSchema = {
 }
 
 const ajv = new Ajv()
+
+ajv.addKeyword({
+  keyword: 'prototypedType',
+  validate: (_, data) =>
+    data && data.prototype && typeof data.prototype === 'object'
+})
+
 const schema = {
   type: 'object',
   properties: {
@@ -55,7 +62,8 @@ const schema = {
     authority: { type: 'string' },
     remoteAddress: { type: 'string' },
     method: { type: 'string', enum: http.METHODS.concat(http.METHODS.map(toLowerCase)) },
-    validate: { type: 'boolean' }
+    validate: { type: 'boolean' },
+    Request: { prototypedType: true }
     // payload type => any
   },
   additionalProperties: true,
