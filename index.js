@@ -100,7 +100,7 @@ function doInject (dispatchFunc, options, callback) {
 
   const server = options.server || {}
 
-  const RequestConstructor = options.customRequestType
+  const RequestConstructor = options.Request
     ? Request.CustomRequest
     : Request
 

@@ -107,7 +107,7 @@ test('request inherits from custom class', (t) => {
     res.end()
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', customRequestType: http.IncomingMessage }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: http.IncomingMessage }, (err, res) => {
     t.error(err)
   })
 })
@@ -458,7 +458,7 @@ test('identifies injection object', (t) => {
   const cb = (err, res) => { t.error(err) }
 
   inject(dispatchRequest, options, cb)
-  inject(dispatchCustomRequest, { ...options, customRequestType: http.IncomingMessage }, cb)
+  inject(dispatchCustomRequest, { ...options, Request: http.IncomingMessage }, cb)
 })
 
 test('pipes response', (t) => {

@@ -24,7 +24,7 @@ const mockCustomReq = {
     accepts: 'json',
     authorization: 'granted'
   },
-  customRequestType: http.IncomingMessage
+  Request: http.IncomingMessage
 }
 const mockReqCookies = {
   url: 'http://localhost',
