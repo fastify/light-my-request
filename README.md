@@ -2,7 +2,6 @@
 
 ![CI](https://github.com/fastify/light-my-request/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/light-my-request.svg?style=flat)](https://www.npmjs.com/package/light-my-request)
-[![Known Vulnerabilities](https://snyk.io/test/github/fastify/light-my-request/badge.svg)](https://snyk.io/test/github/fastify/light-my-request)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.  
