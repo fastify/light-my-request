@@ -1,79 +1,12 @@
 'use strict'
 
 const assert = require('assert')
-const http = require('http')
-const Ajv = require('ajv')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
 const errorMessage = 'The dispatch function has already been invoked'
-const urlSchema = {
-  oneOf: [
-    { type: 'string' },
-    {
-      type: 'object',
-      properties: {
-        protocol: { type: 'string' },
-        hostname: { type: 'string' },
-        pathname: { type: 'string' }
-        // port type => any
-        // query type => any
-      },
-      additionalProperties: true,
-      required: ['pathname']
-    }
-  ]
-}
 
-const ajv = new Ajv()
-
-ajv.addKeyword({
-  keyword: 'prototypedType',
-  validate: (_, data) =>
-    data && data.prototype && typeof data.prototype === 'object'
-})
-
-const schema = {
-  type: 'object',
-  properties: {
-    url: urlSchema,
-    path: urlSchema,
-    cookies: {
-      type: 'object',
-      additionalProperties: true
-    },
-    headers: {
-      type: 'object',
-      additionalProperties: true
-    },
-    query: {
-      type: 'object',
-      additionalProperties: true
-    },
-    simulate: {
-      type: 'object',
-      properties: {
-        end: { type: 'boolean' },
-        split: { type: 'boolean' },
-        error: { type: 'boolean' },
-        close: { type: 'boolean' }
-      }
-    },
-    authority: { type: 'string' },
-    remoteAddress: { type: 'string' },
-    method: { type: 'string', enum: http.METHODS.concat(http.METHODS.map(toLowerCase)) },
-    validate: { type: 'boolean' },
-    Request: { prototypedType: true }
-    // payload type => any
-  },
-  additionalProperties: true,
-  oneOf: [
-    { required: ['url'] },
-    { required: ['path'] }
-  ]
-}
-
-const optsValidator = ajv.compile(schema)
+const optsValidator = require('./lib/configValidator')
 
 function inject (dispatchFunc, options, callback) {
   if (typeof callback === 'undefined') {
@@ -221,8 +154,6 @@ function isInjection (obj) {
     (obj && obj.constructor && obj.constructor.name === '_CustomLMRRequest')
   )
 }
-
-function toLowerCase (m) { return m.toLowerCase() }
 
 module.exports = inject
 module.exports.inject = inject
