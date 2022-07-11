@@ -90,3 +90,17 @@ const parsedValueUsingGeneric = response.json<ParsedValue>()
 expectType<ParsedValue>(parsedValueUsingGeneric)
 
 expectNotAssignable<http.ServerResponse>(response)
+
+const httpDispatch = function (req: http.IncomingMessage, res: http.ServerResponse) {
+  expectType<boolean>(isInjection(req))
+  expectType<boolean>(isInjection(res))
+
+  const reply = 'Hello World'
+  res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length })
+  res.end(reply)
+}
+
+inject(httpDispatch, { method: 'get', url: '/' }, (err, res) => {
+  expectType<Error>(err)
+  expectResponse(res)
+})
