@@ -25,8 +25,6 @@ declare namespace LightMyRequest {
 
   type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
-  function isInjection(obj: http.IncomingMessage): obj is Request;
-  function isInjection(obj: http.ServerResponse): obj is ServerResponse;
   function isInjection (obj: http.IncomingMessage | http.ServerResponse): boolean
 
   interface InjectOptions {
@@ -61,14 +59,10 @@ declare namespace LightMyRequest {
     cookies?: { [k: string]: string }
   }
 
-  interface Request extends http.IncomingMessage {}
-
-  interface ServerResponse extends http.ServerResponse {}
-
   interface Response {
     raw: {
-      res: ServerResponse,
-      req: Request
+      res: http.ServerResponse,
+      req: http.IncomingMessage
     }
     rawPayload: Buffer
     headers: http.OutgoingHttpHeaders
