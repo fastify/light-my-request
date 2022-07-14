@@ -59,6 +59,7 @@ declare namespace LightMyRequest {
     server?: http.Server
     cookies?: { [k: string]: string },
     signal?: AbortSignal,
+    Request?: object,
   }
 
   interface Request extends stream.Readable {
@@ -72,7 +73,7 @@ declare namespace LightMyRequest {
     connection: object
   }
 
-  interface ServerResponse extends http.ServerResponse {} 
+  interface ServerResponse extends http.ServerResponse {}
 
   interface Response {
     raw: {
