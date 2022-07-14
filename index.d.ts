@@ -57,7 +57,8 @@ declare namespace LightMyRequest {
     validate?: boolean
     payload?: InjectPayload
     server?: http.Server
-    cookies?: { [k: string]: string }
+    cookies?: { [k: string]: string },
+    signal?: AbortSignal,
   }
 
   interface Request extends stream.Readable {
