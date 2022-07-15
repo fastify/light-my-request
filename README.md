@@ -165,7 +165,7 @@ Injects a fake request into an HTTP server.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
   - `autoStart` - Automatically start the request as soon as the method
     is called. It is only valid when not passing a callback. Defaults to `true`.
-  - `signal` - An `AbortSignal` that may be used to abort an ongoing request.
+  - `signal` - An `AbortSignal` that may be used to abort an ongoing request. Requires Node v16+.
   - `Request` - Optional type from which the `request` object should inherit
     instead of `stream.Readable`
 - `callback` - the callback function using the signature `function (err, res)` where:
