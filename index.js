@@ -8,6 +8,7 @@ const errorMessage = 'The dispatch function has already been invoked'
 
 const optsValidator = require('./lib/configValidator')
 
+// test pr from fork
 function inject (dispatchFunc, options, callback) {
   if (typeof callback === 'undefined') {
     return new Chain(dispatchFunc, options)
