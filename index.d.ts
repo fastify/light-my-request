@@ -1,4 +1,3 @@
-import * as stream from 'stream'
 import * as http from 'http'
 
 type HTTPMethods = 'DELETE' | 'delete' |
@@ -20,13 +19,13 @@ declare namespace LightMyRequest {
     callback: CallbackFunc
   ): void
 
-  type DispatchFunc = (req: Request, res: ServerResponse) => void
+  type DispatchFunc = http.RequestListener
 
   type CallbackFunc = (err: Error, response: Response) => void
 
   type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
-  function isInjection (obj: Request | ServerResponse): boolean
+  function isInjection (obj: http.IncomingMessage | http.ServerResponse): boolean
 
   interface AbortSignal {
     readonly aborted: boolean;
@@ -66,23 +65,10 @@ declare namespace LightMyRequest {
     Request?: object,
   }
 
-  interface Request extends stream.Readable {
-    url: string
-    httpVersion: string
-    method: HTTPMethods
-    headers: http.IncomingHttpHeaders
-    rawHeaders: string[]
-    prepare: (next: () => void) => void
-    // @deprecated
-    connection: object
-  }
-
-  interface ServerResponse extends http.ServerResponse {}
-
   interface Response {
     raw: {
       res: http.ServerResponse,
-      req: Request
+      req: http.IncomingMessage
     }
     rawPayload: Buffer
     headers: http.OutgoingHttpHeaders
