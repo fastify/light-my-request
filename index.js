@@ -4,6 +4,7 @@ const assert = require('assert')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
+// I am a test do not merge me
 const errorMessage = 'The dispatch function has already been invoked'
 
 const optsValidator = require('./lib/configValidator')
