@@ -28,6 +28,10 @@ declare namespace LightMyRequest {
 
   function isInjection (obj: Request | ServerResponse): boolean
 
+  interface AbortSignal {
+    readonly aborted: boolean;
+  }
+
   interface InjectOptions {
     url?: string | {
       pathname: string

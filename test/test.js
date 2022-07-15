@@ -1850,4 +1850,4 @@ test('Can abort a request using AbortController/AbortSignal', (t) => {
   const wanted = new Error('The operation was aborted')
   wanted.name = 'AbortError'
   t.rejects(promise, wanted)
-})
+}, { skip: globalThis.AbortController == null })
