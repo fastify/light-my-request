@@ -4,8 +4,8 @@
 [![NPM version](https://img.shields.io/npm/v/light-my-request.svg?style=flat)](https://www.npmjs.com/package/light-my-request)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
-Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.  
-Does not use a socket connection so can be run against an inactive server (server not in listen mode).  
+Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.
+Does not use a socket connection so can be run against an inactive server (server not in listen mode).
 
 ## Example
 
@@ -165,6 +165,7 @@ Injects a fake request into an HTTP server.
   - `server` - Optional http server. It is used for binding the `dispatchFunc`.
   - `autoStart` - Automatically start the request as soon as the method
     is called. It is only valid when not passing a callback. Defaults to `true`.
+  - `signal` - An `AbortSignal` that may be used to abort an ongoing request. Requires Node v16+.
   - `Request` - Optional type from which the `request` object should inherit
     instead of `stream.Readable`
 - `callback` - the callback function using the signature `function (err, res)` where:
@@ -249,8 +250,8 @@ inject(dispatch)
 Note: The application would not respond multiple times. If you try to invoking any method after the application has responded, the application would throw an error.
 
 ## Acknowledgements
-This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.  
-All the credits before the commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) goes to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).  
+This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.
+All the credits before the commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) goes to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).
 Since the commit [db8bced](https://github.com/fastify/light-my-request/commit/db8bced10b4367731688c8738621d42f39680efc) the project will be maintained by the Fastify team.
 
 ## License

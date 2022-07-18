@@ -1834,3 +1834,20 @@ test('Can parse URLs with single leading slash', (t) => {
   const parsedURL = parseURL('https://example.com/test', undefined)
   t.equal(parsedURL.href, 'https://example.com/test')
 })
+
+test('Can abort a request using AbortController/AbortSignal', (t) => {
+  t.plan(1)
+
+  const dispatch = function (req, res) {}
+
+  const controller = new AbortController()
+  const promise = inject(dispatch, {
+    method: 'GET',
+    url: 'http://example.com:8080/hello',
+    signal: controller.signal
+  })
+  controller.abort()
+  const wanted = new Error('The operation was aborted')
+  wanted.name = 'AbortError'
+  t.rejects(promise, wanted)
+}, { skip: globalThis.AbortController == null })

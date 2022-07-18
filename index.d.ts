@@ -27,6 +27,10 @@ declare namespace LightMyRequest {
 
   function isInjection (obj: http.IncomingMessage | http.ServerResponse): boolean
 
+  interface AbortSignal {
+    readonly aborted: boolean;
+  }
+
   interface InjectOptions {
     url?: string | {
       pathname: string
@@ -56,7 +60,9 @@ declare namespace LightMyRequest {
     validate?: boolean
     payload?: InjectPayload
     server?: http.Server
-    cookies?: { [k: string]: string }
+    cookies?: { [k: string]: string },
+    signal?: AbortSignal,
+    Request?: object,
   }
 
   interface Response {
