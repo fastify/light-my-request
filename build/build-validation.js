@@ -37,8 +37,15 @@ const schema = {
       additionalProperties: true
     },
     query: {
-      type: 'object',
-      additionalProperties: true
+      anyOf: [
+        {
+          type: 'object',
+          additionalProperties: true
+        },
+        {
+          type: 'string'
+        }
+      ]
     },
     simulate: {
       type: 'object',
