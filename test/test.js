@@ -239,6 +239,43 @@ test('query will be merged into that in url', (t) => {
   })
 })
 
+test('passes query as a string', (t) => {
+  t.plan(2)
+
+  const query = 'message=OK&xs=foo&xs=bar'
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.url)
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', query }, (err, res) => {
+    t.error(err)
+    t.same(parseQuery(res.payload), {
+      message: 'OK',
+      xs: ['foo', 'bar']
+    })
+  })
+})
+
+test('query as a string will be merged into that in url', (t) => {
+  t.plan(2)
+
+  const query = 'xs=foo&xs=bar'
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.url)
+  }
+
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello?message=OK', query }, (err, res) => {
+    t.error(err)
+    t.same(parseQuery(res.payload), Object.assign({ message: 'OK' }, {
+      xs: ['foo', 'bar']
+    }))
+  })
+})
+
 test('passes localhost as default remote address', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {

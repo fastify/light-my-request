@@ -154,7 +154,7 @@ Injects a fake request into an HTTP server.
   - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header. If the header is already set, the data will be appended.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
   - `payload` - an optional request payload. Can be a string, Buffer, Stream or object. If the payload is string, Buffer or Stream is used as is as the request payload. Oherwise it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`
-  - `query` - an optional object containing query parameters.
+  - `query` - an optional object or string containing query parameters.
   - `body` - alias for payload.
   - `simulate` - an object containing flags to simulate various conditions:
     - `end` - indicates whether the request will fire an `end` event. Defaults to `undefined`, meaning an `end` event will fire.
