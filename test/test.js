@@ -2,7 +2,7 @@
 
 const t = require('tap')
 const test = t.test
-const { Readable, finished } = require('stream')
+const { Readable, finished, pipeline } = require('stream')
 const qs = require('querystring')
 const fs = require('fs')
 const zlib = require('zlib')
@@ -1888,3 +1888,39 @@ test('Can abort a request using AbortController/AbortSignal', (t) => {
   wanted.name = 'AbortError'
   t.rejects(promise, wanted)
 }, { skip: globalThis.AbortController == null })
+
+test('should pass req to ServerResponse', (t) => {
+  if (semver.lt(process.versions.node, '16.0.0')) {
+    t.pass('Skip because Node version < 16')
+    t.end()
+    return
+  }
+
+  t.plan(5)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.host + '|' + req.url)
+  }
+
+  inject(dispatch, 'http://example.com:8080/hello', (err, res) => {
+    t.error(err)
+    t.ok(res.raw.req === res.raw.res.req)
+    t.ok(res.raw.res.req.removeListener)
+    t.equal(res.payload, 'example.com:8080|/hello')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
+  })
+})
+
+test('should work with pipeline', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    pipeline(req.headers.host + '|' + req.url, res, () => res.end())
+  }
+
+  inject(dispatch, 'http://example.com:8080/hello', (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'example.com:8080|/hello')
+    t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
+  })
+})
