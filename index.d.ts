@@ -63,6 +63,7 @@ declare namespace LightMyRequest {
     cookies?: { [k: string]: string },
     signal?: AbortSignal,
     Request?: object,
+    autoFillHeaders?: boolean
   }
 
   interface Response {

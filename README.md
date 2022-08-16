@@ -168,6 +168,10 @@ Injects a fake request into an HTTP server.
   - `signal` - An `AbortSignal` that may be used to abort an ongoing request. Requires Node v16+.
   - `Request` - Optional type from which the `request` object should inherit
     instead of `stream.Readable`
+  - `autoFillHeaders` - Optional flag to fill missed headers: 
+      - `user-agent` with `lightMyRequest` 
+      - `content-type` with  `application/json`. 
+      Defaults to `true`.
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:

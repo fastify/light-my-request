@@ -1924,3 +1924,27 @@ test('should work with pipeline', (t) => {
     t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
   })
 })
+
+test('shoudl leave undefined headers if not present', (t) => {
+  t.plan(5)
+  const dispatch = function (req, res) {
+    t.ok(Array.isArray(req.rawHeaders))
+    t.equal(req.headers['user-agent'], undefined)
+    t.equal(req.headers['content-type'], undefined)
+    t.equal(req.headers['x-foo'], 'bar')
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('Ok')
+  }
+
+  inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    method: 'POST',
+    headers: {
+      'x-foo': 'bar'
+    },
+    body: {},
+    autoFillHeaders: false
+  }, (err, res) => {
+    t.error(err)
+  })
+})
