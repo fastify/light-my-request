@@ -171,7 +171,8 @@ Injects a fake request into an HTTP server.
   - `autoFillHeaders` - Optional flag to fill missed headers: 
       - `user-agent` with `lightMyRequest` 
       - `content-type` with  `application/json`. 
-      Defaults to `true`.
+    
+    Defaults to `true`.
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:
