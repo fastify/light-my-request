@@ -1925,7 +1925,7 @@ test('should work with pipeline', (t) => {
   })
 })
 
-test('should leave the headers user-agent and content-type undefined when autoFillHeaders is set to false', (t) => {
+test('should leave the headers user-agent and content-type undefined when the headers are explicitly set to undefined in the inject', (t) => {
   t.plan(5)
   const dispatch = function (req, res) {
     t.ok(Array.isArray(req.rawHeaders))
