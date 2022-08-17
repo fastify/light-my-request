@@ -1924,3 +1924,28 @@ test('should work with pipeline', (t) => {
     t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
   })
 })
+
+test('should leave the headers user-agent and content-type undefined when the headers are explicitly set to undefined in the inject', (t) => {
+  t.plan(5)
+  const dispatch = function (req, res) {
+    t.ok(Array.isArray(req.rawHeaders))
+    t.equal(req.headers['user-agent'], undefined)
+    t.equal(req.headers['content-type'], undefined)
+    t.equal(req.headers['x-foo'], 'bar')
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('Ok')
+  }
+
+  inject(dispatch, {
+    url: 'http://example.com:8080/hello',
+    method: 'POST',
+    headers: {
+      'x-foo': 'bar',
+      'user-agent': undefined,
+      'content-type': undefined
+    },
+    body: {}
+  }, (err, res) => {
+    t.error(err)
+  })
+})
