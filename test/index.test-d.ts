@@ -1,10 +1,10 @@
 import * as http from 'http'
-import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '../index'
+import { inject, isInjection, Response, InjectOptions, Chain } from '../index'
 import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
 
 expectAssignable<InjectOptions>({ url: '/' })
 
-const dispatch = function (req: http.IncomingMessage, res: http.ServerResponse) {
+const dispatch = function (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) {
   expectType<boolean>(isInjection(req))
   expectType<boolean>(isInjection(res))
 
@@ -21,8 +21,6 @@ const expectResponse = function (res: Response) {
   expectAssignable<http.IncomingMessage>(res.raw.req)
   console.log(res.cookies)
 }
-
-expectType<DispatchFunc>(dispatch)
 
 inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
   expectType<Error>(err)

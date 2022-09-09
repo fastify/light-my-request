@@ -10,16 +10,14 @@ type HTTPMethods = 'DELETE' | 'delete' |
 
 declare namespace LightMyRequest {
   function inject (
-    dispatchFunc: DispatchFunc,
+    dispatchFunc: http.RequestListener,
     options?: string | InjectOptions
   ): Chain
   function inject (
-    dispatchFunc: DispatchFunc,
+    dispatchFunc: http.RequestListener,
     options: string | InjectOptions,
     callback: CallbackFunc
   ): void
-
-  type DispatchFunc = http.RequestListener
 
   type CallbackFunc = (err: Error, response: Response) => void
 
