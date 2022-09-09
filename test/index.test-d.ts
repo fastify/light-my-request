@@ -5,6 +5,8 @@ import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
 expectAssignable<InjectOptions>({ url: '/' })
 
 const dispatch: http.RequestListener = function (req, res) {
+  expectAssignable<http.IncomingMessage>(req)
+  expectAssignable<http.ServerResponse>(res)
   expectType<boolean>(isInjection(req))
   expectType<boolean>(isInjection(res))
 
