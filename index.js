@@ -45,6 +45,12 @@ function doInject (dispatchFunc, options, callback) {
     ? Request.CustomRequest
     : Request
 
+  // Express.js detection
+  if (dispatchFunc.request && dispatchFunc.request.app === dispatchFunc) {
+    Object.setPrototypeOf(Object.getPrototypeOf(dispatchFunc.request), RequestConstructor.prototype)
+    Object.setPrototypeOf(Object.getPrototypeOf(dispatchFunc.response), Response.prototype)
+  }
+
   if (typeof callback === 'function') {
     const req = new RequestConstructor(options)
     const res = new Response(req, callback)

@@ -1949,3 +1949,19 @@ test('should leave the headers user-agent and content-type undefined when the he
     t.error(err)
   })
 })
+
+test("passes payload when using express' send", (t) => {
+  t.plan(3)
+
+  const app = express()
+
+  app.get('/hello', (req, res) => {
+    res.send('some text')
+  })
+
+  inject(app, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['content-length'], '9')
+    t.equal(res.payload, 'some text')
+  })
+})
