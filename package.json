@@ -16,7 +16,7 @@
     "benchmark": "^2.1.4",
     "end-of-stream": "^1.4.4",
     "express": "^4.17.1",
-    "form-auto-content": "^2.0.0",
+    "form-auto-content": "^3.0.0",
     "form-data": "^4.0.0",
     "semver": "^7.3.5",
     "standard": "^17.0.0",
