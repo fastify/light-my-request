@@ -1440,6 +1440,46 @@ test('Response.json() should throw an error if content-type is not application/j
   })
 })
 
+test('Response.json() should not throw an error if content-type is a subtype of application/json', (t) => {
+  t.plan(2)
+
+  const jsonData = {
+    a: 1,
+    b: '2'
+  }
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'application/expect-ct-report+json' })
+    res.end(JSON.stringify(jsonData))
+  }
+
+  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    const { json } = res
+    t.same(json(), jsonData)
+  })
+})
+
+test('Response.json() should not throw an error if content-type is application/tree.subtype+json', (t) => {
+  t.plan(2)
+
+  const jsonData = {
+    a: 1,
+    b: '2'
+  }
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'application/vnd.apothekende.reservation+json' })
+    res.end(JSON.stringify(jsonData))
+  }
+
+  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    const { json } = res
+    t.same(json(), jsonData)
+  })
+})
+
 test('Response.json() should throw an error if the payload is not of valid JSON format', (t) => {
   t.plan(2)
 
