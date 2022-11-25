@@ -1421,55 +1421,16 @@ test('Response.json() should parse the JSON payload', (t) => {
   })
 })
 
-test('Response.json() should throw an error if content-type is not application/json', (t) => {
+test('Response.json() should not throw an error if content-type is not application/json', (t) => {
   t.plan(2)
 
-  const json = {
+  const jsonData = {
     a: 1,
     b: '2'
   }
 
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(JSON.stringify(json))
-  }
-
-  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.throws(res.json, Error)
-  })
-})
-
-test('Response.json() should not throw an error if content-type is a subtype of application/json', (t) => {
-  t.plan(2)
-
-  const jsonData = {
-    a: 1,
-    b: '2'
-  }
-
-  const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'application/expect-ct-report+json' })
-    res.end(JSON.stringify(jsonData))
-  }
-
-  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    const { json } = res
-    t.same(json(), jsonData)
-  })
-})
-
-test('Response.json() should not throw an error if content-type is application/tree.subtype+json', (t) => {
-  t.plan(2)
-
-  const jsonData = {
-    a: 1,
-    b: '2'
-  }
-
-  const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'application/vnd.apothekende.reservation+json' })
     res.end(JSON.stringify(jsonData))
   }
 
