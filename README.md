@@ -181,7 +181,7 @@ Injects a fake request into an HTTP server.
     - `body` - alias for payload.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
-    - `json` - a function that parses the `application/json` response payload and returns an object. Throws if the content type does not contain `application/json`.
+    - `json` - a function that parses a json response payload and returns an object.
     - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
 Notes:
