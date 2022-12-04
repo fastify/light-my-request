@@ -27,9 +27,9 @@
     "benchmark": "node test/benchmark.js",
     "coverage": "npm run unit -- --cov --coverage-report=html",
     "lint": "standard",
-    "unit": "tap test/test.js test/*.test.js --100",
-    "test": "npm run lint && npm run unit && npm run tsd",
-    "tsd": "tsd"
+    "test": "npm run lint && npm run test:unit && npm run test:typescript",
+    "test:typescript": "tsd",
+    "test:unit": "tap"
   },
   "repository": {
     "type": "git",
