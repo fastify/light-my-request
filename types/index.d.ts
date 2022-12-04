@@ -8,30 +8,23 @@ type HTTPMethods = 'DELETE' | 'delete' |
                    'PUT' | 'put' |
                    'OPTIONS' | 'options'
 
-declare namespace LightMyRequest {
-  function inject (
-    dispatchFunc: DispatchFunc,
-    options?: string | InjectOptions
-  ): Chain
-  function inject (
-    dispatchFunc: DispatchFunc,
-    options: string | InjectOptions,
-    callback: CallbackFunc
-  ): void
+type Inject = typeof inject
 
-  type DispatchFunc = http.RequestListener
+declare namespace inject {
 
-  type CallbackFunc = (err: Error, response: Response) => void
+  export type DispatchFunc = http.RequestListener
 
-  type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
+  export type CallbackFunc = (err: Error, response: Response) => void
 
-  function isInjection (obj: http.IncomingMessage | http.ServerResponse): boolean
+  export type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
-  interface AbortSignal {
+  export function isInjection (obj: http.IncomingMessage | http.ServerResponse): boolean
+
+  export interface AbortSignal {
     readonly aborted: boolean;
   }
 
-  interface InjectOptions {
+  export interface InjectOptions {
     url?: string | {
       pathname: string
       protocol?: string
@@ -65,7 +58,7 @@ declare namespace LightMyRequest {
     Request?: object,
   }
 
-  interface Response {
+  export interface Response {
     raw: {
       res: http.ServerResponse,
       req: http.IncomingMessage
@@ -81,7 +74,7 @@ declare namespace LightMyRequest {
     cookies: Array<object>
   }
 
-  interface Chain extends Promise<Response> {
+  export interface Chain extends Promise<Response> {
     delete: (url: string) => Chain
     get: (url: string) => Chain
     head: (url: string) => Chain
@@ -98,6 +91,19 @@ declare namespace LightMyRequest {
     end(): Promise<Response>
     end(callback: CallbackFunc): void
   }
+
+  export const inject: Inject
+  export { inject as default }
 }
 
-export = LightMyRequest
+declare function inject (
+  dispatchFunc: inject.DispatchFunc,
+  options?: string | inject.InjectOptions
+): inject.Chain
+declare function inject (
+  dispatchFunc: inject.DispatchFunc,
+  options: string | inject.InjectOptions,
+  callback: inject.CallbackFunc
+): void
+
+export = inject

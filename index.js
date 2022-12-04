@@ -162,5 +162,6 @@ function isInjection (obj) {
 }
 
 module.exports = inject
+module.exports.default = inject
 module.exports.inject = inject
 module.exports.isInjection = isInjection
