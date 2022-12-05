@@ -3,12 +3,12 @@
   "version": "5.7.0",
   "description": "Fake HTTP injection library",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "dependencies": {
     "cookie": "^0.5.0",
     "process-warning": "^2.0.0",
     "set-cookie-parser": "^2.4.1"
   },
-  "types": "index.d.ts",
   "devDependencies": {
     "@fastify/ajv-compiler": "^3.1.0",
     "@fastify/pre-commit": "^2.0.2",
@@ -48,9 +48,6 @@
     "url": "https://github.com/fastify/light-my-request/issues"
   },
   "homepage": "https://github.com/fastify/light-my-request/blob/master/README.md",
-  "tsd": {
-    "directory": "test"
-  },
   "standard": {
     "ignore": [
       "test/benchmark.js"

@@ -1,5 +1,5 @@
 import * as http from 'http'
-import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '../index'
+import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '..'
 import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
 
 expectAssignable<InjectOptions>({ url: '/' })
