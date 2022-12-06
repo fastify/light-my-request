@@ -21,7 +21,7 @@ const expectResponse = function (res: Response) {
   expectAssignable<Function>(res.json)
   expectAssignable<http.ServerResponse>(res.raw.res)
   expectAssignable<http.IncomingMessage>(res.raw.req)
-  expectAssignable<Record<string, string>>(Object.fromEntries(res.cookies.map(x => [x.name, x.value])))
+  expectType<Array<Date | undefined>>(res.cookies.map(x => x.expires))
   console.log(res.cookies)
 }
 
