@@ -58,6 +58,20 @@ declare namespace inject {
     Request?: object,
   }
 
+  /**
+   * https://github.com/nfriedly/set-cookie-parser/blob/3eab8b7d5d12c8ed87832532861c1a35520cf5b3/lib/set-cookie.js#L41
+   */
+  interface Cookie {
+    name: string;
+    value: string;
+    expires?: Date;
+    maxAge?: number;
+    secure?: boolean;
+    httpOnly?: boolean;
+    sameSite?: string;
+    [name: string]: unknown
+  }
+
   export interface Response {
     raw: {
       res: http.ServerResponse,
@@ -71,7 +85,7 @@ declare namespace inject {
     payload: string
     body: string
     json: <T = any>() => T
-    cookies: Array<object>
+    cookies: Array<Cookie>
   }
 
   export interface Chain extends Promise<Response> {
