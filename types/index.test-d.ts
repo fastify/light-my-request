@@ -21,8 +21,16 @@ const expectResponse = function (res: Response) {
   expectAssignable<Function>(res.json)
   expectAssignable<http.ServerResponse>(res.raw.res)
   expectAssignable<http.IncomingMessage>(res.raw.req)
-  expectType<Array<Date | undefined>>(res.cookies.map(x => x.expires))
-  console.log(res.cookies)
+  expectAssignable<Array<any>>(res.cookies)
+  const cookie = res.cookies[0]
+  expectType<string>(cookie.name)
+  expectType<string>(cookie.value)
+  expectType<Date | undefined>(cookie.expires)
+  expectType<number | undefined>(cookie.maxAge)
+  expectType<boolean | undefined>(cookie.httpOnly)
+  expectType<boolean | undefined>(cookie.secure)
+  expectType<string | undefined>(cookie.sameSite)
+  expectType<unknown | undefined>(cookie.additional)
 }
 
 expectType<DispatchFunc>(dispatch)
