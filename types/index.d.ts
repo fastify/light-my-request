@@ -69,7 +69,7 @@ declare namespace inject {
     secure?: boolean;
     httpOnly?: boolean;
     sameSite?: string;
-    [key: string]: string;
+    [name: string]: unknown
   }
 
   export interface Response {
