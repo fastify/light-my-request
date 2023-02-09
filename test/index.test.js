@@ -105,9 +105,9 @@ test('leave intact original origin header', (t) => {
     res.end(req.headers.origin)
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { origin: 'https://example.com' } }, (err, res) => {
+  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { origin: 'https://lightmyrequest' } }, (err, res) => {
     t.error(err)
-    t.equal(res.payload, 'https://example.com')
+    t.equal(res.payload, 'https://lightmyrequest')
   })
 })
 
