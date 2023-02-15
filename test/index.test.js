@@ -85,37 +85,11 @@ test('passes headers', (t) => {
   })
 })
 
-test('passes fake origin header', (t) => {
-  t.plan(2)
-  const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.headers.origin)
-  }
-
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'http://example.com:8080')
-  })
-})
-
-test('leave intact original origin header', (t) => {
-  t.plan(2)
-  const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.headers.origin)
-  }
-
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { origin: 'https://lightmyrequest' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'https://lightmyrequest')
-  })
-})
-
 test('request has rawHeaders', (t) => {
   t.plan(3)
   const dispatch = function (req, res) {
     t.ok(Array.isArray(req.rawHeaders))
-    t.match(req.rawHeaders, ['super', 'duper', 'user-agent', 'lightMyRequest', 'origin', 'http://example.com:8080', 'host', 'example.com:8080'])
+    t.match(req.rawHeaders, ['super', 'duper', 'user-agent', 'lightMyRequest', 'host', 'example.com:8080'])
     res.writeHead(200)
     res.end()
   }
@@ -1641,7 +1615,6 @@ test('correctly handles no string headers', (t) => {
       true: 'true',
       false: 'false',
       host: 'example.com:8080',
-      origin: 'http://example.com:8080',
       'user-agent': 'lightMyRequest'
     })
   })
