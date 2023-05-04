@@ -11,11 +11,13 @@
   },
   "devDependencies": {
     "@fastify/ajv-compiler": "^3.1.0",
+    "@fastify/multipart": "^7.6.0",
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^18.0.0",
     "benchmark": "^2.1.4",
     "end-of-stream": "^1.4.4",
     "express": "^4.17.1",
+    "fastify": "^4.17.0",
     "form-auto-content": "^3.0.0",
     "form-data": "^4.0.0",
     "semver": "^7.3.5",
