@@ -52,6 +52,7 @@ declare namespace inject {
     method?: HTTPMethods
     validate?: boolean
     payload?: InjectPayload
+    body?: InjectPayload
     server?: http.Server
     cookies?: { [k: string]: string },
     signal?: AbortSignal,
