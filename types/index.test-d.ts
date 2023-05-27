@@ -21,6 +21,8 @@ const expectResponse = function (res: Response) {
   expectAssignable<Function>(res.json)
   expectAssignable<http.ServerResponse>(res.raw.res)
   expectAssignable<http.IncomingMessage>(res.raw.req)
+  expectType<string>(res.payload)
+  expectType<string>(res.body)
   expectAssignable<Array<any>>(res.cookies)
   const cookie = res.cookies[0]
   expectType<string>(cookie.name)
@@ -70,6 +72,16 @@ inject(dispatch, { method: 'get', url: '/', query: { name1: ['value1', 'value2']
 })
 
 inject(dispatch, { method: 'get', url: '/', query: 'name1=value1' }, (err, res) => {
+  expectType<Error>(err)
+  expectResponse(res)
+})
+
+inject(dispatch, { method: 'post', url: '/', payload: { name1: 'value1', value2: 'value2' } }, (err, res) => {
+  expectType<Error>(err)
+  expectResponse(res)
+})
+
+inject(dispatch, { method: 'post', url: '/', body: { name1: 'value1', value2: 'value2' } }, (err, res) => {
   expectType<Error>(err)
   expectResponse(res)
 })
