@@ -1966,3 +1966,23 @@ test("passes payload when using express' send", (t) => {
     t.equal(res.payload, 'some text')
   })
 })
+
+test('request that is destroyed does not error', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    readStream(req, (buff) => {
+      req.destroy() // this should be a no-op
+      setImmediate(() => {
+        res.writeHead(200, { 'Content-Type': 'text/plain' })
+        res.end(buff)
+      })
+    })
+  }
+
+  const payload = getTestStream()
+
+  inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'hi')
+  })
+})
