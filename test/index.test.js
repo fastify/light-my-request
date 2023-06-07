@@ -43,12 +43,12 @@ test('returns non-chunked payload', (t) => {
     t.equal(res.statusCode, 200)
     t.equal(res.statusMessage, 'Super')
     t.ok(res.headers.date)
-    t.same(res.headers, {
+    t.strictSame(res.headers, {
       date: res.headers.date,
       connection: 'keep-alive',
       'x-extra': 'hello',
       'content-type': 'text/plain',
-      'content-length': output.length
+      'content-length': output.length.toString()
     })
     t.equal(res.payload, output)
     t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
@@ -1565,7 +1565,7 @@ test('read cookie', (t) => {
   inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
     t.error(err)
     t.equal(res.payload, 'example.com:8080|foo=bar')
-    t.same(res.cookies, [
+    t.strictSame(res.cookies, [
       { name: 'type', value: 'ninja' },
       {
         name: 'dev',
@@ -1583,10 +1583,22 @@ test('read cookie', (t) => {
 })
 
 test('correctly handles no string headers', (t) => {
-  t.plan(2)
+  t.plan(3)
   const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify(req.headers))
+    const payload = JSON.stringify(req.headers)
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      integer: 12,
+      float: 3.14,
+      null: null,
+      string: 'string',
+      object: { foo: 'bar' },
+      array: [1, 'two', 3],
+      date,
+      true: true,
+      false: false
+    })
+    res.end(payload)
   }
 
   const date = new Date(0)
@@ -1604,7 +1616,23 @@ test('correctly handles no string headers', (t) => {
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
     t.error(err)
-    t.same(JSON.parse(res.payload), {
+
+    t.strictSame(res.headers, {
+      integer: '12',
+      float: '3.14',
+      null: 'null',
+      string: 'string',
+      object: '[object Object]',
+      array: ['1', 'two', '3'],
+      date: date.toString(),
+      true: 'true',
+      false: 'false',
+      connection: 'keep-alive',
+      'transfer-encoding': 'chunked',
+      'content-type': 'application/json'
+    })
+
+    t.strictSame(JSON.parse(res.payload), {
       integer: '12',
       float: '3.14',
       null: 'null',
