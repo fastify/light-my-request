@@ -1620,6 +1620,7 @@ test('correctly handles no string headers', (t) => {
     t.strictSame(res.headers, {
       integer: '12',
       float: '3.14',
+      null: 'null',
       string: 'string',
       object: '[object Object]',
       array: ['1', 'two', '3'],
