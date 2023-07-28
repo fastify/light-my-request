@@ -111,7 +111,7 @@ LightMyRequest.inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
 })
 
 // or
-import { inject, DistpatchFunc } from 'light-my-request'
+import { inject, DispatchFunc } from 'light-my-request'
 
 const dispatch: DispatchFunc = function (req, res) {
   const reply = 'Hello World'
