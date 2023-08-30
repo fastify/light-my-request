@@ -1127,6 +1127,19 @@ test('chainable api: backwards compatibility for promise (catch)', (t) => {
     .catch(err => t.ok(err))
 })
 
+test('chainable api: backwards compatibility for promise (finally)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('/')
+    .finally(() => t.pass())
+})
+
 test('chainable api: multiple call of then should return the same promise', (t) => {
   t.plan(2)
   let id = 0
