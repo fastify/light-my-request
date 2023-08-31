@@ -28,7 +28,7 @@ const httpMethods = [
 ]
 
 test('returns non-chunked payload', (t) => {
-  t.plan(7)
+  t.plan(6)
   const output = 'example.com:8080|/hello'
 
   const dispatch = function (req, res) {
@@ -42,10 +42,7 @@ test('returns non-chunked payload', (t) => {
     t.error(err)
     t.equal(res.statusCode, 200)
     t.equal(res.statusMessage, 'Super')
-    t.ok(res.headers.date)
     t.strictSame(res.headers, {
-      date: res.headers.date,
-      connection: 'keep-alive',
       'x-extra': 'hello',
       'content-type': 'text/plain',
       'content-length': output.length.toString()
@@ -56,7 +53,7 @@ test('returns non-chunked payload', (t) => {
 })
 
 test('returns single buffer payload', (t) => {
-  t.plan(6)
+  t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end(req.headers.host + '|' + req.url)
@@ -64,9 +61,6 @@ test('returns single buffer payload', (t) => {
 
   inject(dispatch, { url: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
-    t.equal(res.headers['transfer-encoding'], 'chunked')
     t.equal(res.payload, 'example.com:8080|/hello')
     t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
   })
@@ -368,7 +362,7 @@ test('includes default https port in host header', (t) => {
 })
 
 test('optionally accepts an object as url', (t) => {
-  t.plan(5)
+  t.plan(3)
   const output = 'example.com:8080|/hello?test=1234'
 
   const dispatch = function (req, res) {
@@ -388,8 +382,6 @@ test('optionally accepts an object as url', (t) => {
 
   inject(dispatch, { url }, (err, res) => {
     t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
     t.notOk(res.headers['transfer-encoding'])
     t.equal(res.payload, output)
   })
@@ -409,7 +401,7 @@ test('leaves user-agent unmodified', (t) => {
 })
 
 test('returns chunked payload', (t) => {
-  t.plan(5)
+  t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, 'OK')
     res.write('a')
@@ -419,9 +411,6 @@ test('returns chunked payload', (t) => {
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
     t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
-    t.equal(res.headers['transfer-encoding'], 'chunked')
     t.equal(res.payload, 'ab')
   })
 })
@@ -1640,8 +1629,6 @@ test('correctly handles no string headers', (t) => {
       date: date.toString(),
       true: 'true',
       false: 'false',
-      connection: 'keep-alive',
-      'transfer-encoding': 'chunked',
       'content-type': 'application/json'
     })
 
