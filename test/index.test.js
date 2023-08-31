@@ -12,7 +12,7 @@ const semver = require('semver')
 const express = require('express')
 
 const inject = require('../index')
-const parseURL = require('../lib/parseURL')
+const parseURL = require('../lib/parse-url')
 
 const FormData = require('form-data')
 const formAutoContent = require('form-auto-content')
