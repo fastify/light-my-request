@@ -2,8 +2,8 @@
 
 const Request = require('./lib/request')
 const Response = require('./lib/response')
-const Chain = require('./lib/Chain')
-const doInject = require('./lib/doInject')
+const Chain = require('./lib/chain')
+const doInject = require('./lib/do-inject')
 
 function inject (dispatchFunc, options, callback) {
   if (typeof callback === 'undefined') {
