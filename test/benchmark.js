@@ -26,6 +26,7 @@ const mockCustomReq = {
   },
   Request: http.IncomingMessage
 }
+
 const mockReqCookies = {
   url: 'http://localhost',
   method: 'GET',
@@ -52,11 +53,12 @@ const mockReqCookiesPayload = {
   }
 }
 
-suite.add('Request', function () {
-  new Request(mockReq)
-})
+suite
+  .add('Request', function () {
+    new Request(mockReq)
+  })
   .add('Custom Request', function () {
-    new Request.CustomRequest(mockCustomReq)
+    new (Request.getCustomRequest(mockCustomReq.Request))(mockCustomReq)
   })
   .add('Request With Cookies', function () {
     new Request(mockReqCookies)
