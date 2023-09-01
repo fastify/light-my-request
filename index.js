@@ -6,7 +6,7 @@ const Response = require('./lib/response')
 
 const errorMessage = 'The dispatch function has already been invoked'
 
-const optsValidator = require('./lib/configValidator')
+const optsValidator = require('./lib/config-validator')
 
 function inject (dispatchFunc, options, callback) {
   if (typeof callback === 'undefined') {
