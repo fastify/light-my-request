@@ -154,6 +154,11 @@ suite
     assert(d.payload === '1')
   })
   .run()
-  .then(() => {
-    console.table(suite.table())
+  .then((tasks) => {
+    const errors = tasks.map(t => t.result?.error).filter((t) => t)
+    if (errors.length) {
+      errors.map((e) => console.error(e))
+    } else {
+      console.table(suite.table())
+    }
   })
