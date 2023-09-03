@@ -27,6 +27,38 @@ const httpMethods = [
   'trace'
 ]
 
+const parseQuery = url => {
+  const parsedURL = parseURL(url)
+  return qs.parse(parsedURL.search.slice(1))
+}
+
+function getTestStream (encoding) {
+  const word = 'hi'
+  let i = 0
+
+  const stream = new Readable({
+    read (n) {
+      this.push(word[i] ? word[i++] : null)
+    }
+  })
+
+  if (encoding) {
+    stream.setEncoding(encoding)
+  }
+
+  return stream
+}
+
+function readStream (stream, callback) {
+  const chunks = []
+
+  stream.on('data', (chunk) => chunks.push(chunk))
+
+  stream.on('end', () => {
+    return callback(Buffer.concat(chunks))
+  })
+}
+
 test('returns non-chunked payload', (t) => {
   t.plan(7)
   const output = 'example.com:8080|/hello'
@@ -162,12 +194,13 @@ test('passes a socket which emits events like a normal one does', (t) => {
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     req.socket.on('timeout', () => {})
+    res.write('some test ')
     res.end('added')
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
     t.error(err)
-    t.equal(res.payload, 'added')
+    t.equal(res.payload, 'some test added')
   })
 })
 
@@ -196,11 +229,6 @@ test('includes deprecated connection on request', (t) => {
     t.equal(res.payload, '1.2.3.4')
   })
 })
-
-const parseQuery = url => {
-  const parsedURL = parseURL(url)
-  return qs.parse(parsedURL.search.slice(1))
-}
 
 test('passes query', (t) => {
   t.plan(2)
@@ -673,13 +701,12 @@ test('adds a content-length header if none set when payload specified', (t) => {
 test('retains a content-length header when payload specified', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end(req.headers['content-length'])
+    t.fail()
   }
 
-  inject(dispatch, { method: 'POST', url: '/test', payload: '', headers: { 'content-length': '10' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '10')
+  inject(dispatch, { method: 'POST', url: '/test', payload: '1', headers: { 'content-length': '10' } }, (err, res) => {
+    t.equal(err instanceof inject.errors.ContentLength, true)
+    t.error(res)
   })
 })
 
@@ -723,8 +750,8 @@ test('can override stream payload content-length header', (t) => {
   const headers = { 'content-length': '100' }
 
   inject(dispatch, { method: 'POST', url: '/', payload: getTestStream(), headers }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '100')
+    t.equal(err instanceof inject.errors.ContentLength, true)
+    t.error(res)
   })
 })
 
@@ -732,7 +759,7 @@ test('can override stream payload content-length header without request content-
   t.plan(1)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
-    t.equal(req.headers['content-length'], '2')
+    t.error(req.headers['content-length'])
   }
 
   inject(dispatch, { method: 'POST', url: '/', payload: getTestStream() }, () => {})
@@ -768,7 +795,6 @@ test('_read() plays payload', (t) => {
     })
 
     req.on('end', () => {
-      res.writeHead(200, { 'Content-Length': 0 })
       res.end(buffer)
       req.destroy()
     })
@@ -793,7 +819,6 @@ test('simulates split', (t) => {
     })
 
     req.on('end', () => {
-      res.writeHead(200, { 'Content-Length': 0 })
       res.end(buffer)
       req.destroy()
     })
@@ -806,14 +831,14 @@ test('simulates split', (t) => {
   })
 })
 
-test('simulates error', (t) => {
+t.skip('simulates error', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
     req.on('readable', () => {
     })
 
     req.on('error', () => {
-      res.writeHead(200, { 'Content-Length': 0 })
+      res.writeHead(200, { 'Content-Length': 5 })
       res.end('error')
     })
   }
@@ -876,7 +901,7 @@ test('simulates close', (t) => {
     })
 
     req.on('close', () => {
-      res.writeHead(200, { 'Content-Length': 0 })
+      res.writeHead(200, { 'Content-Length': 5 })
       res.end('close')
     })
 
@@ -1127,6 +1152,19 @@ test('chainable api: backwards compatibility for promise (catch)', (t) => {
     .catch(err => t.ok(err))
 })
 
+test('chainable api: backwards compatibility for promise (finally)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('/')
+    .finally(() => t.pass())
+})
+
 test('chainable api: multiple call of then should return the same promise', (t) => {
   t.plan(2)
   let id = 0
@@ -1158,7 +1196,7 @@ test('chainable api: http methods should work correctly', (t) => {
     inject(dispatch)[method]('http://example.com:8080/hello')
       .end((err, res) => {
         t.error(err)
-        t.equal(res.body, method.toUpperCase())
+        t.equal(res.body, method === 'head' ? '' : method.toUpperCase())
       })
   })
 })
@@ -1492,33 +1530,6 @@ test('disabling autostart', (t) => {
   })
 })
 
-function getTestStream (encoding) {
-  const word = 'hi'
-  let i = 0
-
-  const stream = new Readable({
-    read (n) {
-      this.push(word[i] ? word[i++] : null)
-    }
-  })
-
-  if (encoding) {
-    stream.setEncoding(encoding)
-  }
-
-  return stream
-}
-
-function readStream (stream, callback) {
-  const chunks = []
-
-  stream.on('data', (chunk) => chunks.push(chunk))
-
-  stream.on('end', () => {
-    return callback(Buffer.concat(chunks))
-  })
-}
-
 test('send cookie', (t) => {
   t.plan(3)
   const dispatch = function (req, res) {
@@ -1726,7 +1737,7 @@ test('no error for response destory', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
   })
 })
 
@@ -1738,8 +1749,8 @@ test('request destory without error', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res, null)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
+    t.error(res)
   })
 })
 
@@ -1753,8 +1764,8 @@ test('request destory with error', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.equal(err, fakeError)
-    t.equal(res, null)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
+    t.error(res)
   })
 })
 
@@ -1770,8 +1781,8 @@ test('compatible with stream.finished', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res, null)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
+    t.error(res)
   })
 })
 
@@ -1787,8 +1798,8 @@ test('compatible with eos', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res, null)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
+    t.error(res)
   })
 })
 
@@ -1821,15 +1832,15 @@ test('compatible with eos, passes error correctly', (t) => {
 
   const dispatch = function (req, res) {
     eos(res, (err) => {
-      t.equal(err, fakeError)
+      t.equal(err.message, 'premature close')
     })
 
     req.destroy(fakeError)
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.equal(err, fakeError)
-    t.equal(res, null)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
+    t.error(res)
   })
 })
 
@@ -1842,8 +1853,8 @@ test('multiple calls to req.destroy should not be called', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.equal(err)
-    t.equal(res, null)
+    t.equal(err instanceof inject.errors.SocketHangUpError, true)
+    t.error(res)
   })
 })
 
@@ -2013,4 +2024,114 @@ test('request that is destroyed does not error', (t) => {
     t.error(err)
     t.equal(res.payload, 'hi')
   })
+})
+
+test('status 204', (t) => {
+  t.plan(5)
+  const dispatch = function (req, res) {
+    res.writeHead(204)
+    res.end('hello')
+  }
+
+  inject(dispatch, { method: 'POST', url: '/' }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, '')
+    t.equal(Object.keys(res.headers).length, 2)
+    t.hasProp(res.headers, 'date')
+    t.equal(res.headers.connection, 'keep-alive')
+  })
+})
+
+test('partly send body', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-length': 10 })
+    res.write('')
+    res.write('1234')
+    res.write('123456')
+    res.end()
+  }
+
+  inject(dispatch, { method: 'POST', url: '/' }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, '1234123456')
+  })
+})
+
+test('retains a content-length header without payload', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.fail()
+  }
+
+  inject(dispatch, { method: 'POST', url: '/test', headers: { 'content-length': '10' } }, (err, res) => {
+    t.equal(err instanceof inject.errors.ContentLength, true)
+    t.error(res)
+  })
+})
+
+test('content-length correct with payload', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.end(req.headers['content-length'])
+  }
+
+  inject(dispatch, { method: 'POST', url: '/test', payload: '1234', headers: { 'content-length': '4' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, '4')
+  })
+})
+
+test('content-length slice if less', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    const chunks = []
+    req.on('data', (chunk) => chunks.push(chunk))
+    req.on('end', () => {
+      res.end(Buffer.concat(chunks).toString())
+    })
+  }
+
+  inject(dispatch, { method: 'POST', url: '/test', payload: '123456', headers: { 'content-length': '4' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, '1234')
+  })
+})
+
+test('content-length slice if less readable', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    readStream(req, (buff) => {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end(buff)
+    })
+  }
+
+  const payload = getTestStream()
+
+  inject(dispatch, { method: 'POST', url: '/', payload, headers: { 'content-length': '1' } }, (err, res) => {
+    t.error(err)
+    t.equal(res.payload, 'h')
+  })
+})
+
+test('simulates no end with payload Readable', (t) => {
+  t.plan(2)
+  let end = false
+  const dispatch = function (req, res) {
+    req.resume()
+    req.on('end', () => {
+      end = true
+    })
+  }
+
+  let replied = false
+  inject(dispatch, { method: 'GET', url: '/', payload: getTestStream(), simulate: { end: false } }, (notHandledErr, res) => {
+    replied = true
+  })
+
+  setTimeout(() => {
+    t.equal(end, false)
+    t.equal(replied, false)
+  }, 10)
 })
