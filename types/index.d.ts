@@ -14,7 +14,7 @@ declare namespace inject {
 
   export type DispatchFunc = http.RequestListener
 
-  export type CallbackFunc = (err: Error, response: Response) => void
+  export type CallbackFunc = (err: Error | undefined, response: Response | undefined) => void
 
   export type InjectPayload = string | object | Buffer | NodeJS.ReadableStream
 
