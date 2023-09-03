@@ -5,7 +5,7 @@ const http = require('http')
 const Benchmark = require('benchmark')
 const suite = new Benchmark.Suite()
 const Request = require('../lib/request')
-const parseURL = require('../lib/parseURL')
+const parseURL = require('../lib/parse-url')
 
 const mockReq = {
   url: 'http://localhost',
