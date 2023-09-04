@@ -5,7 +5,7 @@ const http = require('http')
 const Benchmark = require('benchmark')
 const suite = new Benchmark.Suite()
 const Request = require('../lib/request')
-const parseURL = require('../lib/parseURL')
+const parseURL = require('../lib/parse-url')
 
 const mockReq = {
   url: 'http://localhost',
@@ -28,6 +28,7 @@ const mockCustomReq = {
   },
   Request: http.IncomingMessage
 }
+
 const mockReqCookies = {
   url: 'http://localhost',
   method: 'GET',
@@ -59,7 +60,7 @@ suite
     new Request(mockReq) // eslint-disable-line no-new
   })
   .add('Custom Request', function () {
-    new Request.CustomRequest(mockCustomReq) // eslint-disable-line no-new
+    new (Request.getCustomRequest(mockCustomReq.Request))(mockCustomReq) // eslint-disable-line no-new
   })
   .add('Request With Cookies', function () {
     new Request(mockReqCookies) // eslint-disable-line no-new

@@ -1,5 +1,5 @@
 import * as http from 'http'
-import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '..'
+import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain, errors } from '..'
 import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
 
 expectAssignable<InjectOptions>({ url: '/' })
@@ -15,7 +15,13 @@ const dispatch: http.RequestListener = function (req, res) {
   res.end(reply)
 }
 
-const expectResponse = function (res: Response) {
+expectType<typeof Error>(errors.ContentLength)
+expectType<typeof Error>(errors.SocketHangUpError)
+
+const expectResponse = function (res: Response | undefined) {
+  if (!res) {
+    return;
+  }
   expectType<Response>(res)
   console.log(res.payload)
   expectAssignable<Function>(res.json)
@@ -38,7 +44,7 @@ const expectResponse = function (res: Response) {
 expectType<DispatchFunc>(dispatch)
 
 inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
@@ -52,37 +58,37 @@ const url = {
   }
 }
 inject(dispatch, { method: 'get', url }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
 inject(dispatch, { method: 'get', url: '/', cookies: { name1: 'value1', value2: 'value2' } }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
 inject(dispatch, { method: 'get', url: '/', query: { name1: 'value1', value2: 'value2' } }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
 inject(dispatch, { method: 'get', url: '/', query: { name1: ['value1', 'value2'] } }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
 inject(dispatch, { method: 'get', url: '/', query: 'name1=value1' }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
 inject(dispatch, { method: 'post', url: '/', payload: { name1: 'value1', value2: 'value2' } }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
 inject(dispatch, { method: 'post', url: '/', body: { name1: 'value1', value2: 'value2' } }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
 
@@ -90,9 +96,9 @@ expectType<void>(
   inject(dispatch)
     .get('/')
     .end((err, res) => {
-      expectType<Error>(err)
-      expectType<Response>(res)
-      console.log(res.payload)
+      expectType<Error | undefined>(err)
+      expectType<Response | undefined>(res)
+      console.log(res?.payload)
     })
 )
 
@@ -129,6 +135,6 @@ const httpDispatch = function (req: http.IncomingMessage, res: http.ServerRespon
 }
 
 inject(httpDispatch, { method: 'get', url: '/' }, (err, res) => {
-  expectType<Error>(err)
+  expectType<Error | undefined>(err)
   expectResponse(res)
 })
