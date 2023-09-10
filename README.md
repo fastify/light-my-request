@@ -10,7 +10,7 @@ Does not use a socket connection so can be run against an inactive server (serve
 ## Example
 
 ```javascript
-const http = require('http')
+const http = require('node:http')
 const inject = require('light-my-request')
 
 const dispatch = function (req, res) {
@@ -77,7 +77,7 @@ File uploads (`multipart/form-data`) or form submit (`x-www-form-urlencoded`) ca
 
 ```js
 const formAutoContent = require('form-auto-content')
-const fs = require('fs')
+const fs = require('node:fs')
 
 try {
   const form = formAutoContent({
