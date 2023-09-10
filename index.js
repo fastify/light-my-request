@@ -1,6 +1,6 @@
 'use strict'
 
-const assert = require('assert')
+const assert = require('node:assert')
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
