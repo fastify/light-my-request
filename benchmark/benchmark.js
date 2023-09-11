@@ -1,6 +1,6 @@
 'use strict'
 
-const http = require('http')
+const http = require('node:http')
 const Request = require('../lib/request')
 const Response = require('../lib/response')
 const inject = require('..')
@@ -133,15 +133,15 @@ suite
   .add('Response write end', async function () {
     const req = new Request(mockReq)
     await new Promise((resolve) => {
-      const res = new Response(req, () => resolve())
+      const res = new Response(req, resolve)
       res.write('foo')
       res.end()
     })
   })
   .add('Response writeHead end', async function () {
     const req = new Request(mockReq)
-    await new Promise((resolve) => {
-      const res = new Response(req, () => resolve())
+    return new Promise((resolve) => {
+      const res = new Response(req, resolve)
       res.writeHead(400, { 'content-length': 200 })
       res.end()
     })

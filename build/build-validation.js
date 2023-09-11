@@ -1,9 +1,9 @@
 'use strict'
 
-const http = require('http')
+const http = require('node:http')
 const AjvStandaloneCompiler = require('@fastify/ajv-compiler/standalone')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 const urlSchema = {
   oneOf: [
