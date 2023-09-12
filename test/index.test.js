@@ -2,17 +2,17 @@
 
 const t = require('tap')
 const test = t.test
-const { Readable, finished, pipeline } = require('stream')
-const qs = require('querystring')
-const fs = require('fs')
-const zlib = require('zlib')
-const http = require('http')
+const { Readable, finished, pipeline } = require('node:stream')
+const qs = require('node:querystring')
+const fs = require('node:fs')
+const zlib = require('node:zlib')
+const http = require('node:http')
 const eos = require('end-of-stream')
 const semver = require('semver')
 const express = require('express')
 
 const inject = require('../index')
-const parseURL = require('../lib/parseURL')
+const parseURL = require('../lib/parse-url')
 
 const FormData = require('form-data')
 const formAutoContent = require('form-auto-content')

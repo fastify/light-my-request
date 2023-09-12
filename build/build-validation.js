@@ -1,9 +1,9 @@
 'use strict'
 
-const http = require('http')
+const http = require('node:http')
 const AjvStandaloneCompiler = require('@fastify/ajv-compiler/standalone')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 const urlSchema = {
   oneOf: [
@@ -79,7 +79,7 @@ const factory = AjvStandaloneCompiler({
 /* eslint-disable */
 ${schemaValidationCode}
 `
-    const file = path.join(__dirname, '..', 'lib', 'configValidator.js')
+    const file = path.join(__dirname, '..', 'lib', 'config-validator.js')
     fs.writeFileSync(file, moduleCode)
     console.log(`Saved ${file} file successfully`)
   }

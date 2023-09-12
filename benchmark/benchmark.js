@@ -1,9 +1,11 @@
-const http = require('http')
+'use strict'
+
+const http = require('node:http')
 
 const Benchmark = require('benchmark')
 const suite = new Benchmark.Suite()
 const Request = require('../lib/request')
-const parseURL = require('../lib/parseURL')
+const parseURL = require('../lib/parse-url')
 
 const mockReq = {
   url: 'http://localhost',
@@ -55,16 +57,16 @@ const mockReqCookiesPayload = {
 
 suite
   .add('Request', function () {
-    new Request(mockReq)
+    new Request(mockReq) // eslint-disable-line no-new
   })
   .add('Custom Request', function () {
-    new (Request.getCustomRequest(mockCustomReq.Request))(mockCustomReq)
+    new Request.CustomRequest(mockCustomReq) // eslint-disable-line no-new
   })
   .add('Request With Cookies', function () {
-    new Request(mockReqCookies)
+    new Request(mockReqCookies) // eslint-disable-line no-new
   })
   .add('Request With Cookies n payload', function () {
-    new Request(mockReqCookiesPayload)
+    new Request(mockReqCookiesPayload) // eslint-disable-line no-new
   })
   .add('ParseUrl', function () {
     parseURL('http://example.com:8080/hello')
@@ -78,8 +80,5 @@ suite
   })
   .on('cycle', function (event) {
     console.log(String(event.target))
-  })
-  .on('complete', function () {
-    console.log('Fastest is: ' + this.filter('fastest').map('name'))
   })
   .run()
