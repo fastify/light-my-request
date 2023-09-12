@@ -13,7 +13,7 @@
     "@fastify/ajv-compiler": "^3.1.0",
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^20.1.0",
-    "benchmark": "^2.1.4",
+    "tinybench": "^2.5.1",
     "end-of-stream": "^1.4.4",
     "express": "^4.17.1",
     "form-auto-content": "^3.0.0",

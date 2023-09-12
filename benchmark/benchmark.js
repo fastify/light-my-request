@@ -1,11 +1,15 @@
 'use strict'
 
 const http = require('node:http')
-
-const Benchmark = require('benchmark')
-const suite = new Benchmark.Suite()
 const Request = require('../lib/request')
-const parseURL = require('../lib/parseURL')
+const Response = require('../lib/response')
+const inject = require('..')
+const parseURL = require('../lib/parse-url')
+const { Readable } = require('stream')
+const { assert } = require('console')
+const { Bench } = require('tinybench')
+
+const suite = new Bench()
 
 const mockReq = {
   url: 'http://localhost',
@@ -53,6 +57,28 @@ const mockReqCookiesPayload = {
     bim: { bar: { boom: 'paf' } }
   }
 }
+const mockReqCookiesPayloadBuffer = {
+  url: 'http://localhost',
+  method: 'GET',
+  headers: {
+    foo: 'bar',
+    'content-type': 'html',
+    accepts: 'json',
+    authorization: 'granted'
+  },
+  payload: Buffer.from('foo')
+}
+const mockReqCookiesPayloadReadable = () => ({
+  url: 'http://localhost',
+  method: 'GET',
+  headers: {
+    foo: 'bar',
+    'content-type': 'html',
+    accepts: 'json',
+    authorization: 'granted'
+  },
+  payload: Readable.from(['foo', 'bar', 'baz'])
+})
 
 suite
   .add('Request', function () {
@@ -77,7 +103,62 @@ suite
       xs: ['foo', 'bar']
     })
   })
-  .on('cycle', function (event) {
-    console.log(String(event.target))
+  .add('read request body JSON', function () {
+    return new Promise((resolve) => {
+      const req = new Request(mockReqCookiesPayload)
+      req.prepare(() => {
+        req.on('data', () => {})
+        req.on('end', resolve)
+      })
+    })
+  })
+  .add('read request body buffer', function () {
+    return new Promise((resolve) => {
+      const req = new Request(mockReqCookiesPayloadBuffer)
+      req.prepare(() => {
+        req.on('data', () => {})
+        req.on('end', resolve)
+      })
+    })
+  })
+  .add('read request body readable', function () {
+    return new Promise((resolve) => {
+      const req = new Request(mockReqCookiesPayloadReadable())
+      req.prepare(() => {
+        req.on('data', () => {})
+        req.on('end', resolve)
+      })
+    })
+  })
+  .add('Response write end', function () {
+    const req = new Request(mockReq)
+    return new Promise((resolve) => {
+      const res = new Response(req, resolve)
+      res.write('foo')
+      res.end()
+    })
+  })
+  .add('Response writeHead end', function () {
+    const req = new Request(mockReq)
+    return new Promise((resolve) => {
+      const res = new Response(req, resolve)
+      res.writeHead(400, { 'content-length': 200 })
+      res.end()
+    })
+  })
+  .add('base inject', async function () {
+    const d = await inject((req, res) => {
+      req.on('data', () => {})
+      req.on('end', () => { res.end('1') })
+    }, mockReqCookiesPayload)
+    assert(d.payload === '1')
   })
   .run()
+  .then((tasks) => {
+    const errors = tasks.map(t => t.result?.error).filter((t) => t)
+    if (errors.length) {
+      errors.map((e) => console.error(e))
+    } else {
+      console.table(suite.table())
+    }
+  })
