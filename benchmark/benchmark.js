@@ -103,8 +103,8 @@ suite
       xs: ['foo', 'bar']
     })
   })
-  .add('read request body JSON', async function () {
-    await new Promise((resolve) => {
+  .add('read request body JSON', function () {
+    return new Promise((resolve) => {
       const req = new Request(mockReqCookiesPayload)
       req.prepare(() => {
         req.on('data', () => {})
@@ -112,8 +112,8 @@ suite
       })
     })
   })
-  .add('read request body buffer', async function () {
-    await new Promise((resolve) => {
+  .add('read request body buffer', function () {
+    return new Promise((resolve) => {
       const req = new Request(mockReqCookiesPayloadBuffer)
       req.prepare(() => {
         req.on('data', () => {})
@@ -121,8 +121,8 @@ suite
       })
     })
   })
-  .add('read request body readable', async function () {
-    await new Promise((resolve) => {
+  .add('read request body readable', function () {
+    return new Promise((resolve) => {
       const req = new Request(mockReqCookiesPayloadReadable())
       req.prepare(() => {
         req.on('data', () => {})
@@ -130,15 +130,15 @@ suite
       })
     })
   })
-  .add('Response write end', async function () {
+  .add('Response write end', function () {
     const req = new Request(mockReq)
-    await new Promise((resolve) => {
+    return new Promise((resolve) => {
       const res = new Response(req, resolve)
       res.write('foo')
       res.end()
     })
   })
-  .add('Response writeHead end', async function () {
+  .add('Response writeHead end', function () {
     const req = new Request(mockReq)
     return new Promise((resolve) => {
       const res = new Response(req, resolve)
