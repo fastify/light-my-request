@@ -893,49 +893,32 @@ test('simulates close', (t) => {
 
 test('errors for invalid input options', (t) => {
   t.plan(1)
-  try {
-    inject({}, {}, () => {})
-    t.fail('This should throw')
-  } catch (err) {
-    t.equal(err.message, 'dispatchFunc should be a function')
-  }
+
+  t.throws(() => inject({}, {}, () => {}), new Error('dispatchFunc should be a function'))
 })
 
 test('errors for missing url', (t) => {
   t.plan(1)
-  try {
-    inject((req, res) => {}, {}, () => {})
-  } catch (err) {
-    t.ok(err)
-  }
+
+  t.throws(() => inject((req, res) => {}, {}, () => {}), /must have required property 'url'/)
 })
 
 test('errors for an incorrect simulation object', (t) => {
   t.plan(1)
-  try {
-    inject((req, res) => {}, { url: '/', simulate: 'sample string' }, () => {})
-  } catch (err) {
-    t.ok(err)
-  }
+
+  t.throws(() => inject((req, res) => {}, { url: '/', simulate: 'sample string' }, () => {}), /^must be object$/)
 })
 
 test('ignores incorrect simulation object', (t) => {
   t.plan(1)
-  try {
-    inject((req, res) => { }, { url: '/', simulate: 'sample string', validate: false }, () => { })
-    t.pass()
-  } catch (err) {
-    t.fail('we shoult not be here')
-  }
+
+  t.doesNotThrow(() => inject((req, res) => { }, { url: '/', simulate: 'sample string', validate: false }, () => { }))
 })
 
 test('errors for an incorrect simulation object values', (t) => {
   t.plan(1)
-  try {
-    inject((req, res) => {}, { url: '/', simulate: { end: 'wrong input' } }, () => {})
-  } catch (err) {
-    t.ok(err)
-  }
+
+  t.throws(() => inject((req, res) => {}, { url: '/', simulate: { end: 'wrong input' } }, () => {}), /^must be boolean$/)
 })
 
 test('promises support', (t) => {
@@ -947,16 +930,7 @@ test('promises support', (t) => {
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
     .then(res => t.equal(res.payload, 'hello'))
-    .catch(err => t.fail(err))
-})
-
-test('async wait support', t => {
-  if (semver.gt(process.versions.node, '8.0.0')) {
-    require('./async-await')(t, inject)
-  } else {
-    t.pass('Skip because Node version < 8')
-    t.end()
-  }
+    .catch(t.fail)
 })
 
 test('this should be the server instance', t => {
@@ -971,7 +945,7 @@ test('this should be the server instance', t => {
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server })
     .then(res => t.equal(res.statusCode, 200))
-    .catch(err => t.fail(err))
+    .catch(t.fail)
 })
 
 test('should handle response errors', (t) => {
@@ -985,15 +959,13 @@ test('should handle response errors', (t) => {
   })
 })
 
-test('should handle response errors (promises)', (t) => {
+test('should handle response errors (promises)', async (t) => {
   t.plan(1)
   const dispatch = function (req, res) {
     res.connection.destroy(new Error('kaboom'))
   }
 
-  inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
-    .then(res => t.fail('should throw'))
-    .catch(err => t.ok(err))
+  await t.rejects(() => inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }), new Error('kaboom'))
 })
 
 test('should handle response timeout handler', (t) => {
@@ -1093,12 +1065,7 @@ test('path as alias to url', (t) => {
 test('Should throw if both path and url are missing', (t) => {
   t.plan(1)
 
-  try {
-    inject(() => {}, { method: 'GET' }, () => {})
-    t.fail('Should throw')
-  } catch (err) {
-    t.ok(err)
-  }
+  t.throws(() => inject(() => {}, { method: 'GET' }, () => {}), /must have required property 'url',must have required property 'path'/)
 })
 
 test('chainable api: backwards compatibility for promise (then)', (t) => {
@@ -1112,7 +1079,7 @@ test('chainable api: backwards compatibility for promise (then)', (t) => {
   inject(dispatch)
     .get('/')
     .then(res => t.equal(res.payload, 'hello'))
-    .catch(err => t.fail(err))
+    .catch(t.fail)
 })
 
 test('chainable api: backwards compatibility for promise (catch)', (t) => {
