@@ -8,7 +8,6 @@ const fs = require('node:fs')
 const zlib = require('node:zlib')
 const http = require('node:http')
 const eos = require('end-of-stream')
-const semver = require('semver')
 const express = require('express')
 
 const inject = require('../index')
@@ -951,11 +950,11 @@ test('promises support', (t) => {
 })
 
 test('async wait support', t => {
-  if (semver.gt(process.versions.node, '8.0.0')) {
-    require('./async-await')(t, inject)
-  } else {
+  if (parseInt(process.versions.node.split('.')[0], 10) < 8) {
     t.pass('Skip because Node version < 8')
     t.end()
+  } else {
+    require('./async-await')(t, inject)
   }
 })
 
@@ -1919,7 +1918,7 @@ test('Can abort a request using AbortController/AbortSignal', (t) => {
 }, { skip: globalThis.AbortController == null })
 
 test('should pass req to ServerResponse', (t) => {
-  if (semver.lt(process.versions.node, '16.0.0')) {
+  if (parseInt(process.versions.node.split('.')[0], 10) < 16) {
     t.pass('Skip because Node version < 16')
     t.end()
     return
