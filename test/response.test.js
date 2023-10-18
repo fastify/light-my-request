@@ -1,3 +1,5 @@
+'use strict'
+
 const { test } = require('tap')
 
 const Response = require('../lib/response')
