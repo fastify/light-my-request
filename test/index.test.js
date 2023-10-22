@@ -1885,7 +1885,7 @@ test('Can abort a request using AbortController/AbortSignal', (t) => {
 }, { skip: globalThis.AbortController == null })
 
 test('should pass req to ServerResponse', (t) => {
-  if (parseInt(process.versions.node.split('.')[0], 10) < 16) {
+  if (parseInt(process.versions.node.split('.', 1)[0], 10) < 16) {
     t.pass('Skip because Node version < 16')
     t.end()
     return
