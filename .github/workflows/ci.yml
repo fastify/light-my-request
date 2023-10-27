@@ -17,8 +17,8 @@ on:
 
 jobs:
   test:
-    uses: fastify/workflows/.github/workflows/plugins-ci.yml@fastify-integration
+    uses: fastify/workflows/.github/workflows/plugins-ci.yml@v3
     with:
-      fastify-integration: true
+      fastify-dependency-integration: true
       license-check: true
       lint: true
