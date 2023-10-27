@@ -3,6 +3,7 @@
   "version": "5.11.0",
   "description": "Fake HTTP injection library",
   "main": "index.js",
+  "type": "commonjs",
   "types": "types/index.d.ts",
   "dependencies": {
     "cookie": "^0.5.0",
