@@ -1980,3 +1980,16 @@ test('request that is destroyed does not error', (t) => {
     t.equal(res.payload, 'hi')
   })
 })
+
+test('chainable api: backwards compatibility for promise (finally)', (t) => {
+  t.plan(1)
+
+  function dispatch (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('hello')
+  }
+
+  inject(dispatch)
+    .get('/')
+    .finally(() => t.pass())
+})
