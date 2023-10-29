@@ -9,7 +9,7 @@ const errorMessage = 'The dispatch function has already been invoked'
 const optsValidator = require('./lib/config-validator')
 
 function inject (dispatchFunc, options, callback) {
-  if (typeof callback === 'undefined') {
+  if (callback === undefined) {
     return new Chain(dispatchFunc, options)
   } else {
     return doInject(dispatchFunc, options, callback)
