@@ -85,7 +85,7 @@ suite
     new Request(mockReq) // eslint-disable-line no-new
   })
   .add('Custom Request', function () {
-    new Request.CustomRequest(mockCustomReq) // eslint-disable-line no-new
+    new (Request.getCustomRequest(mockCustomReq.Request))(mockCustomReq) // eslint-disable-line no-new
   })
   .add('Request With Cookies', function () {
     new Request(mockReqCookies) // eslint-disable-line no-new
