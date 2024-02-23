@@ -3,6 +3,10 @@ import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } fro
 import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
 
 expectAssignable<InjectOptions>({ url: '/' })
+expectAssignable<InjectOptions>({ autoStart: true })
+expectAssignable<InjectOptions>({ autoStart: false })
+expectAssignable<InjectOptions>({ validate: true })
+expectAssignable<InjectOptions>({ validate: false })
 
 const dispatch: http.RequestListener = function (req, res) {
   expectAssignable<http.IncomingMessage>(req)
