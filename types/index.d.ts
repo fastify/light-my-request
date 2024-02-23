@@ -54,6 +54,7 @@ declare namespace inject {
     payload?: InjectPayload
     body?: InjectPayload
     server?: http.Server
+    autoStart?: boolean
     cookies?: { [k: string]: string },
     signal?: AbortSignal,
     Request?: object,
