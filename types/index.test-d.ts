@@ -1,6 +1,7 @@
 import * as http from 'http'
 import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '..'
 import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
+import { Readable } from 'stream'
 
 expectAssignable<InjectOptions>({ url: '/' })
 expectAssignable<InjectOptions>({ autoStart: true })
@@ -26,8 +27,10 @@ const expectResponse = function (res: Response | undefined) {
   expectType<Response>(res)
   console.log(res.payload)
   expectAssignable<Function>(res.json)
+  expectAssignable<Function>(res.stream)
   expectAssignable<http.ServerResponse>(res.raw.res)
   expectAssignable<http.IncomingMessage>(res.raw.req)
+  expectType<Readable>(res.stream())
   expectType<string>(res.payload)
   expectType<string>(res.body)
   expectAssignable<Array<any>>(res.cookies)

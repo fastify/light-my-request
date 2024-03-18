@@ -1421,6 +1421,38 @@ test('Response.json() should throw an error if the payload is not of valid JSON 
   })
 })
 
+test('Response.stream() should provide a Readable stream', (t) => {
+  const lines = [
+    JSON.stringify({ foo: 'bar' }),
+    JSON.stringify({ hello: 'world' })
+  ]
+
+  t.plan(2 + lines.length)
+
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'multiple/json' })
+    for (const line of lines) {
+      res.write(line)
+    }
+    res.end()
+  }
+
+  inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
+    t.error(err)
+    const readable = res.stream()
+    const payload = []
+    t.equal(readable instanceof Readable, true)
+    readable.on('data', function (chunk) {
+      payload.push(chunk)
+    })
+    readable.on('end', function () {
+      for (let i = 0; i < lines.length; i++) {
+        t.equal(lines[i], payload[i].toString())
+      }
+    })
+  })
+})
+
 test('promise api should auto start (fire and forget)', (t) => {
   t.plan(1)
 
