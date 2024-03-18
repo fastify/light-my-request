@@ -1,4 +1,5 @@
 import * as http from 'http'
+import { Readable } from 'stream'
 
 type HTTPMethods = 'DELETE' | 'delete' |
                    'GET' | 'get' |
@@ -87,6 +88,7 @@ declare namespace inject {
     payload: string
     body: string
     json: <T = any>() => T
+    stream: () => Readable
     cookies: Array<Cookie>
   }
 
