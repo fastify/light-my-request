@@ -7,14 +7,12 @@ const qs = require('node:querystring')
 const fs = require('node:fs')
 const zlib = require('node:zlib')
 const http = require('node:http')
-const { Blob } = require('node:buffer')
 const eos = require('end-of-stream')
 const express = require('express')
 
 const inject = require('../index')
 const parseURL = require('../lib/parse-url')
 
-const { FormData } = require('undici')
 const NpmFormData = require('form-data')
 const formAutoContent = require('form-auto-content')
 const httpMethods = [
@@ -2016,6 +2014,12 @@ test('request that is destroyed does not error', (t) => {
 })
 
 test('undici / native form-data should be handled correctly', (t) => {
+  if (parseInt(process.versions.node.split('.', 1)[0], 10) < 18) {
+    t.pass('Skip because Node version < 18 do not provide FetchAPI')
+    t.end()
+    return
+  }
+
   t.plan(23)
 
   const dispatch = function (req, res) {
