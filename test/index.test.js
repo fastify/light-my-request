@@ -2016,10 +2016,11 @@ test('request that is destroyed does not error', (t) => {
 })
 
 test('undici / native form-data should be handled correctly', (t) => {
-  t.plan(22)
+  t.plan(23)
 
   const dispatch = function (req, res) {
     let body = ''
+    t.ok(/multipart\/form-data; boundary=----formdata-[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}(--)?$/.test(req.headers['content-type']), 'proper Content-Type provided')
     req.on('data', d => {
       body += d
     })
