@@ -18,6 +18,7 @@
     "express": "^4.17.1",
     "form-auto-content": "^3.0.0",
     "form-data": "^4.0.0",
+    "formdata-node": "^4.4.1",
     "standard": "^17.0.0",
     "tap": "^16.0.0",
     "tinybench": "^2.5.1",
