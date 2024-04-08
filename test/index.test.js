@@ -2013,12 +2013,98 @@ test('request that is destroyed does not error', (t) => {
   })
 })
 
-test('undici / native form-data should be handled correctly', (t) => {
-  if (parseInt(process.versions.node.split('.', 1)[0], 10) < 18) {
-    t.pass('Skip because Node version < 18 do not provide FetchAPI')
-    t.end()
-    return
+test('native form-data should be handled correctly', (t) => {
+  t.plan(23)
+
+  const dispatch = function (req, res) {
+    let body = ''
+    t.ok(/multipart\/form-data; boundary=----formdata-[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}(--)?$/.test(req.headers['content-type']), 'proper Content-Type provided')
+    req.on('data', d => {
+      body += d
+    })
+    req.on('end', () => {
+      res.end(body)
+    })
   }
+
+  const form = new FormData()
+  form.append('field', 'value')
+  form.append('blob', new Blob(['value']), '')
+  form.append('blob-with-type', new Blob(['value'], { type: 'text/plain' }), '')
+  form.append('blob-with-name', new Blob(['value']), 'file.txt')
+  form.append('number', 1)
+
+  inject(dispatch, {
+    method: 'POST',
+    url: 'http://example.com:8080/hello',
+    payload: form
+  }, (err, res) => {
+    t.error(err)
+    t.equal(res.statusCode, 200)
+
+    const regexp = [
+      // header
+      /^------formdata-[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}(--)?$/,
+      // content-disposition
+      /^Content-Disposition: form-data; name="(.*)"(; filename="(.*)")?$/,
+      // content-type
+      /^Content-Type: (.*)$/
+    ]
+    const readable = Readable.from(res.body.split('\r\n'))
+    let i = 1
+    readable.on('data', function (chunk) {
+      switch (i) {
+        case 1:
+        case 5:
+        case 10:
+        case 15:
+        case 20: {
+          // header
+          t.ok(regexp[0].test(chunk), 'correct header')
+          break
+        }
+        case 2:
+        case 6:
+        case 11:
+        case 16: {
+          // content-disposition
+          t.ok(regexp[1].test(chunk), 'correct content-disposition')
+          break
+        }
+        case 7:
+        case 12:
+        case 17: {
+          // content-type
+          t.ok(regexp[2].test(chunk), 'correct content-type')
+          break
+        }
+        case 3:
+        case 8:
+        case 13:
+        case 18: {
+          // empty
+          t.equal(chunk, '', 'correct space')
+          break
+        }
+        case 4:
+        case 9:
+        case 14:
+        case 19: {
+          // value
+          t.equal(chunk, 'value', 'correct value')
+          break
+        }
+      }
+      i++
+    })
+  })
+}, { skip: globalThis.FormData == null || globalThis.Blob == null })
+
+// used for testing node@14 / node@16
+test('undici form-data should be handled correctly', (t) => {
+  // inline require to prevent global variable pollution
+  const { FormData } = require('undici')
+  const { Blob } = require('node:buffer')
 
   t.plan(23)
 
