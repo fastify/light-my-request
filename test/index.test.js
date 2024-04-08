@@ -2106,6 +2106,10 @@ test('undici form-data should be handled correctly', (t) => {
   const { FormData } = require('undici')
   const { Blob } = require('node:buffer')
 
+  if (FormData == null) {
+    return t.skip('`undici` does not expose `FormData` in `node@14`')
+  }
+
   t.plan(23)
 
   const dispatch = function (req, res) {
