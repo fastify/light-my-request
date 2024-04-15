@@ -1,6 +1,6 @@
 {
   "name": "light-my-request",
-  "version": "5.11.0",
+  "version": "5.13.0",
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "type": "commonjs",
@@ -14,14 +14,16 @@
     "@fastify/ajv-compiler": "^3.5.0",
     "@fastify/pre-commit": "^2.1.0",
     "@types/node": "^20.12.7",
-    "tinybench": "^2.7.0",
     "end-of-stream": "^1.4.4",
     "express": "^4.19.2",
     "form-auto-content": "^3.2.1",
     "form-data": "^4.0.0",
+    "formdata-node": "^6.0.3",
     "standard": "^17.1.0",
     "tap": "^18.7.2",
-    "tsd": "^0.31.0"
+    "tinybench": "^2.7.0",
+    "tsd": "^0.31.0",
+    "undici": "^6.13.0"
   },
   "scripts": {
     "benchmark": "node benchmark/benchmark.js",
@@ -33,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/fastify/light-my-request.git"
+    "url": "git+https://github.com/fastify/light-my-request.git"
   },
   "keywords": [
     "http",

@@ -182,6 +182,7 @@ Injects a fake request into an HTTP server.
     - `rawPayload` - the raw payload as a Buffer.
     - `trailers` - an object containing the response trailers.
     - `json` - a function that parses a json response payload and returns an object.
+    - `stream` - a function that provides a `Readable` stream of the response payload.
     - `cookies` - a getter that parses the `set-cookie` response header and returns an array with all the cookies and their metadata.
 
 Notes:

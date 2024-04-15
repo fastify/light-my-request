@@ -148,6 +148,9 @@ yarn.lock
 .vscode
 .idea
 
+#tap files
+.tap/
+
 # flamegraphs
 profile*
 
