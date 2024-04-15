@@ -7,21 +7,21 @@
   "types": "types/index.d.ts",
   "dependencies": {
     "cookie": "^0.6.0",
-    "process-warning": "^2.0.0",
-    "set-cookie-parser": "^2.4.1"
+    "process-warning": "^3.0.0",
+    "set-cookie-parser": "^2.6.0"
   },
   "devDependencies": {
-    "@fastify/ajv-compiler": "^3.1.0",
-    "@fastify/pre-commit": "^2.0.2",
-    "@types/node": "^20.1.0",
-    "tinybench": "^2.5.1",
+    "@fastify/ajv-compiler": "^3.5.0",
+    "@fastify/pre-commit": "^2.1.0",
+    "@types/node": "^20.12.7",
+    "tinybench": "^2.7.0",
     "end-of-stream": "^1.4.4",
-    "express": "^4.17.1",
-    "form-auto-content": "^3.0.0",
+    "express": "^4.19.2",
+    "form-auto-content": "^3.2.1",
     "form-data": "^4.0.0",
-    "standard": "^17.0.0",
-    "tap": "^16.0.0",
-    "tsd": "^0.29.0"
+    "standard": "^17.1.0",
+    "tap": "^18.7.2",
+    "tsd": "^0.31.0"
   },
   "scripts": {
     "benchmark": "node benchmark/benchmark.js",
