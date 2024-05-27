@@ -23,7 +23,7 @@
     "tap": "^16.0.0",
     "tinybench": "^2.5.1",
     "tsd": "^0.31.0",
-    "undici": "^5.28.4"
+    "undici": "^6.18.1"
   },
   "scripts": {
     "benchmark": "node benchmark/benchmark.js",
