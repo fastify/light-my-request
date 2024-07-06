@@ -22,4 +22,3 @@ jobs:
       fastify-dependency-integration: true
       license-check: true
       lint: true
-      node-versions: '[16, 18, 20, 22]'
