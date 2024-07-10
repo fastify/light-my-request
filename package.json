@@ -7,11 +7,11 @@
   "types": "types/index.d.ts",
   "dependencies": {
     "cookie": "^0.6.0",
-    "process-warning": "^3.0.0",
+    "process-warning": "^4.0.0",
     "set-cookie-parser": "^2.6.0"
   },
   "devDependencies": {
-    "@fastify/ajv-compiler": "^3.5.0",
+    "@fastify/ajv-compiler": "^4.0.0-pre.fv5.1",
     "@fastify/pre-commit": "^2.1.0",
     "@types/node": "^20.12.7",
     "end-of-stream": "^1.4.4",
