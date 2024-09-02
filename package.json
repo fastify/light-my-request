@@ -1,6 +1,6 @@
 {
   "name": "light-my-request",
-  "version": "6.0.0-pre.fv5.1",
+  "version": "6.0.0",
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "type": "commonjs",
@@ -11,7 +11,7 @@
     "set-cookie-parser": "^2.6.0"
   },
   "devDependencies": {
-    "@fastify/ajv-compiler": "^4.0.0-pre.fv5.1",
+    "@fastify/ajv-compiler": "^4.0.0",
     "@fastify/pre-commit": "^2.1.0",
     "@types/node": "^20.12.7",
     "end-of-stream": "^1.4.4",
