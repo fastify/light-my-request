@@ -13,7 +13,7 @@
   "devDependencies": {
     "@fastify/ajv-compiler": "^4.0.0",
     "@fastify/pre-commit": "^2.1.0",
-    "@types/node": "^20.12.7",
+    "@types/node": "^22.7.7",
     "end-of-stream": "^1.4.4",
     "express": "^4.19.2",
     "form-auto-content": "^3.2.1",
