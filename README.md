@@ -168,6 +168,7 @@ Injects a fake request into an HTTP server.
   - `signal` - An `AbortSignal` that may be used to abort an ongoing request. Requires Node v16+.
   - `Request` - Optional type from which the `request` object should inherit
     instead of `stream.Readable`
+  - `payloadAsStream` - if set to `true`, the response will be streamed and not accumulated; in this case `res.payload`, `res.rawPayload` will be undefined.
 - `callback` - the callback function using the signature `function (err, res)` where:
   - `err` - error object
   - `res` - a response object where:
