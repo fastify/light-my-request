@@ -59,6 +59,7 @@ declare namespace inject {
     cookies?: { [k: string]: string },
     signal?: AbortSignal,
     Request?: object,
+    payloadAsStream?: boolean
   }
 
   /**

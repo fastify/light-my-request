@@ -142,3 +142,8 @@ inject(httpDispatch, { method: 'get', url: '/' }, (err, res) => {
   expectType<Error | undefined>(err)
   expectResponse(res)
 })
+
+inject(httpDispatch, { method: 'get', url: '/', payloadAsStream: true }, (err, res) => {
+  expectType<Error | undefined>(err)
+  expectResponse(res)
+})
