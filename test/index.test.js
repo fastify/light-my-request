@@ -2108,3 +2108,31 @@ runFormDataUnitTest('native', { FormData: globalThis.FormData, Blob: globalThis.
 runFormDataUnitTest('undici', { FormData: require('undici').FormData, Blob: require('node:buffer').Blob })
 // supports >= node@14
 runFormDataUnitTest('formdata-node', { FormData: require('formdata-node').FormData, Blob: require('formdata-node').Blob })
+
+test('QUERY method works', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-type': req.headers['content-type'] })
+    req.pipe(res)
+  }
+
+  inject(dispatch, { method: 'QUERY', url: '/test', payload: { a: 1 } }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['content-type'], 'application/json')
+    t.equal(res.payload, '{"a":1}')
+  })
+})
+
+test('query method works', (t) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-type': req.headers['content-type'] })
+    req.pipe(res)
+  }
+
+  inject(dispatch, { method: 'query', url: '/test', payload: { a: 1 } }, (err, res) => {
+    t.error(err)
+    t.equal(res.headers['content-type'], 'application/json')
+    t.equal(res.payload, '{"a":1}')
+  })
+})
