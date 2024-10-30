@@ -1,6 +1,6 @@
 'use strict'
 
-const t = require('tap')
+const t = require('node:test')
 const fs = require('node:fs')
 const test = t.test
 const zlib = require('node:zlib')
@@ -19,7 +19,7 @@ function accumulate (stream, cb) {
   })
 }
 
-test('stream mode - non-chunked payload', (t) => {
+test('stream mode - non-chunked payload', (t, done) => {
   t.plan(9)
   const output = 'example.com:8080|/hello'
 
@@ -34,28 +34,29 @@ test('stream mode - non-chunked payload', (t) => {
     url: 'http://example.com:8080/hello',
     payloadAsStream: true
   }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.equal(res.statusMessage, 'Super')
-    t.ok(res.headers.date)
-    t.strictSame(res.headers, {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, 200)
+    t.assert.strictEqual(res.statusMessage, 'Super')
+    t.assert.ok(res.headers.date)
+    t.assert.deepStrictEqual(res.headers, {
       date: res.headers.date,
       connection: 'keep-alive',
       'x-extra': 'hello',
       'content-type': 'text/plain',
       'content-length': output.length.toString()
     })
-    t.equal(res.payload, undefined)
-    t.equal(res.rawPayload, undefined)
+    t.assert.strictEqual(res.payload, undefined)
+    t.assert.strictEqual(res.rawPayload, undefined)
 
     accumulate(res.stream(), (err, payload) => {
-      t.error(err)
-      t.equal(payload.toString(), 'example.com:8080|/hello')
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), 'example.com:8080|/hello')
+      done()
     })
   })
 })
 
-test('stream mode - passes headers', (t) => {
+test('stream mode - passes headers', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -68,15 +69,16 @@ test('stream mode - passes headers', (t) => {
     headers: { Super: 'duper' },
     payloadAsStream: true
   }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     accumulate(res.stream(), (err, payload) => {
-      t.error(err)
-      t.equal(payload.toString(), 'duper')
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), 'duper')
+      done()
     })
   })
 })
 
-test('stream mode - returns chunked payload', (t) => {
+test('stream mode - returns chunked payload', (t, done) => {
   t.plan(6)
   const dispatch = function (req, res) {
     res.writeHead(200, 'OK')
@@ -86,18 +88,19 @@ test('stream mode - returns chunked payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
-    t.equal(res.headers['transfer-encoding'], 'chunked')
+    t.assert.ifError(err)
+    t.assert.ok(res.headers.date)
+    t.assert.ok(res.headers.connection)
+    t.assert.strictEqual(res.headers['transfer-encoding'], 'chunked')
     accumulate(res.stream(), (err, payload) => {
-      t.error(err)
-      t.equal(payload.toString(), 'ab')
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), 'ab')
+      done()
     })
   })
 })
 
-test('stream mode - sets trailers in response object', (t) => {
+test('stream mode - sets trailers in response object', (t, done) => {
   t.plan(4)
   const dispatch = function (req, res) {
     res.setHeader('Trailer', 'Test')
@@ -106,14 +109,15 @@ test('stream mode - sets trailers in response object', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers.trailer, 'Test')
-    t.equal(res.headers.test, undefined)
-    t.equal(res.trailers.test, '123')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers.trailer, 'Test')
+    t.assert.strictEqual(res.headers.test, undefined)
+    t.assert.strictEqual(res.trailers.test, '123')
+    done()
   })
 })
 
-test('stream mode - parses zipped payload', (t) => {
+test('stream mode - parses zipped payload', (t, done) => {
   t.plan(5)
   const dispatch = function (req, res) {
     res.writeHead(200, 'OK')
@@ -122,23 +126,24 @@ test('stream mode - parses zipped payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     fs.readFile('./package.json', { encoding: 'utf-8' }, (err, file) => {
-      t.error(err)
+      t.assert.ifError(err)
 
       accumulate(res.stream(), (err, payload) => {
-        t.error(err)
+        t.assert.ifError(err)
 
         zlib.unzip(payload, (err, unzipped) => {
-          t.error(err)
-          t.equal(unzipped.toString('utf-8'), file)
+          t.assert.ifError(err)
+          t.assert.strictEqual(unzipped.toString('utf-8'), file)
+          done()
         })
       })
     })
   })
 })
 
-test('stream mode - returns multi buffer payload', (t) => {
+test('stream mode - returns multi buffer payload', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200)
@@ -148,7 +153,7 @@ test('stream mode - returns multi buffer payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
 
     const chunks = []
     const stream = res.stream()
@@ -157,13 +162,14 @@ test('stream mode - returns multi buffer payload', (t) => {
     })
 
     stream.on('end', () => {
-      t.equal(chunks.length, 2)
-      t.equal(Buffer.concat(chunks).toString(), 'ab')
+      t.assert.strictEqual(chunks.length, 2)
+      t.assert.strictEqual(Buffer.concat(chunks).toString(), 'ab')
+      done()
     })
   })
 })
 
-test('stream mode - returns null payload', (t) => {
+test('stream mode - returns null payload', (t, done) => {
   t.plan(4)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Length': 0 })
@@ -171,16 +177,17 @@ test('stream mode - returns null payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, undefined)
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, undefined)
     accumulate(res.stream(), (err, payload) => {
-      t.error(err)
-      t.equal(payload.toString(), '')
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), '')
+      done()
     })
   })
 })
 
-test('stream mode - simulates error', (t) => {
+test('stream mode - simulates error', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     req.on('readable', () => {
@@ -194,15 +201,16 @@ test('stream mode - simulates error', (t) => {
 
   const body = 'something special just for you'
   inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { error: true }, payloadAsStream: true }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     accumulate(res.stream(), (err, payload) => {
-      t.error(err)
-      t.equal(payload.toString(), 'error')
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), 'error')
+      done()
     })
   })
 })
 
-test('stream mode - promises support', (t) => {
+test('stream mode - promises support', (t, done) => {
   t.plan(1)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -220,11 +228,12 @@ test('stream mode - promises support', (t) => {
         })
       })
     })
-    .then(payload => t.equal(payload.toString(), 'hello'))
-    .catch(t.fail)
+    .then(payload => t.assert.strictEqual(payload.toString(), 'hello'))
+    .catch(t.assert.fail)
+    .finally(done)
 })
 
-test('stream mode - Response.json() should throw', (t) => {
+test('stream mode - Response.json() should throw', (t, done) => {
   t.plan(2)
 
   const jsonData = {
@@ -238,13 +247,14 @@ test('stream mode - Response.json() should throw', (t) => {
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello', payloadAsStream: true }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     const { json } = res
-    t.throws(json)
+    t.assert.throws(json, Error)
+    done()
   })
 })
 
-test('stream mode - error for response destroy', (t) => {
+test('stream mode - error for response destroy', (t, done) => {
   t.plan(2)
 
   const dispatch = function (req, res) {
@@ -252,14 +262,15 @@ test('stream mode - error for response destroy', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     accumulate(res.stream(), (err) => {
-      t.ok(err)
+      t.assert.ok(err)
+      done()
     })
   })
 })
 
-test('stream mode - request destory with error', (t) => {
+test('stream mode - request destory with error', (t, done) => {
   t.plan(2)
 
   const fakeError = new Error('some-err')
@@ -269,9 +280,10 @@ test('stream mode - request destory with error', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     accumulate(res.stream(), (err, res) => {
-      t.equal(err, fakeError)
+      t.assert.strictEqual(err, fakeError)
+      done()
     })
   })
 })
@@ -290,14 +302,14 @@ test('stream mode - Can abort a request using AbortController/AbortSignal', asyn
   })
   controller.abort()
 
-  await t.rejects(async () => {
+  await t.assert.rejects(async () => {
     for await (const c of res.stream()) {
-      t.fail(`should not loop, got ${c.toString()}`)
+      t.assert.fail(`should not loop, got ${c.toString()}`)
     }
-  })
+  }, Error)
 }, { skip: globalThis.AbortController == null })
 
-test("stream mode - passes payload when using express' send", (t) => {
+test("stream mode - passes payload when using express' send", (t, done) => {
   t.plan(4)
 
   const app = express()
@@ -307,11 +319,12 @@ test("stream mode - passes payload when using express' send", (t) => {
   })
 
   inject(app, { method: 'GET', url: 'http://example.com:8080/hello', payloadAsStream: true }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-length'], '9')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-length'], '9')
     accumulate(res.stream(), function (err, payload) {
-      t.error(err)
-      t.equal(payload.toString(), 'some text')
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), 'some text')
+      done()
     })
   })
 })

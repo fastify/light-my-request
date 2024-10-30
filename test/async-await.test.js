@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const inject = require('../index')
 
 test('basic async await', async t => {
@@ -11,9 +11,9 @@ test('basic async await', async t => {
 
   try {
     const res = await inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
-    t.equal(res.payload, 'hello')
+    t.assert.strictEqual(res.payload, 'hello')
   } catch (err) {
-    t.fail(err)
+    t.assert.fail(err)
   }
 })
 
@@ -22,7 +22,7 @@ test('basic async await (errored)', async t => {
     res.connection.destroy(new Error('kaboom'))
   }
 
-  await t.rejects(inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }))
+  await t.assert.rejects(() => inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }), Error)
 })
 
 test('chainable api with async await', async t => {
@@ -34,9 +34,9 @@ test('chainable api with async await', async t => {
   try {
     const chain = inject(dispatch).get('http://example.com:8080/hello')
     const res = await chain.end()
-    t.equal(res.payload, 'hello')
+    t.assert.strictEqual(res.payload, 'hello')
   } catch (err) {
-    t.fail(err)
+    t.assert.fail(err)
   }
 })
 
@@ -48,8 +48,8 @@ test('chainable api with async await without end()', async t => {
 
   try {
     const res = await inject(dispatch).get('http://example.com:8080/hello')
-    t.equal(res.payload, 'hello')
+    t.assert.strictEqual(res.payload, 'hello')
   } catch (err) {
-    t.fail(err)
+    t.assert.fail(err)
   }
 })

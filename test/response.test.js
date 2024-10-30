@@ -1,15 +1,16 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 
 const Response = require('../lib/response')
 
-test('multiple calls to res.destroy should not be called', (t) => {
+test('multiple calls to res.destroy should not be called', (t, done) => {
   t.plan(1)
 
   const mockReq = {}
   const res = new Response(mockReq, (err, response) => {
-    t.error(err)
+    t.assert.ifError(err)
+    done()
   })
 
   res.destroy()
