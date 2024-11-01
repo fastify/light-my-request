@@ -8,7 +8,7 @@ on:
 jobs:
   benchmark:
     if: ${{ github.event.label.name == 'benchmark' }}
-    uses: fastify/workflows/.github/workflows/plugins-benchmark-pr.yml@main
+    uses: fastify/workflows/.github/workflows/plugins-benchmark-pr.yml@v5
     with:
       npm-script: benchmark
 
