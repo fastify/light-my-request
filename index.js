@@ -16,6 +16,28 @@ function inject (dispatchFunc, options, callback) {
   }
 }
 
+// TODO(mcollina): use standard wrapping instead
+function supportStream1 (req, next) {
+  const payload = req._lightMyRequest.payload
+  if (!payload || payload._readableState || typeof payload.resume !== 'function') { // does not quack like a stream
+    return next()
+  }
+
+  const chunks = []
+
+  payload.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
+
+  payload.on('end', () => {
+    const payload = Buffer.concat(chunks)
+    req.headers['content-length'] = req.headers['content-length'] || ('' + payload.length)
+    req._lightMyRequest.payload = payload
+    return next()
+  })
+
+  // Force to resume the stream. Needed for Stream 1
+  payload.resume()
+}
+
 function makeRequest (dispatchFunc, server, req, res) {
   req.once('error', function (err) {
     if (this.destroyed) res.destroy(err)
@@ -25,7 +47,7 @@ function makeRequest (dispatchFunc, server, req, res) {
     if (this.destroyed && !this._error) res.destroy()
   })
 
-  return req.prepare(() => dispatchFunc.call(server, req, res))
+  return supportStream1(req, () => dispatchFunc.call(server, req, res))
 }
 
 function doInject (dispatchFunc, options, callback) {
