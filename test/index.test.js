@@ -1706,27 +1706,30 @@ test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
   t.end()
 })
 
-test('no error for response destory', { todo: 'investigate destroy' }, (t) => {
-  t.plan(1)
+test('no error for response destory', (t) => {
+  t.plan(3)
 
   const dispatch = function (req, res) {
     res.destroy()
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
+    t.ok(err)
+    t.equal(res, null)
+    t.equal(err.code, 'LIGHT_ECONNRESET')
   })
 })
 
-test('request destory without error', { todo: 'investigate destroy' }, (t) => {
-  t.plan(2)
+test('request destroy errors', (t) => {
+  t.plan(3)
 
   const dispatch = function (req, res) {
     req.destroy()
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
+    t.ok(err)
+    t.equal(err.code, 'LIGHT_ECONNRESET')
     t.equal(res, null)
   })
 })
@@ -1746,8 +1749,8 @@ test('request destory with error', (t) => {
   })
 })
 
-test('compatible with stream.finished', { todo: 'investigate destroy' }, (t) => {
-  t.plan(3)
+test('compatible with stream.finished', (t) => {
+  t.plan(4)
 
   const dispatch = function (req, res) {
     finished(res, (err) => {
@@ -1758,13 +1761,14 @@ test('compatible with stream.finished', { todo: 'investigate destroy' }, (t) => 
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
+    t.ok(err)
+    t.equal(err.code, 'LIGHT_ECONNRESET')
     t.equal(res, null)
   })
 })
 
 test('compatible with eos', (t) => {
-  t.plan(3)
+  t.plan(4)
 
   const dispatch = function (req, res) {
     eos(res, (err) => {
@@ -1775,7 +1779,8 @@ test('compatible with eos', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
+    t.ok(err)
+    t.equal(err.code, 'LIGHT_ECONNRESET')
     t.equal(res, null)
   })
 })
@@ -1822,7 +1827,7 @@ test('compatible with eos, passes error correctly', (t) => {
 })
 
 test('multiple calls to req.destroy should not be called', (t) => {
-  t.plan(2)
+  t.plan(3)
 
   const dispatch = function (req, res) {
     req.destroy()
@@ -1830,8 +1835,9 @@ test('multiple calls to req.destroy should not be called', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.equal(err)
+    t.ok(err)
     t.equal(res, null)
+    t.equal(err.code, 'LIGHT_ECONNRESET')
   })
 })
 
@@ -1983,8 +1989,8 @@ test("passes payload when using express' send", (t) => {
   })
 })
 
-test('request that is destroyed does not error', { todo: 'investigate destroy' }, (t) => {
-  t.plan(2)
+test('request that is destroyed errors', (t) => {
+  t.plan(3)
   const dispatch = function (req, res) {
     readStream(req, (buff) => {
       req.destroy() // this should be a no-op
@@ -1998,8 +2004,10 @@ test('request that is destroyed does not error', { todo: 'investigate destroy' }
   const payload = getTestStream()
 
   inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'hi')
+    process._rawDebug('---')
+    t.equal(res, null)
+    t.ok(err)
+    t.equal(err.code, 'LIGHT_ECONNRESET')
   })
 })
 

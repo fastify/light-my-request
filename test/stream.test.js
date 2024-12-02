@@ -248,7 +248,10 @@ test('stream mode - error for response destroy', (t) => {
   t.plan(2)
 
   const dispatch = function (req, res) {
-    res.destroy()
+    res.writeHead(200)
+    setImmediate(() => {
+      res.destroy()
+    })
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
@@ -259,7 +262,7 @@ test('stream mode - error for response destroy', (t) => {
   })
 })
 
-test('stream mode - request destory with error', (t) => {
+test('stream mode - request destroy with error', (t) => {
   t.plan(2)
 
   const fakeError = new Error('some-err')
@@ -269,10 +272,8 @@ test('stream mode - request destory with error', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
-    t.error(err)
-    accumulate(res.stream(), (err, res) => {
-      t.equal(err, fakeError)
-    })
+    t.ok(err)
+    t.equal(err, fakeError)
   })
 })
 

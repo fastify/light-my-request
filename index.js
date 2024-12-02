@@ -44,7 +44,9 @@ function makeRequest (dispatchFunc, server, req, res) {
   })
 
   req.once('close', function () {
-    if (this.destroyed && !this._error) res.destroy()
+    if (this.destroyed && !this._error) {
+      res.destroy()
+    }
   })
 
   return supportStream1(req, () => dispatchFunc.call(server, req, res))
