@@ -23,7 +23,7 @@
     "standard": "^17.1.0",
     "tinybench": "^3.0.0",
     "tsd": "^0.31.0",
-    "undici": "^6.13.0"
+    "undici": "^7.0.0"
   },
   "scripts": {
     "benchmark": "node benchmark/benchmark.js",
