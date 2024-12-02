@@ -697,6 +697,24 @@ test('can handle a stream payload', (t) => {
   })
 })
 
+test('can handle a stream payload that errors', (t) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    req.resume()
+  }
+
+  const payload = new Readable({
+    read () {
+      this.destroy(new Error('kaboom'))
+    }
+  })
+
+  inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
+    t.ok(err)
+    t.equal(err.message, 'kaboom')
+  })
+})
+
 test('can handle a stream payload of utf-8 strings', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
