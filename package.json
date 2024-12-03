@@ -1,6 +1,6 @@
 {
   "name": "light-my-request",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "description": "Fake HTTP injection library",
   "main": "index.js",
   "type": "commonjs",
@@ -14,16 +14,16 @@
     "@fastify/ajv-compiler": "^4.0.0",
     "@fastify/pre-commit": "^2.1.0",
     "@types/node": "^22.7.7",
+    "c8": "^10.1.2",
     "end-of-stream": "^1.4.4",
     "express": "^4.19.2",
     "form-auto-content": "^3.2.1",
     "form-data": "^4.0.0",
     "formdata-node": "^6.0.3",
     "standard": "^17.1.0",
-    "tap": "^18.7.2",
-    "tinybench": "^2.7.0",
+    "tinybench": "^3.0.0",
     "tsd": "^0.31.0",
-    "undici": "^6.13.0"
+    "undici": "^7.0.0"
   },
   "scripts": {
     "benchmark": "node benchmark/benchmark.js",
@@ -31,7 +31,7 @@
     "lint": "standard",
     "test": "npm run lint && npm run test:unit && npm run test:typescript",
     "test:typescript": "tsd",
-    "test:unit": "tap"
+    "test:unit": "c8 --100 node --test"
   },
   "repository": {
     "type": "git",

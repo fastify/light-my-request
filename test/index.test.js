@@ -1,7 +1,6 @@
 'use strict'
 
-const t = require('tap')
-const test = t.test
+const { test } = require('node:test')
 const { Readable, finished, pipeline } = require('node:stream')
 const qs = require('node:querystring')
 const fs = require('node:fs')
@@ -26,7 +25,7 @@ const httpMethods = [
   'trace'
 ]
 
-test('returns non-chunked payload', (t) => {
+test('returns non-chunked payload', (t, done) => {
   t.plan(7)
   const output = 'example.com:8080|/hello'
 
@@ -38,23 +37,24 @@ test('returns non-chunked payload', (t) => {
   }
 
   inject(dispatch, 'http://example.com:8080/hello', (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.equal(res.statusMessage, 'Super')
-    t.ok(res.headers.date)
-    t.strictSame(res.headers, {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, 200)
+    t.assert.strictEqual(res.statusMessage, 'Super')
+    t.assert.ok(res.headers.date)
+    t.assert.deepStrictEqual(res.headers, {
       date: res.headers.date,
       connection: 'keep-alive',
       'x-extra': 'hello',
       'content-type': 'text/plain',
       'content-length': output.length.toString()
     })
-    t.equal(res.payload, output)
-    t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
+    t.assert.strictEqual(res.payload, output)
+    t.assert.strictEqual(res.rawPayload.toString(), 'example.com:8080|/hello')
+    done()
   })
 })
 
-test('returns single buffer payload', (t) => {
+test('returns single buffer payload', (t, done) => {
   t.plan(6)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -62,16 +62,17 @@ test('returns single buffer payload', (t) => {
   }
 
   inject(dispatch, { url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
-    t.equal(res.headers['transfer-encoding'], 'chunked')
-    t.equal(res.payload, 'example.com:8080|/hello')
-    t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
+    t.assert.ifError(err)
+    t.assert.ok(res.headers.date)
+    t.assert.ok(res.headers.connection)
+    t.assert.strictEqual(res.headers['transfer-encoding'], 'chunked')
+    t.assert.strictEqual(res.payload, 'example.com:8080|/hello')
+    t.assert.strictEqual(res.rawPayload.toString(), 'example.com:8080|/hello')
+    done()
   })
 })
 
-test('passes headers', (t) => {
+test('passes headers', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -79,71 +80,75 @@ test('passes headers', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'duper')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'duper')
+    done()
   })
 })
 
-test('request has rawHeaders', (t) => {
+test('request has rawHeaders', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
-    t.ok(Array.isArray(req.rawHeaders))
-    t.match(req.rawHeaders, ['super', 'duper', 'user-agent', 'lightMyRequest', 'host', 'example.com:8080'])
+    t.assert.ok(Array.isArray(req.rawHeaders))
+    t.assert.deepStrictEqual(req.rawHeaders, ['super', 'duper', 'user-agent', 'lightMyRequest', 'host', 'example.com:8080'])
     res.writeHead(200)
     res.end()
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { Super: 'duper' } }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
+    done()
   })
 })
 
-test('request inherits from custom class', (t) => {
+test('request inherits from custom class', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
-    t.ok(req instanceof http.IncomingMessage)
+    t.assert.ok(req instanceof http.IncomingMessage)
     res.writeHead(200)
     res.end()
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: http.IncomingMessage }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
+    done()
   })
 })
 
-test('request with custom class preserves stream data', (t) => {
+test('request with custom class preserves stream data', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
-    t.ok(req._readableState)
+    t.assert.ok(req._readableState)
     res.writeHead(200)
     res.end()
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: http.IncomingMessage }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
+    done()
   })
 })
 
 test('assert Request option has a valid prototype', (t) => {
   t.plan(2)
   const dispatch = function (req, res) {
-    t.error('should not get here')
+    t.assert.ifError('should not get here')
     res.writeHead(500)
     res.end()
   }
 
   const MyInvalidRequest = {}
 
-  t.throws(() => {
+  t.assert.throws(() => {
     inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: MyInvalidRequest }, () => {})
-  }, {})
+  }, Error)
 
-  t.throws(() => {
+  t.assert.throws(() => {
     inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', Request: 'InvalidRequest' }, () => {})
-  }, {})
+  }, Error)
 })
 
-test('passes remote address', (t) => {
+test('passes remote address', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -151,12 +156,13 @@ test('passes remote address', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '1.2.3.4')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '1.2.3.4')
+    done()
   })
 })
 
-test('passes a socket which emits events like a normal one does', (t) => {
+test('passes a socket which emits events like a normal one does', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -165,21 +171,22 @@ test('passes a socket which emits events like a normal one does', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'added')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'added')
+    done()
   })
 })
 
-test('includes deprecated connection on request', (t) => {
+test('includes deprecated connection on request', (t, done) => {
   t.plan(3)
   const warnings = process.listeners('warning')
   process.removeAllListeners('warning')
   function onWarning (err) {
-    t.equal(err.code, 'FST_LIGHTMYREQUEST_DEP01')
+    t.assert.strictEqual(err.code, 'FST_LIGHTMYREQUEST_DEP01')
     return false
   }
   process.on('warning', onWarning)
-  t.teardown(() => {
+  t.after(() => {
     process.removeListener('warning', onWarning)
     for (const fn of warnings) {
       process.on('warning', fn)
@@ -191,8 +198,9 @@ test('includes deprecated connection on request', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', remoteAddress: '1.2.3.4' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '1.2.3.4')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '1.2.3.4')
+    done()
   })
 })
 
@@ -201,7 +209,7 @@ const parseQuery = url => {
   return qs.parse(parsedURL.search.slice(1))
 }
 
-test('passes query', (t) => {
+test('passes query', (t, done) => {
   t.plan(2)
 
   const query = {
@@ -215,12 +223,13 @@ test('passes query', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', query }, (err, res) => {
-    t.error(err)
-    t.same(parseQuery(res.payload), query)
+    t.assert.ifError(err)
+    t.assert.deepEqual(parseQuery(res.payload), query)
+    done()
   })
 })
 
-test('query will be merged into that in url', (t) => {
+test('query will be merged into that in url', (t, done) => {
   t.plan(2)
 
   const query = {
@@ -233,12 +242,13 @@ test('query will be merged into that in url', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello?message=OK', query }, (err, res) => {
-    t.error(err)
-    t.same(parseQuery(res.payload), Object.assign({ message: 'OK' }, query))
+    t.assert.ifError(err)
+    t.assert.deepEqual(parseQuery(res.payload), Object.assign({ message: 'OK' }, query))
+    done()
   })
 })
 
-test('passes query as a string', (t) => {
+test('passes query as a string', (t, done) => {
   t.plan(2)
 
   const query = 'message=OK&xs=foo&xs=bar'
@@ -249,15 +259,16 @@ test('passes query as a string', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', query }, (err, res) => {
-    t.error(err)
-    t.same(parseQuery(res.payload), {
+    t.assert.ifError(err)
+    t.assert.deepEqual(parseQuery(res.payload), {
       message: 'OK',
       xs: ['foo', 'bar']
     })
+    done()
   })
 })
 
-test('query as a string will be merged into that in url', (t) => {
+test('query as a string will be merged into that in url', (t, done) => {
   t.plan(2)
 
   const query = 'xs=foo&xs=bar'
@@ -268,14 +279,15 @@ test('query as a string will be merged into that in url', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello?message=OK', query }, (err, res) => {
-    t.error(err)
-    t.same(parseQuery(res.payload), Object.assign({ message: 'OK' }, {
+    t.assert.ifError(err)
+    t.assert.deepEqual(parseQuery(res.payload), Object.assign({ message: 'OK' }, {
       xs: ['foo', 'bar']
     }))
+    done()
   })
 })
 
-test('passes localhost as default remote address', (t) => {
+test('passes localhost as default remote address', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -283,12 +295,13 @@ test('passes localhost as default remote address', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '127.0.0.1')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '127.0.0.1')
+    done()
   })
 })
 
-test('passes host option as host header', (t) => {
+test('passes host option as host header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -296,12 +309,13 @@ test('passes host option as host header', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/hello', headers: { host: 'test.example.com' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'test.example.com')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'test.example.com')
+    done()
   })
 })
 
-test('passes localhost as default host header', (t) => {
+test('passes localhost as default host header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -309,12 +323,13 @@ test('passes localhost as default host header', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'localhost:80')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'localhost:80')
+    done()
   })
 })
 
-test('passes authority as host header', (t) => {
+test('passes authority as host header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -322,12 +337,13 @@ test('passes authority as host header', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/hello', authority: 'something' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'something')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'something')
+    done()
   })
 })
 
-test('passes uri host as host header', (t) => {
+test('passes uri host as host header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -335,12 +351,13 @@ test('passes uri host as host header', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:8080')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:8080')
+    done()
   })
 })
 
-test('includes default http port in host header', (t) => {
+test('includes default http port in host header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -348,12 +365,13 @@ test('includes default http port in host header', (t) => {
   }
 
   inject(dispatch, 'http://example.com', (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:80')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:80')
+    done()
   })
 })
 
-test('includes default https port in host header', (t) => {
+test('includes default https port in host header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -361,12 +379,13 @@ test('includes default https port in host header', (t) => {
   }
 
   inject(dispatch, 'https://example.com', (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:443')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:443')
+    done()
   })
 })
 
-test('optionally accepts an object as url', (t) => {
+test('optionally accepts an object as url', (t, done) => {
   t.plan(5)
   const output = 'example.com:8080|/hello?test=1234'
 
@@ -386,15 +405,16 @@ test('optionally accepts an object as url', (t) => {
   }
 
   inject(dispatch, { url }, (err, res) => {
-    t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
-    t.notOk(res.headers['transfer-encoding'])
-    t.equal(res.payload, output)
+    t.assert.ifError(err)
+    t.assert.ok(res.headers.date)
+    t.assert.ok(res.headers.connection)
+    t.assert.ifError(res.headers['transfer-encoding'])
+    t.assert.strictEqual(res.payload, output)
+    done()
   })
 })
 
-test('leaves user-agent unmodified', (t) => {
+test('leaves user-agent unmodified', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -402,12 +422,13 @@ test('leaves user-agent unmodified', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers: { 'user-agent': 'duper' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'duper')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'duper')
+    done()
   })
 })
 
-test('returns chunked payload', (t) => {
+test('returns chunked payload', (t, done) => {
   t.plan(5)
   const dispatch = function (req, res) {
     res.writeHead(200, 'OK')
@@ -417,15 +438,16 @@ test('returns chunked payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.ok(res.headers.date)
-    t.ok(res.headers.connection)
-    t.equal(res.headers['transfer-encoding'], 'chunked')
-    t.equal(res.payload, 'ab')
+    t.assert.ifError(err)
+    t.assert.ok(res.headers.date)
+    t.assert.ok(res.headers.connection)
+    t.assert.strictEqual(res.headers['transfer-encoding'], 'chunked')
+    t.assert.strictEqual(res.payload, 'ab')
+    done()
   })
 })
 
-test('sets trailers in response object', (t) => {
+test('sets trailers in response object', (t, done) => {
   t.plan(4)
   const dispatch = function (req, res) {
     res.setHeader('Trailer', 'Test')
@@ -434,14 +456,15 @@ test('sets trailers in response object', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers.trailer, 'Test')
-    t.equal(res.headers.test, undefined)
-    t.equal(res.trailers.test, '123')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers.trailer, 'Test')
+    t.assert.strictEqual(res.headers.test, undefined)
+    t.assert.strictEqual(res.trailers.test, '123')
+    done()
   })
 })
 
-test('parses zipped payload', (t) => {
+test('parses zipped payload', (t, done) => {
   t.plan(4)
   const dispatch = function (req, res) {
     res.writeHead(200, 'OK')
@@ -450,19 +473,20 @@ test('parses zipped payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     fs.readFile('./package.json', { encoding: 'utf-8' }, (err, file) => {
-      t.error(err)
+      t.assert.ifError(err)
 
       zlib.unzip(res.rawPayload, (err, unzipped) => {
-        t.error(err)
-        t.equal(unzipped.toString('utf-8'), file)
+        t.assert.ifError(err)
+        t.assert.strictEqual(unzipped.toString('utf-8'), file)
+        done()
       })
     })
   })
 })
 
-test('returns multi buffer payload', (t) => {
+test('returns multi buffer payload', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200)
@@ -472,12 +496,13 @@ test('returns multi buffer payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'ab')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'ab')
+    done()
   })
 })
 
-test('returns null payload', (t) => {
+test('returns null payload', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Length': 0 })
@@ -485,12 +510,13 @@ test('returns null payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '')
+    done()
   })
 })
 
-test('allows ending twice', (t) => {
+test('allows ending twice', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Length': 0 })
@@ -499,37 +525,42 @@ test('allows ending twice', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '')
+    done()
   })
 })
 
-test('identifies injection object', (t) => {
+test('identifies injection object', (t, done) => {
   t.plan(6)
   const dispatchRequest = function (req, res) {
-    t.equal(inject.isInjection(req), true)
-    t.equal(inject.isInjection(res), true)
+    t.assert.strictEqual(inject.isInjection(req), true)
+    t.assert.strictEqual(inject.isInjection(res), true)
 
     res.writeHead(200, { 'Content-Length': 0 })
     res.end()
   }
 
   const dispatchCustomRequest = function (req, res) {
-    t.equal(inject.isInjection(req), true)
-    t.equal(inject.isInjection(res), true)
+    t.assert.strictEqual(inject.isInjection(req), true)
+    t.assert.strictEqual(inject.isInjection(res), true)
 
     res.writeHead(200, { 'Content-Length': 0 })
     res.end()
   }
 
   const options = { method: 'GET', url: '/' }
-  const cb = (err, res) => { t.error(err) }
+  const cb = (err, res) => { t.assert.ifError(err) }
+  const cbDone = (err, res) => {
+    t.assert.ifError(err)
+    done()
+  }
 
   inject(dispatchRequest, options, cb)
-  inject(dispatchCustomRequest, { ...options, Request: http.IncomingMessage }, cb)
+  inject(dispatchCustomRequest, { ...options, Request: http.IncomingMessage }, cbDone)
 })
 
-test('pipes response', (t) => {
+test('pipes response', (t, done) => {
   t.plan(3)
   let finished = false
   const dispatch = function (req, res) {
@@ -544,13 +575,14 @@ test('pipes response', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(finished, true)
-    t.equal(res.payload, 'hi')
+    t.assert.ifError(err)
+    t.assert.strictEqual(finished, true)
+    t.assert.strictEqual(res.payload, 'hi')
+    done()
   })
 })
 
-test('pipes response with old stream', (t) => {
+test('pipes response with old stream', (t, done) => {
   t.plan(3)
   let finished = false
   const dispatch = function (req, res) {
@@ -568,13 +600,14 @@ test('pipes response with old stream', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(finished, true)
-    t.equal(res.payload, 'hi')
+    t.assert.ifError(err)
+    t.assert.strictEqual(finished, true)
+    t.assert.strictEqual(res.payload, 'hi')
+    done()
   })
 })
 
-test('echos object payload', (t) => {
+test('echos object payload', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'content-type': req.headers['content-type'] })
@@ -582,13 +615,14 @@ test('echos object payload', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', payload: { a: 1 } }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-type'], 'application/json')
-    t.equal(res.payload, '{"a":1}')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-type'], 'application/json')
+    t.assert.strictEqual(res.payload, '{"a":1}')
+    done()
   })
 })
 
-test('supports body option in Request and property in Response', (t) => {
+test('supports body option in Request and property in Response', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'content-type': req.headers['content-type'] })
@@ -596,13 +630,14 @@ test('supports body option in Request and property in Response', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', body: { a: 1 } }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-type'], 'application/json')
-    t.equal(res.body, '{"a":1}')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-type'], 'application/json')
+    t.assert.strictEqual(res.body, '{"a":1}')
+    done()
   })
 })
 
-test('echos buffer payload', (t) => {
+test('echos buffer payload', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200)
@@ -610,12 +645,13 @@ test('echos buffer payload', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', payload: Buffer.from('test!') }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'test!')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'test!')
+    done()
   })
 })
 
-test('echos object payload with non-english utf-8 string', (t) => {
+test('echos object payload with non-english utf-8 string', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'content-type': req.headers['content-type'] })
@@ -623,13 +659,14 @@ test('echos object payload with non-english utf-8 string', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', payload: { a: '½½א' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-type'], 'application/json')
-    t.equal(res.payload, '{"a":"½½א"}')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-type'], 'application/json')
+    t.assert.strictEqual(res.payload, '{"a":"½½א"}')
+    done()
   })
 })
 
-test('echos object payload without payload', (t) => {
+test('echos object payload without payload', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200)
@@ -637,12 +674,13 @@ test('echos object payload without payload', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '')
+    done()
   })
 })
 
-test('retains content-type header', (t) => {
+test('retains content-type header', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'content-type': req.headers['content-type'] })
@@ -650,13 +688,14 @@ test('retains content-type header', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', payload: { a: 1 }, headers: { 'content-type': 'something' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-type'], 'something')
-    t.equal(res.payload, '{"a":1}')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-type'], 'something')
+    t.assert.strictEqual(res.payload, '{"a":1}')
+    done()
   })
 })
 
-test('adds a content-length header if none set when payload specified', (t) => {
+test('adds a content-length header if none set when payload specified', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -664,12 +703,13 @@ test('adds a content-length header if none set when payload specified', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', payload: { a: 1 } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '{"a":1}'.length.toString())
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '{"a":1}'.length.toString())
+    done()
   })
 })
 
-test('retains a content-length header when payload specified', (t) => {
+test('retains a content-length header when payload specified', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -677,12 +717,13 @@ test('retains a content-length header when payload specified', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/test', payload: '', headers: { 'content-length': '10' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '10')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '10')
+    done()
   })
 })
 
-test('can handle a stream payload', (t) => {
+test('can handle a stream payload', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     readStream(req, (buff) => {
@@ -692,12 +733,13 @@ test('can handle a stream payload', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/', payload: getTestStream() }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'hi')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'hi')
+    done()
   })
 })
 
-test('can handle a stream payload that errors', (t) => {
+test('can handle a stream payload that errors', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     req.resume()
@@ -710,12 +752,13 @@ test('can handle a stream payload that errors', (t) => {
   })
 
   inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
-    t.ok(err)
-    t.equal(err.message, 'kaboom')
+    t.assert.ok(err)
+    t.assert.equal(err.message, 'kaboom')
+    done()
   })
 })
 
-test('can handle a stream payload of utf-8 strings', (t) => {
+test('can handle a stream payload of utf-8 strings', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     readStream(req, (buff) => {
@@ -725,12 +768,13 @@ test('can handle a stream payload of utf-8 strings', (t) => {
   }
 
   inject(dispatch, { method: 'POST', url: '/', payload: getTestStream('utf8') }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'hi')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'hi')
+    done()
   })
 })
 
-test('can override stream payload content-length header', (t) => {
+test('can override stream payload content-length header', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -740,12 +784,13 @@ test('can override stream payload content-length header', (t) => {
   const headers = { 'content-length': '100' }
 
   inject(dispatch, { method: 'POST', url: '/', payload: getTestStream(), headers }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '100')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '100')
+    done()
   })
 })
 
-test('writeHead returns single buffer payload', (t) => {
+test('writeHead returns single buffer payload', (t, done) => {
   t.plan(4)
   const reply = 'Hello World'
   const statusCode = 200
@@ -756,14 +801,15 @@ test('writeHead returns single buffer payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, statusCode)
-    t.equal(res.statusMessage, statusMessage)
-    t.equal(res.payload, reply)
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, statusCode)
+    t.assert.strictEqual(res.statusMessage, statusMessage)
+    t.assert.strictEqual(res.payload, reply)
+    done()
   })
 })
 
-test('_read() plays payload', (t) => {
+test('_read() plays payload', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     let buffer = ''
@@ -783,12 +829,13 @@ test('_read() plays payload', (t) => {
 
   const body = 'something special just for you'
   inject(dispatch, { method: 'GET', url: '/', payload: body }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, body)
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, body)
+    done()
   })
 })
 
-test('simulates split', (t) => {
+test('simulates split', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     let buffer = ''
@@ -808,12 +855,13 @@ test('simulates split', (t) => {
 
   const body = 'something special just for you'
   inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { split: true } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, body)
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, body)
+    done()
   })
 })
 
-test('simulates error', (t) => {
+test('simulates error', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     req.on('readable', () => {
@@ -827,12 +875,13 @@ test('simulates error', (t) => {
 
   const body = 'something special just for you'
   inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { error: true } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'error')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'error')
+    done()
   })
 })
 
-test('simulates no end without payload', (t) => {
+test('simulates no end without payload', (t, done) => {
   t.plan(2)
   let end = false
   const dispatch = function (req, res) {
@@ -848,12 +897,13 @@ test('simulates no end without payload', (t) => {
   })
 
   setTimeout(() => {
-    t.equal(end, false)
-    t.equal(replied, false)
+    t.assert.strictEqual(end, false)
+    t.assert.strictEqual(replied, false)
+    done()
   }, 10)
 })
 
-test('simulates no end with payload', (t) => {
+test('simulates no end with payload', (t, done) => {
   t.plan(2)
   let end = false
   const dispatch = function (req, res) {
@@ -869,12 +919,13 @@ test('simulates no end with payload', (t) => {
   })
 
   setTimeout(() => {
-    t.equal(end, false)
-    t.equal(replied, false)
+    t.assert.strictEqual(end, false)
+    t.assert.strictEqual(replied, false)
+    done()
   }, 10)
 })
 
-test('simulates close', (t) => {
+test('simulates close', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     let buffer = ''
@@ -893,42 +944,55 @@ test('simulates close', (t) => {
 
   const body = 'something special just for you'
   inject(dispatch, { method: 'GET', url: '/', payload: body, simulate: { close: true } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'close')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'close')
+    done()
   })
 })
 
 test('errors for invalid input options', (t) => {
   t.plan(1)
 
-  t.throws(() => inject({}, {}, () => {}), new Error('dispatchFunc should be a function'))
+  t.assert.throws(
+    () => inject({}, {}, () => {}),
+    { name: 'AssertionError', message: 'dispatchFunc should be a function' }
+  )
 })
 
 test('errors for missing url', (t) => {
   t.plan(1)
 
-  t.throws(() => inject((req, res) => {}, {}, () => {}), /must have required property 'url'/)
+  t.assert.throws(
+    () => inject((req, res) => {}, {}, () => {}),
+    { message: /must have required property 'url'/ }
+  )
 })
 
 test('errors for an incorrect simulation object', (t) => {
   t.plan(1)
 
-  t.throws(() => inject((req, res) => {}, { url: '/', simulate: 'sample string' }, () => {}), /^must be object$/)
+  t.assert.throws(
+    () => inject((req, res) => {}, { url: '/', simulate: 'sample string' }, () => {}),
+    { message: /^must be object$/ }
+  )
 })
 
 test('ignores incorrect simulation object', (t) => {
   t.plan(1)
 
-  t.doesNotThrow(() => inject((req, res) => { }, { url: '/', simulate: 'sample string', validate: false }, () => { }))
+  t.assert.doesNotThrow(() => inject((req, res) => { }, { url: '/', simulate: 'sample string', validate: false }, () => { }))
 })
 
 test('errors for an incorrect simulation object values', (t) => {
   t.plan(1)
 
-  t.throws(() => inject((req, res) => {}, { url: '/', simulate: { end: 'wrong input' } }, () => {}), /^must be boolean$/)
+  t.assert.throws(
+    () => inject((req, res) => {}, { url: '/', simulate: { end: 'wrong input' } }, () => {}),
+    { message: /^must be boolean$/ }
+  )
 })
 
-test('promises support', (t) => {
+test('promises support', (t, done) => {
   t.plan(1)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -936,33 +1000,38 @@ test('promises support', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' })
-    .then(res => t.equal(res.payload, 'hello'))
-    .catch(t.fail)
+    .then(res => {
+      t.assert.strictEqual(res.payload, 'hello')
+      done()
+    })
+    .catch(t.assert.fail)
 })
 
-test('this should be the server instance', t => {
+test('this should be the server instance', (t, done) => {
   t.plan(2)
 
   const server = http.createServer()
 
   const dispatch = function (req, res) {
-    t.equal(this, server)
+    t.assert.strictEqual(this, server)
     res.end('hello')
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', server })
-    .then(res => t.equal(res.statusCode, 200))
-    .catch(t.fail)
+    .then(res => t.assert.strictEqual(res.statusCode, 200))
+    .catch(t.assert.fail)
+    .finally(done)
 })
 
-test('should handle response errors', (t) => {
+test('should handle response errors', (t, done) => {
   t.plan(1)
   const dispatch = function (req, res) {
     res.connection.destroy(new Error('kaboom'))
   }
 
   inject(dispatch, 'http://example.com:8080/hello', (err, res) => {
-    t.ok(err)
+    t.assert.ok(err)
+    done()
   })
 })
 
@@ -972,10 +1041,13 @@ test('should handle response errors (promises)', async (t) => {
     res.connection.destroy(new Error('kaboom'))
   }
 
-  await t.rejects(() => inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }), new Error('kaboom'))
+  await t.assert.rejects(
+    () => inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello' }),
+    { name: 'Error', message: 'kaboom' }
+  )
 })
 
-test('should handle response timeout handler', (t) => {
+test('should handle response timeout handler', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     const handle = setTimeout(() => {
@@ -988,12 +1060,13 @@ test('should handle response timeout handler', (t) => {
       res.end('correct')
     })
     res.on('timeout', () => {
-      t.ok(true, 'Response timeout event not emitted')
+      t.assert.ok(true, 'Response timeout event not emitted')
     })
   }
   inject(dispatch, { method: 'GET', url: '/test' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'correct')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'correct')
+    done()
   })
 })
 
@@ -1001,8 +1074,8 @@ test('should throw on unknown HTTP method', (t) => {
   t.plan(1)
   const dispatch = function (req, res) { }
 
-  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.ok(err)
+  t.assert.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' }, (err, res) => {
+    t.assert.ok(err)
   }), Error)
 })
 
@@ -1010,11 +1083,11 @@ test('should throw on unknown HTTP method (promises)', (t) => {
   t.plan(1)
   const dispatch = function (req, res) { }
 
-  t.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' })
+  t.assert.throws(() => inject(dispatch, { method: 'UNKNOWN_METHOD', url: 'http://example.com:8080/hello' })
     .then(res => {}), Error)
 })
 
-test('HTTP method is case insensitive', (t) => {
+test('HTTP method is case insensitive', (t, done) => {
   t.plan(3)
 
   const dispatch = function (req, res) {
@@ -1022,13 +1095,14 @@ test('HTTP method is case insensitive', (t) => {
   }
 
   inject(dispatch, { method: 'get', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.equal(res.payload, 'Hi!')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, 200)
+    t.assert.strictEqual(res.payload, 'Hi!')
+    done()
   })
 })
 
-test('form-data should be handled correctly', (t) => {
+test('form-data should be handled correctly', (t, done) => {
   t.plan(3)
 
   const dispatch = function (req, res) {
@@ -1049,13 +1123,14 @@ test('form-data should be handled correctly', (t) => {
     url: 'http://example.com:8080/hello',
     payload: form
   }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.ok(/--.+\r\nContent-Disposition: form-data; name="my_field"\r\n\r\nmy value\r\n--.+--\r\n/.test(res.payload))
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, 200)
+    t.assert.ok(/--.+\r\nContent-Disposition: form-data; name="my_field"\r\n\r\nmy value\r\n--.+--\r\n/.test(res.payload))
+    done()
   })
 })
 
-test('path as alias to url', (t) => {
+test('path as alias to url', (t, done) => {
   t.plan(2)
 
   const dispatch = function (req, res) {
@@ -1064,18 +1139,22 @@ test('path as alias to url', (t) => {
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, '/hello')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '/hello')
+    done()
   })
 })
 
 test('Should throw if both path and url are missing', (t) => {
   t.plan(1)
 
-  t.throws(() => inject(() => {}, { method: 'GET' }, () => {}), /must have required property 'url',must have required property 'path'/)
+  t.assert.throws(
+    () => inject(() => {}, { method: 'GET' }, () => {}),
+    { message: /must have required property 'url',must have required property 'path'/ }
+  )
 })
 
-test('chainable api: backwards compatibility for promise (then)', (t) => {
+test('chainable api: backwards compatibility for promise (then)', (t, done) => {
   t.plan(1)
 
   const dispatch = function (req, res) {
@@ -1085,11 +1164,12 @@ test('chainable api: backwards compatibility for promise (then)', (t) => {
 
   inject(dispatch)
     .get('/')
-    .then(res => t.equal(res.payload, 'hello'))
-    .catch(t.fail)
+    .then(res => t.assert.strictEqual(res.payload, 'hello'))
+    .catch(t.assert.fail)
+    .finally(done)
 })
 
-test('chainable api: backwards compatibility for promise (catch)', (t) => {
+test('chainable api: backwards compatibility for promise (catch)', (t, done) => {
   t.plan(1)
 
   function dispatch (req, res) {
@@ -1098,29 +1178,31 @@ test('chainable api: backwards compatibility for promise (catch)', (t) => {
 
   inject(dispatch)
     .get('/')
-    .catch(err => t.ok(err))
+    .catch(err => t.assert.ok(err))
+    .finally(done)
 })
 
-test('chainable api: multiple call of then should return the same promise', (t) => {
+test('chainable api: multiple call of then should return the same promise', (t, done) => {
   t.plan(2)
   let id = 0
 
   function dispatch (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain', 'Request-Id': id })
     ++id
-    t.pass('request id incremented')
+    t.assert.ok('request id incremented')
     res.end('hello')
   }
 
   const chain = inject(dispatch).get('/')
   chain.then(res => {
     chain.then(rep => {
-      t.equal(res.headers['request-id'], rep.headers['request-id'])
+      t.assert.strictEqual(res.headers['request-id'], rep.headers['request-id'])
+      done()
     })
   })
 })
 
-test('chainable api: http methods should work correctly', (t) => {
+test('chainable api: http methods should work correctly', (t, done) => {
   t.plan(16)
 
   function dispatch (req, res) {
@@ -1128,16 +1210,19 @@ test('chainable api: http methods should work correctly', (t) => {
     res.end(req.method)
   }
 
-  httpMethods.forEach(method => {
+  httpMethods.forEach((method, index) => {
     inject(dispatch)[method]('http://example.com:8080/hello')
       .end((err, res) => {
-        t.error(err)
-        t.equal(res.body, method.toUpperCase())
+        t.assert.ifError(err)
+        t.assert.strictEqual(res.body, method.toUpperCase())
+        if (index === httpMethods.length - 1) {
+          done()
+        }
       })
   })
 })
 
-test('chainable api: http methods should throw if already invoked', (t) => {
+test('chainable api: http methods should throw if already invoked', (t, done) => {
   t.plan(8)
 
   function dispatch (req, res) {
@@ -1145,14 +1230,17 @@ test('chainable api: http methods should throw if already invoked', (t) => {
     res.end()
   }
 
-  httpMethods.forEach(method => {
+  httpMethods.forEach((method, index) => {
     const chain = inject(dispatch)[method]('http://example.com:8080/hello')
     chain.end()
-    t.throws(() => chain[method]('/'), Error)
+    t.assert.throws(() => chain[method]('/'), Error)
+    if (index === httpMethods.length - 1) {
+      done()
+    }
   })
 })
 
-test('chainable api: body method should work correctly', (t) => {
+test('chainable api: body method should work correctly', (t, done) => {
   t.plan(2)
 
   function dispatch (req, res) {
@@ -1164,12 +1252,13 @@ test('chainable api: body method should work correctly', (t) => {
     .get('http://example.com:8080/hello')
     .body('test')
     .end((err, res) => {
-      t.error(err)
-      t.equal(res.body, 'test')
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.body, 'test')
+      done()
     })
 })
 
-test('chainable api: cookie', (t) => {
+test('chainable api: cookie', (t, done) => {
   t.plan(2)
 
   function dispatch (req, res) {
@@ -1182,8 +1271,9 @@ test('chainable api: cookie', (t) => {
     .body('test')
     .cookies({ hello: 'world', fastify: 'rulez' })
     .end((err, res) => {
-      t.error(err)
-      t.equal(res.body, 'hello=world; fastify=rulez')
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.body, 'hello=world; fastify=rulez')
+      done()
     })
 })
 
@@ -1199,10 +1289,10 @@ test('chainable api: body method should throw if already invoked', (t) => {
   chain
     .get('http://example.com:8080/hello')
     .end()
-  t.throws(() => chain.body('test'), Error)
+  t.assert.throws(() => chain.body('test'), Error)
 })
 
-test('chainable api: headers method should work correctly', (t) => {
+test('chainable api: headers method should work correctly', (t, done) => {
   t.plan(2)
 
   function dispatch (req, res) {
@@ -1214,8 +1304,9 @@ test('chainable api: headers method should work correctly', (t) => {
     .get('http://example.com:8080/hello')
     .headers({ foo: 'bar' })
     .end((err, res) => {
-      t.error(err)
-      t.equal(res.payload, 'bar')
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.payload, 'bar')
+      done()
     })
 })
 
@@ -1231,10 +1322,10 @@ test('chainable api: headers method should throw if already invoked', (t) => {
   chain
     .get('http://example.com:8080/hello')
     .end()
-  t.throws(() => chain.headers({ foo: 'bar' }), Error)
+  t.assert.throws(() => chain.headers({ foo: 'bar' }), Error)
 })
 
-test('chainable api: payload method should work correctly', (t) => {
+test('chainable api: payload method should work correctly', (t, done) => {
   t.plan(2)
 
   function dispatch (req, res) {
@@ -1246,8 +1337,9 @@ test('chainable api: payload method should work correctly', (t) => {
     .get('http://example.com:8080/hello')
     .payload('payload')
     .end((err, res) => {
-      t.error(err)
-      t.equal(res.payload, 'payload')
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.payload, 'payload')
+      done()
     })
 })
 
@@ -1263,10 +1355,10 @@ test('chainable api: payload method should throw if already invoked', (t) => {
   chain
     .get('http://example.com:8080/hello')
     .end()
-  t.throws(() => chain.payload('payload'), Error)
+  t.assert.throws(() => chain.payload('payload'), Error)
 })
 
-test('chainable api: query method should work correctly', (t) => {
+test('chainable api: query method should work correctly', (t, done) => {
   t.plan(2)
 
   const query = {
@@ -1283,8 +1375,9 @@ test('chainable api: query method should work correctly', (t) => {
     .get('http://example.com:8080/hello')
     .query(query)
     .end((err, res) => {
-      t.error(err)
-      t.same(parseQuery(res.payload), query)
+      t.assert.ifError(err)
+      t.assert.deepEqual(parseQuery(res.payload), query)
+      done()
     })
 })
 
@@ -1300,7 +1393,7 @@ test('chainable api: query method should throw if already invoked', (t) => {
   chain
     .get('http://example.com:8080/hello')
     .end()
-  t.throws(() => chain.query({ foo: 'bar' }), Error)
+  t.assert.throws(() => chain.query({ foo: 'bar' }), Error)
 })
 
 test('chainable api: invoking end method after promise method should throw', (t) => {
@@ -1314,10 +1407,10 @@ test('chainable api: invoking end method after promise method should throw', (t)
   const chain = inject(dispatch).get('http://example.com:8080/hello')
 
   chain.then()
-  t.throws(() => chain.end(), Error)
+  t.assert.throws(() => chain.end(), Error)
 })
 
-test('chainable api: invoking promise method after end method with a callback function should throw', (t) => {
+test('chainable api: invoking promise method after end method with a callback function should throw', (t, done) => {
   t.plan(2)
 
   function dispatch (req, res) {
@@ -1328,12 +1421,13 @@ test('chainable api: invoking promise method after end method with a callback fu
   const chain = inject(dispatch).get('http://example.com:8080/hello')
 
   chain.end((err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
+    done()
   })
-  t.throws(() => chain.then(), Error)
+  t.assert.throws(() => chain.then(), Error)
 })
 
-test('chainable api: invoking promise method after end method without a callback function should work properly', (t) => {
+test('chainable api: invoking promise method after end method without a callback function should work properly', (t, done) => {
   t.plan(1)
 
   function dispatch (req, res) {
@@ -1344,7 +1438,8 @@ test('chainable api: invoking promise method after end method without a callback
   inject(dispatch)
     .get('http://example.com:8080/hello')
     .end()
-    .then(res => t.equal(res.payload, 'hello'))
+    .then(res => t.assert.strictEqual(res.payload, 'hello'))
+    .finally(done)
 })
 
 test('chainable api: invoking end method multiple times should throw', (t) => {
@@ -1358,24 +1453,24 @@ test('chainable api: invoking end method multiple times should throw', (t) => {
   const chain = inject(dispatch).get('http://example.com:8080/hello')
 
   chain.end()
-  t.throws(() => chain.end(), Error)
+  t.assert.throws(() => chain.end(), Error)
 })
 
-test('chainable api: string url', (t) => {
+test('chainable api: string url', (t, done) => {
   t.plan(2)
 
   function dispatch (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end()
-    t.pass()
+    t.assert.ok('pass')
   }
 
   const chain = inject(dispatch, 'http://example.com:8080/hello')
 
-  chain.then(() => t.pass())
+  chain.then(() => t.assert.ok('pass')).finally(done)
 })
 
-test('Response.json() should parse the JSON payload', (t) => {
+test('Response.json() should parse the JSON payload', (t, done) => {
   t.plan(2)
 
   const jsonData = {
@@ -1389,13 +1484,14 @@ test('Response.json() should parse the JSON payload', (t) => {
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     const { json } = res
-    t.same(json(), jsonData)
+    t.assert.deepStrictEqual(json(), jsonData)
+    done()
   })
 })
 
-test('Response.json() should not throw an error if content-type is not application/json', (t) => {
+test('Response.json() should not throw an error if content-type is not application/json', (t, done) => {
   t.plan(2)
 
   const jsonData = {
@@ -1409,13 +1505,14 @@ test('Response.json() should not throw an error if content-type is not applicati
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     const { json } = res
-    t.same(json(), jsonData)
+    t.assert.deepStrictEqual(json(), jsonData)
+    done()
   })
 })
 
-test('Response.json() should throw an error if the payload is not of valid JSON format', (t) => {
+test('Response.json() should throw an error if the payload is not of valid JSON format', (t, done) => {
   t.plan(2)
 
   const dispatch = function (req, res) {
@@ -1424,12 +1521,13 @@ test('Response.json() should throw an error if the payload is not of valid JSON 
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.throws(res.json, Error)
+    t.assert.ifError(err)
+    t.assert.throws(res.json, Error)
+    done()
   })
 })
 
-test('Response.stream() should provide a Readable stream', (t) => {
+test('Response.stream() should provide a Readable stream', (t, done) => {
   const lines = [
     JSON.stringify({ foo: 'bar' }),
     JSON.stringify({ hello: 'world' })
@@ -1446,43 +1544,46 @@ test('Response.stream() should provide a Readable stream', (t) => {
   }
 
   inject(dispatch, { method: 'GET', path: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
     const readable = res.stream()
     const payload = []
-    t.equal(readable instanceof Readable, true)
+    t.assert.strictEqual(readable instanceof Readable, true)
     readable.on('data', function (chunk) {
       payload.push(chunk)
     })
     readable.on('end', function () {
       for (let i = 0; i < lines.length; i++) {
-        t.equal(lines[i], payload[i].toString())
+        t.assert.strictEqual(lines[i], payload[i].toString())
       }
+      done()
     })
   })
 })
 
-test('promise api should auto start (fire and forget)', (t) => {
+test('promise api should auto start (fire and forget)', (t, done) => {
   t.plan(1)
 
   function dispatch (req, res) {
-    t.pass('dispatch called')
+    t.assert.ok('dispatch called')
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end()
   }
 
   inject(dispatch, 'http://example.com:8080/hello')
+  process.nextTick(done)
 })
 
-test('disabling autostart', (t) => {
+test('disabling autostart', (t, done) => {
   t.plan(3)
 
   let called = false
 
   function dispatch (req, res) {
-    t.pass('dispatch called')
+    t.assert.ok('dispatch called')
     called = true
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end()
+    done()
   }
 
   const p = inject(dispatch, {
@@ -1491,9 +1592,9 @@ test('disabling autostart', (t) => {
   })
 
   setImmediate(() => {
-    t.equal(called, false)
+    t.assert.strictEqual(called, false)
     p.then(() => {
-      t.equal(called, true)
+      t.assert.strictEqual(called, true)
     })
   })
 })
@@ -1525,7 +1626,7 @@ function readStream (stream, callback) {
   })
 }
 
-test('send cookie', (t) => {
+test('send cookie', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -1533,13 +1634,14 @@ test('send cookie', (t) => {
   }
 
   inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar', grass: 'àìùòlé' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
-    t.equal(res.rawPayload.toString(), 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.assert.strictEqual(res.rawPayload.toString(), 'example.com:8080|foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    done()
   })
 })
 
-test('send cookie with header already set', (t) => {
+test('send cookie with header already set', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -1551,13 +1653,14 @@ test('send cookie with header already set', (t) => {
     headers: { cookie: 'custom=one' },
     cookies: { foo: 'bar', grass: 'àìùòlé' }
   }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
-    t.equal(res.rawPayload.toString(), 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    t.assert.strictEqual(res.rawPayload.toString(), 'example.com:8080|custom=one; foo=bar; grass=%C3%A0%C3%AC%C3%B9%C3%B2l%C3%A9')
+    done()
   })
 })
 
-test('read cookie', (t) => {
+test('read cookie', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.setHeader('Set-Cookie', [
@@ -1569,9 +1672,9 @@ test('read cookie', (t) => {
   }
 
   inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:8080|foo=bar')
-    t.strictSame(res.cookies, [
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:8080|foo=bar')
+    t.assert.deepStrictEqual(res.cookies, [
       { name: 'type', value: 'ninja' },
       {
         name: 'dev',
@@ -1585,10 +1688,11 @@ test('read cookie', (t) => {
         sameSite: 'Strict'
       }
     ])
+    done()
   })
 })
 
-test('correctly handles no string headers', (t) => {
+test('correctly handles no string headers', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     const payload = JSON.stringify(req.headers)
@@ -1621,9 +1725,9 @@ test('correctly handles no string headers', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080/hello', headers }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
 
-    t.strictSame(res.headers, {
+    t.assert.deepStrictEqual(res.headers, {
       integer: '12',
       float: '3.14',
       null: 'null',
@@ -1638,7 +1742,7 @@ test('correctly handles no string headers', (t) => {
       'content-type': 'application/json'
     })
 
-    t.strictSame(JSON.parse(res.payload), {
+    t.assert.deepStrictEqual(JSON.parse(res.payload), {
       integer: '12',
       float: '3.14',
       null: 'null',
@@ -1651,19 +1755,21 @@ test('correctly handles no string headers', (t) => {
       host: 'example.com:8080',
       'user-agent': 'lightMyRequest'
     })
+    done()
   })
 })
 
-test('errors for invalid undefined header value', (t) => {
+test('errors for invalid undefined header value', (t, done) => {
   t.plan(1)
   try {
     inject((req, res) => {}, { url: '/', headers: { 'header-key': undefined } }, () => {})
   } catch (err) {
-    t.ok(err)
+    t.assert.ok(err)
+    done()
   }
 })
 
-test('example with form-auto-content', (t) => {
+test('example with form-auto-content', (t, done) => {
   t.plan(4)
   const dispatch = function (req, res) {
     let body = ''
@@ -1686,73 +1792,73 @@ test('example with form-auto-content', (t) => {
     payload: form.payload,
     headers: form.headers
   }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 200)
-    t.ok(/--.+\r\nContent-Disposition: form-data; name="myField"\r\n\r\nmy value\r\n--.*/.test(res.payload))
-    t.ok(/--.+\r\nContent-Disposition: form-data; name="myFile"; filename="LICENSE"\r\n.*/.test(res.payload))
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, 200)
+    t.assert.ok(/--.+\r\nContent-Disposition: form-data; name="myField"\r\n\r\nmy value\r\n--.*/.test(res.payload))
+    t.assert.ok(/--.+\r\nContent-Disposition: form-data; name="myFile"; filename="LICENSE"\r\n.*/.test(res.payload))
+    done()
   })
 })
 
-test('simulate invalid alter _lightMyRequest.isDone with end', (t) => {
+test('simulate invalid alter _lightMyRequest.isDone with end', (t, done) => {
   const dispatch = function (req, res) {
     req.resume()
     req._lightMyRequest.isDone = true
     req.on('end', () => {
-      t.pass('should have end event')
-      t.end()
+      t.assert.ok('should have end event')
+      done()
     })
   }
 
   inject(dispatch, { method: 'GET', url: '/', simulate: { end: true } }, (notHandledErr, res) => {
-    t.fail('should not have reply')
+    t.assert.fail('should not have reply')
   })
 })
 
-test('simulate invalid alter _lightMyRequest.isDone without end', (t) => {
+test('simulate invalid alter _lightMyRequest.isDone without end', (t, done) => {
   const dispatch = function (req, res) {
     req.resume()
     req._lightMyRequest.isDone = true
     req.on('end', () => {
-      t.fail('should not have end event')
+      t.assert.fail('should not have end event')
     })
+    done()
   }
 
   inject(dispatch, { method: 'GET', url: '/', simulate: { end: false } }, (notHandledErr, res) => {
-    t.fail('should not have reply')
+    t.assert.fail('should not have reply')
   })
-
-  t.end()
 })
 
-test('no error for response destory', (t) => {
-  t.plan(3)
+test('no error for response destroy', (t, done) => {
+  t.plan(2)
 
   const dispatch = function (req, res) {
     res.destroy()
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.ok(err)
-    t.equal(res, null)
-    t.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    done()
   })
 })
 
-test('request destroy errors', (t) => {
-  t.plan(3)
+test('request destory without.assert.ifError', (t, done) => {
+  t.plan(2)
 
   const dispatch = function (req, res) {
     req.destroy()
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.ok(err)
-    t.equal(err.code, 'LIGHT_ECONNRESET')
-    t.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
+    done()
   })
 })
 
-test('request destory with error', (t) => {
+test('request destory with error', (t, done) => {
   t.plan(2)
 
   const fakeError = new Error('some-err')
@@ -1762,53 +1868,55 @@ test('request destory with error', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.equal(err, fakeError)
-    t.equal(res, null)
+    t.assert.strictEqual(err, fakeError)
+    t.assert.strictEqual(res, null)
+    done()
   })
 })
 
-test('compatible with stream.finished', (t) => {
-  t.plan(4)
-
-  const dispatch = function (req, res) {
-    finished(res, (err) => {
-      t.ok(err instanceof Error)
-    })
-
-    req.destroy()
-  }
-
-  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.ok(err)
-    t.equal(err.code, 'LIGHT_ECONNRESET')
-    t.equal(res, null)
-  })
-})
-
-test('compatible with eos', (t) => {
-  t.plan(4)
-
-  const dispatch = function (req, res) {
-    eos(res, (err) => {
-      t.ok(err instanceof Error)
-    })
-
-    req.destroy()
-  }
-
-  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.ok(err)
-    t.equal(err.code, 'LIGHT_ECONNRESET')
-    t.equal(res, null)
-  })
-})
-
-test('compatible with stream.finished pipe a Stream', (t) => {
+test('compatible with stream.finished', (t, done) => {
   t.plan(3)
 
   const dispatch = function (req, res) {
     finished(res, (err) => {
-      t.error(err)
+      t.assert.ok(err instanceof Error)
+    })
+
+    req.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
+    done()
+  })
+})
+
+test('compatible with eos', (t, done) => {
+  t.plan(4)
+
+  const dispatch = function (req, res) {
+    eos(res, (err) => {
+      t.assert.ok(err instanceof Error)
+    })
+
+    req.destroy()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.assert.ok(err)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
+    done()
+  })
+})
+
+test('compatible with stream.finished pipe a Stream', (t, done) => {
+  t.plan(3)
+
+  const dispatch = function (req, res) {
+    finished(res, (err) => {
+      t.assert.ifError(err)
     })
 
     new Readable({
@@ -1820,32 +1928,34 @@ test('compatible with stream.finished pipe a Stream', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.error(err)
-    t.equal(res.body, 'hello world')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.body, 'hello world')
+    done()
   })
 })
 
-test('compatible with eos, passes error correctly', (t) => {
+test('compatible with eos, passes error correctly', (t, done) => {
   t.plan(3)
 
   const fakeError = new Error('some-error')
 
   const dispatch = function (req, res) {
     eos(res, (err) => {
-      t.equal(err, fakeError)
+      t.assert.strictEqual(err, fakeError)
     })
 
     req.destroy(fakeError)
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.equal(err, fakeError)
-    t.equal(res, null)
+    t.assert.strictEqual(err, fakeError)
+    t.assert.strictEqual(res, null)
+    done()
   })
 })
 
-test('multiple calls to req.destroy should not be called', (t) => {
-  t.plan(3)
+test('multiple calls to req.destroy should not be called', (t, done) => {
+  t.plan(2)
 
   const dispatch = function (req, res) {
     req.destroy()
@@ -1853,13 +1963,13 @@ test('multiple calls to req.destroy should not be called', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.ok(err)
-    t.equal(res, null)
-    t.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    done()
   })
 })
 
-test('passes headers when using an express app', (t) => {
+test('passes headers when using an express app', (t, done) => {
   t.plan(2)
 
   const app = express()
@@ -1870,12 +1980,13 @@ test('passes headers when using an express app', (t) => {
   })
 
   inject(app, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['some-fancy-header'], 'a very cool value')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['some-fancy-header'], 'a very cool value')
+    done()
   })
 })
 
-test('value of request url when using inject should not differ', (t) => {
+test('value of request url when using inject should not differ', (t, done) => {
   t.plan(1)
 
   const server = http.createServer()
@@ -1885,32 +1996,33 @@ test('value of request url when using inject should not differ', (t) => {
   }
 
   inject(dispatch, { method: 'GET', url: 'http://example.com:8080//hello', server })
-    .then(res => { t.equal(res.body, '//hello') })
-    .catch(err => t.error(err))
+    .then(res => { t.assert.strictEqual(res.body, '//hello') })
+    .catch(err => t.assert.ifError(err))
+    .finally(done)
 })
 
 test('Can parse paths with single leading slash', (t) => {
   t.plan(1)
   const parsedURL = parseURL('/test', undefined)
-  t.equal(parsedURL.href, 'http://localhost/test')
+  t.assert.strictEqual(parsedURL.href, 'http://localhost/test')
 })
 
 test('Can parse paths with two leading slashes', (t) => {
   t.plan(1)
   const parsedURL = parseURL('//test', undefined)
-  t.equal(parsedURL.href, 'http://localhost//test')
+  t.assert.strictEqual(parsedURL.href, 'http://localhost//test')
 })
 
 test('Can parse URLs with two leading slashes', (t) => {
   t.plan(1)
   const parsedURL = parseURL('https://example.com//test', undefined)
-  t.equal(parsedURL.href, 'https://example.com//test')
+  t.assert.strictEqual(parsedURL.href, 'https://example.com//test')
 })
 
 test('Can parse URLs with single leading slash', (t) => {
   t.plan(1)
   const parsedURL = parseURL('https://example.com/test', undefined)
-  t.equal(parsedURL.href, 'https://example.com/test')
+  t.assert.strictEqual(parsedURL.href, 'https://example.com/test')
 })
 
 test('Can abort a request using AbortController/AbortSignal', (t) => {
@@ -1927,12 +2039,12 @@ test('Can abort a request using AbortController/AbortSignal', (t) => {
   controller.abort()
   const wanted = new Error('The operation was aborted')
   wanted.name = 'AbortError'
-  t.rejects(promise, wanted)
+  t.assert.rejects(promise, wanted)
 }, { skip: globalThis.AbortController == null })
 
-test('should pass req to ServerResponse', (t) => {
+test('should pass req to ServerResponse', (t, done) => {
   if (parseInt(process.versions.node.split('.', 1)[0], 10) < 16) {
-    t.pass('Skip because Node version < 16')
+    t.assert.ok('Skip because Node version < 16')
     t.end()
     return
   }
@@ -1944,15 +2056,16 @@ test('should pass req to ServerResponse', (t) => {
   }
 
   inject(dispatch, 'http://example.com:8080/hello', (err, res) => {
-    t.error(err)
-    t.ok(res.raw.req === res.raw.res.req)
-    t.ok(res.raw.res.req.removeListener)
-    t.equal(res.payload, 'example.com:8080|/hello')
-    t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
+    t.assert.ifError(err)
+    t.assert.ok(res.raw.req === res.raw.res.req)
+    t.assert.ok(res.raw.res.req.removeListener)
+    t.assert.strictEqual(res.payload, 'example.com:8080|/hello')
+    t.assert.strictEqual(res.rawPayload.toString(), 'example.com:8080|/hello')
+    done()
   })
 })
 
-test('should work with pipeline', (t) => {
+test('should work with pipeline', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -1960,19 +2073,20 @@ test('should work with pipeline', (t) => {
   }
 
   inject(dispatch, 'http://example.com:8080/hello', (err, res) => {
-    t.error(err)
-    t.equal(res.payload, 'example.com:8080|/hello')
-    t.equal(res.rawPayload.toString(), 'example.com:8080|/hello')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'example.com:8080|/hello')
+    t.assert.strictEqual(res.rawPayload.toString(), 'example.com:8080|/hello')
+    done()
   })
 })
 
-test('should leave the headers user-agent and content-type undefined when the headers are explicitly set to undefined in the inject', (t) => {
+test('should leave the headers user-agent and content-type undefined when the headers are explicitly set to undefined in the inject', (t, done) => {
   t.plan(5)
   const dispatch = function (req, res) {
-    t.ok(Array.isArray(req.rawHeaders))
-    t.equal(req.headers['user-agent'], undefined)
-    t.equal(req.headers['content-type'], undefined)
-    t.equal(req.headers['x-foo'], 'bar')
+    t.assert.ok(Array.isArray(req.rawHeaders))
+    t.assert.strictEqual(req.headers['user-agent'], undefined)
+    t.assert.strictEqual(req.headers['content-type'], undefined)
+    t.assert.strictEqual(req.headers['x-foo'], 'bar')
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end('Ok')
   }
@@ -1987,11 +2101,12 @@ test('should leave the headers user-agent and content-type undefined when the he
     },
     body: {}
   }, (err, res) => {
-    t.error(err)
+    t.assert.ifError(err)
+    done()
   })
 })
 
-test("passes payload when using express' send", (t) => {
+test("passes payload when using express' send", (t, done) => {
   t.plan(3)
 
   const app = express()
@@ -2001,14 +2116,15 @@ test("passes payload when using express' send", (t) => {
   })
 
   inject(app, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.error(err)
-    t.equal(res.headers['content-length'], '9')
-    t.equal(res.payload, 'some text')
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-length'], '9')
+    t.assert.strictEqual(res.payload, 'some text')
+    done()
   })
 })
 
-test('request that is destroyed errors', (t) => {
-  t.plan(3)
+test('request that is destroyed errors', (t, done) => {
+  t.plan(2)
   const dispatch = function (req, res) {
     readStream(req, (buff) => {
       req.destroy() // this should be a no-op
@@ -2022,20 +2138,19 @@ test('request that is destroyed errors', (t) => {
   const payload = getTestStream()
 
   inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
-    process._rawDebug('---')
-    t.equal(res, null)
-    t.ok(err)
-    t.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    done()
   })
 })
 
 function runFormDataUnitTest (name, { FormData, Blob }) {
-  test(`${name} - form-data should be handled correctly`, (t) => {
+  test(`${name} - form-data should be handled correctly`, (t, done) => {
     t.plan(23)
 
     const dispatch = function (req, res) {
       let body = ''
-      t.ok(/multipart\/form-data; boundary=----formdata-[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}(--)?$/.test(req.headers['content-type']), 'proper Content-Type provided')
+      t.assert.ok(/multipart\/form-data; boundary=----formdata-[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}(--)?$/.test(req.headers['content-type']), 'proper Content-Type provided')
       req.on('data', d => {
         body += d
       })
@@ -2056,8 +2171,8 @@ function runFormDataUnitTest (name, { FormData, Blob }) {
       url: 'http://example.com:8080/hello',
       payload: form
     }, (err, res) => {
-      t.error(err)
-      t.equal(res.statusCode, 200)
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.statusCode, 200)
 
       const regexp = [
       // header
@@ -2077,7 +2192,7 @@ function runFormDataUnitTest (name, { FormData, Blob }) {
           case 15:
           case 20: {
           // header
-            t.ok(regexp[0].test(chunk), 'correct header')
+            t.assert.ok(regexp[0].test(chunk), 'correct header')
             break
           }
           case 2:
@@ -2085,14 +2200,14 @@ function runFormDataUnitTest (name, { FormData, Blob }) {
           case 11:
           case 16: {
           // content-disposition
-            t.ok(regexp[1].test(chunk), 'correct content-disposition')
+            t.assert.ok(regexp[1].test(chunk), 'correct content-disposition')
             break
           }
           case 7:
           case 12:
           case 17: {
           // content-type
-            t.ok(regexp[2].test(chunk), 'correct content-type')
+            t.assert.ok(regexp[2].test(chunk), 'correct content-type')
             break
           }
           case 3:
@@ -2100,7 +2215,7 @@ function runFormDataUnitTest (name, { FormData, Blob }) {
           case 13:
           case 18: {
           // empty
-            t.equal(chunk, '', 'correct space')
+            t.assert.strictEqual(chunk, '', 'correct space')
             break
           }
           case 4:
@@ -2108,12 +2223,13 @@ function runFormDataUnitTest (name, { FormData, Blob }) {
           case 14:
           case 19: {
           // value
-            t.equal(chunk, 'value', 'correct value')
+            t.assert.strictEqual(chunk, 'value', 'correct value')
             break
           }
         }
         i++
       })
+      done()
     })
   }, { skip: FormData == null || Blob == null })
 }
@@ -2124,3 +2240,33 @@ runFormDataUnitTest('native', { FormData: globalThis.FormData, Blob: globalThis.
 runFormDataUnitTest('undici', { FormData: require('undici').FormData, Blob: require('node:buffer').Blob })
 // supports >= node@14
 runFormDataUnitTest('formdata-node', { FormData: require('formdata-node').FormData, Blob: require('formdata-node').Blob })
+
+test('QUERY method works', (t, done) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-type': req.headers['content-type'] })
+    req.pipe(res)
+  }
+
+  inject(dispatch, { method: 'QUERY', url: '/test', payload: { a: 1 } }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-type'], 'application/json')
+    t.assert.strictEqual(res.payload, '{"a":1}')
+    done()
+  })
+})
+
+test('query method works', (t, done) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-type': req.headers['content-type'] })
+    req.pipe(res)
+  }
+
+  inject(dispatch, { method: 'query', url: '/test', payload: { a: 1 } }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.headers['content-type'], 'application/json')
+    t.assert.strictEqual(res.payload, '{"a":1}')
+    done()
+  })
+})

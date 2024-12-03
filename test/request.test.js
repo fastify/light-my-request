@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 
 const Request = require('../lib/request')
 
@@ -12,5 +12,5 @@ test('aborted property should be false', async (t) => {
   }
   const req = new Request(mockReq)
 
-  t.same(req.aborted, false)
+  t.assert.strictEqual(req.aborted, false)
 })
