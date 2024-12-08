@@ -22,7 +22,7 @@ const dispatch: http.RequestListener = function (req, res) {
 
 const expectResponse = function (res: Response | undefined) {
   if (!res) {
-    return;
+    return
   }
   expectType<Response>(res)
   console.log(res.payload)
