@@ -20,7 +20,7 @@
     "form-auto-content": "^3.2.1",
     "form-data": "^4.0.0",
     "formdata-node": "^6.0.3",
-    "standard": "^17.1.0",
+    "neostandard": "^0.11.9",
     "tinybench": "^3.0.0",
     "tsd": "^0.31.0",
     "undici": "^7.0.0"
@@ -28,7 +28,8 @@
   "scripts": {
     "benchmark": "node benchmark/benchmark.js",
     "coverage": "npm run unit -- --cov --coverage-report=html",
-    "lint": "standard",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "test": "npm run lint && npm run test:unit && npm run test:typescript",
     "test:typescript": "tsd",
     "test:unit": "c8 --100 node --test"
@@ -49,10 +50,5 @@
   "bugs": {
     "url": "https://github.com/fastify/light-my-request/issues"
   },
-  "homepage": "https://github.com/fastify/light-my-request/blob/master/README.md",
-  "standard": {
-    "ignore": [
-      "test/benchmark.js"
-    ]
-  }
+  "homepage": "https://github.com/fastify/light-my-request/blob/master/README.md"
 }
