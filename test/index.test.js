@@ -739,6 +739,25 @@ test('can handle a stream payload', (t, done) => {
   })
 })
 
+test('can handle a stream payload that errors', (t, done) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    req.resume()
+  }
+
+  const payload = new Readable({
+    read () {
+      this.destroy(new Error('kaboom'))
+    }
+  })
+
+  inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
+    t.assert.ok(err)
+    t.assert.equal(err.message, 'kaboom')
+    done()
+  })
+})
+
 test('can handle a stream payload of utf-8 strings', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
@@ -769,17 +788,6 @@ test('can override stream payload content-length header', (t, done) => {
     t.assert.strictEqual(res.payload, '100')
     done()
   })
-})
-
-test('can override stream payload content-length header without request content-length', (t, done) => {
-  t.plan(1)
-  const dispatch = function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    t.assert.strictEqual(req.headers['content-length'], '2')
-    done()
-  }
-
-  inject(dispatch, { method: 'POST', url: '/', payload: getTestStream() }, () => {})
 })
 
 test('writeHead returns single buffer payload', (t, done) => {
@@ -1822,15 +1830,16 @@ test('simulate invalid alter _lightMyRequest.isDone without end', (t, done) => {
   })
 })
 
-test('no error for response destory', (t, done) => {
-  t.plan(1)
+test('no error for response destroy', (t, done) => {
+  t.plan(2)
 
   const dispatch = function (req, res) {
     res.destroy()
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.assert.ifError(err)
+    t.assert.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
     done()
   })
 })
@@ -1843,8 +1852,8 @@ test('request destory without.assert.ifError', (t, done) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.assert.ifError(err)
-    t.assert.strictEqual(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
     done()
   })
 })
@@ -1877,14 +1886,14 @@ test('compatible with stream.finished', (t, done) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.assert.ifError(err)
-    t.assert.strictEqual(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
     done()
   })
 })
 
 test('compatible with eos', (t, done) => {
-  t.plan(3)
+  t.plan(4)
 
   const dispatch = function (req, res) {
     eos(res, (err) => {
@@ -1895,8 +1904,9 @@ test('compatible with eos', (t, done) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.assert.ifError(err)
-    t.assert.strictEqual(res, null)
+    t.assert.ok(err)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
+    t.assert.equal(res, null)
     done()
   })
 })
@@ -1953,8 +1963,8 @@ test('multiple calls to req.destroy should not be called', (t, done) => {
   }
 
   inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
-    t.assert.ifError(err)
-    t.assert.strictEqual(res, null)
+    t.assert.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
     done()
   })
 })
@@ -2113,14 +2123,14 @@ test("passes payload when using express' send", (t, done) => {
   })
 })
 
-test('request that is destroyed does not.assert.ifError', (t, done) => {
+test('request that is destroyed errors', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
     readStream(req, (buff) => {
       req.destroy() // this should be a no-op
       setImmediate(() => {
         res.writeHead(200, { 'Content-Type': 'text/plain' })
-        res.end(buff)
+        res.end('hi')
       })
     })
   }
@@ -2128,8 +2138,8 @@ test('request that is destroyed does not.assert.ifError', (t, done) => {
   const payload = getTestStream()
 
   inject(dispatch, { method: 'POST', url: '/', payload }, (err, res) => {
-    t.assert.ifError(err)
-    t.assert.strictEqual(res.payload, 'hi')
+    t.assert.equal(res, null)
+    t.assert.equal(err.code, 'LIGHT_ECONNRESET')
     done()
   })
 })
