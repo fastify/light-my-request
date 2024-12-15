@@ -1,7 +1,7 @@
-import * as http from 'http'
+import * as http from 'node:http'
 import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '..'
 import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
-import { Readable } from 'stream'
+import { Readable } from 'node:stream'
 
 expectAssignable<InjectOptions>({ url: '/' })
 expectAssignable<InjectOptions>({ autoStart: true })
