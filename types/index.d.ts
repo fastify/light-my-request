@@ -1,5 +1,5 @@
-import * as http from 'http'
-import { Readable } from 'stream'
+import * as http from 'node:http'
+import { Readable } from 'node:stream'
 
 type HTTPMethods = 'DELETE' | 'delete' |
                    'GET' | 'get' |
