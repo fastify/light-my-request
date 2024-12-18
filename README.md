@@ -1,8 +1,8 @@
 # Light my Request
 
-![CI](https://github.com/fastify/light-my-request/workflows/CI/badge.svg)
+[![CI](https://github.com/fastify/light-my-request/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fastify/light-my-request/actions/workflows/ci.yml)
 [![NPM version](https://img.shields.io/npm/v/light-my-request.svg?style=flat)](https://www.npmjs.com/package/light-my-request)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
+[![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
 Injects a fake HTTP request/response into a node HTTP server for simulating server logic, writing tests, or debugging.
 Does not use a socket connection so can be run against an inactive server (server not in listen mode).

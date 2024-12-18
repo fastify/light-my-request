@@ -1,5 +1,5 @@
-import * as http from 'http'
-import { Readable } from 'stream'
+import * as http from 'node:http'
+import { Readable } from 'node:stream'
 
 type HTTPMethods = 'DELETE' | 'delete' |
                    'GET' | 'get' |
@@ -105,7 +105,7 @@ declare namespace inject {
     body: (body: InjectPayload) => Chain
     headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
     payload: (payload: InjectPayload) => Chain
-    query: (query: string | { [k: string]: string | string[] } ) => Chain
+    query: (query: string | { [k: string]: string | string[] }) => Chain
     cookies: (query: object) => Chain
     end(): Promise<Response>
     end(callback: CallbackFunc): void
