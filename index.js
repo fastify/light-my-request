@@ -19,10 +19,11 @@ function inject (dispatchFunc, options, callback) {
 // TODO(mcollina): use standard wrapping instead
 function supportStream1 (req, next) {
   const payload = req._lightMyRequest.payload
-  if (!payload || payload._readableState || typeof payload.resume !== 'function') { // does not quack like a stream
+  if (!payload || payload._readableState || typeof payload.resume !== 'function') { // does quack like a modern stream
     return next()
   }
 
+  // This is a non-compliant stream
   const chunks = []
 
   payload.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
@@ -30,6 +31,7 @@ function supportStream1 (req, next) {
   payload.on('end', () => {
     const payload = Buffer.concat(chunks)
     req.headers['content-length'] = req.headers['content-length'] || ('' + payload.length)
+    delete req.headers['transfer-encoding']
     req._lightMyRequest.payload = payload
     return next()
   })

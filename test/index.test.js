@@ -1103,9 +1103,10 @@ test('HTTP method is case insensitive', (t, done) => {
 })
 
 test('form-data should be handled correctly', (t, done) => {
-  t.plan(3)
+  t.plan(4)
 
   const dispatch = function (req, res) {
+    t.assert.strictEqual(req.headers['transfer-encoding'], undefined)
     let body = ''
     req.on('data', d => {
       body += d
@@ -1121,6 +1122,10 @@ test('form-data should be handled correctly', (t, done) => {
   inject(dispatch, {
     method: 'POST',
     url: 'http://example.com:8080/hello',
+    headers: {
+      // Transfer-encoding is automatically deleted if Stream1 is used
+      'transfer-encoding': 'chunked'
+    },
     payload: form
   }, (err, res) => {
     t.assert.ifError(err)
