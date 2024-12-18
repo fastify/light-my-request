@@ -16,7 +16,6 @@ function inject (dispatchFunc, options, callback) {
   }
 }
 
-// TODO(mcollina): use standard wrapping instead
 function supportStream1 (req, next) {
   const payload = req._lightMyRequest.payload
   if (!payload || payload._readableState || typeof payload.resume !== 'function') { // does quack like a modern stream
@@ -26,6 +25,8 @@ function supportStream1 (req, next) {
   // This is a non-compliant stream
   const chunks = []
 
+  // We are accumulating because Readable.wrap() does not really work as expected
+  // in this case.
   payload.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
 
   payload.on('end', () => {
