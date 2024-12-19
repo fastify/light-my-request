@@ -16,16 +16,43 @@ function inject (dispatchFunc, options, callback) {
   }
 }
 
+function supportStream1 (req, next) {
+  const payload = req._lightMyRequest.payload
+  if (!payload || payload._readableState || typeof payload.resume !== 'function') { // does quack like a modern stream
+    return next()
+  }
+
+  // This is a non-compliant stream
+  const chunks = []
+
+  // We are accumulating because Readable.wrap() does not really work as expected
+  // in this case.
+  payload.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
+
+  payload.on('end', () => {
+    const payload = Buffer.concat(chunks)
+    req.headers['content-length'] = req.headers['content-length'] || ('' + payload.length)
+    delete req.headers['transfer-encoding']
+    req._lightMyRequest.payload = payload
+    return next()
+  })
+
+  // Force to resume the stream. Needed for Stream 1
+  payload.resume()
+}
+
 function makeRequest (dispatchFunc, server, req, res) {
   req.once('error', function (err) {
     if (this.destroyed) res.destroy(err)
   })
 
   req.once('close', function () {
-    if (this.destroyed && !this._error) res.destroy()
+    if (this.destroyed && !this._error) {
+      res.destroy()
+    }
   })
 
-  return req.prepare(() => dispatchFunc.call(server, req, res))
+  return supportStream1(req, () => dispatchFunc.call(server, req, res))
 }
 
 function doInject (dispatchFunc, options, callback) {
