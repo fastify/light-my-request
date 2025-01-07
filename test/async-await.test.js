@@ -4,7 +4,7 @@ const { test } = require('node:test')
 const inject = require('../index')
 
 test('basic async await', async t => {
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end('hello')
   }
@@ -18,7 +18,7 @@ test('basic async await', async t => {
 })
 
 test('basic async await (errored)', async t => {
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.connection.destroy(new Error('kaboom'))
   }
 
@@ -26,7 +26,7 @@ test('basic async await (errored)', async t => {
 })
 
 test('chainable api with async await', async t => {
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end('hello')
   }
@@ -41,7 +41,7 @@ test('chainable api with async await', async t => {
 })
 
 test('chainable api with async await without end()', async t => {
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end('hello')
   }
