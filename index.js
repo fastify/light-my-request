@@ -184,7 +184,7 @@ function isInjection (obj) {
   return (
     obj instanceof Request ||
     obj instanceof Response ||
-    (obj && obj.constructor && obj.constructor.name === '_CustomLMRRequest')
+    obj?.constructor?.name === '_CustomLMRRequest'
   )
 }
 
