@@ -80,7 +80,7 @@ test('stream mode - passes headers', (t, done) => {
 
 test('stream mode - returns chunked payload', (t, done) => {
   t.plan(6)
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, 'OK')
     res.write('a')
     res.write('b')
@@ -102,7 +102,7 @@ test('stream mode - returns chunked payload', (t, done) => {
 
 test('stream mode - sets trailers in response object', (t, done) => {
   t.plan(4)
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.setHeader('Trailer', 'Test')
     res.addTrailers({ Test: 123 })
     res.end()
@@ -119,7 +119,7 @@ test('stream mode - sets trailers in response object', (t, done) => {
 
 test('stream mode - parses zipped payload', (t, done) => {
   t.plan(5)
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, 'OK')
     const stream = fs.createReadStream('./package.json')
     stream.pipe(zlib.createGzip()).pipe(res)
@@ -145,7 +145,7 @@ test('stream mode - parses zipped payload', (t, done) => {
 
 test('stream mode - returns multi buffer payload', (t, done) => {
   t.plan(3)
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200)
     res.write('a')
     res.write(Buffer.from('b'))
@@ -171,7 +171,7 @@ test('stream mode - returns multi buffer payload', (t, done) => {
 
 test('stream mode - returns null payload', (t, done) => {
   t.plan(4)
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, { 'Content-Length': 0 })
     res.end()
   }
@@ -212,7 +212,7 @@ test('stream mode - simulates error', (t, done) => {
 
 test('stream mode - promises support', (t, done) => {
   t.plan(1)
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
     res.end('hello')
   }
@@ -241,7 +241,7 @@ test('stream mode - Response.json() should throw', (t, done) => {
     b: '2'
   }
 
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify(jsonData))
   }
@@ -257,7 +257,7 @@ test('stream mode - Response.json() should throw', (t, done) => {
 test('stream mode - error for response destroy', (t, done) => {
   t.plan(2)
 
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200)
     setImmediate(() => {
       res.destroy()
@@ -278,7 +278,7 @@ test('stream mode - request destroy with error', (t, done) => {
 
   const fakeError = new Error('some-err')
 
-  const dispatch = function (req, res) {
+  const dispatch = function (req) {
     req.destroy(fakeError)
   }
 
@@ -291,7 +291,7 @@ test('stream mode - request destroy with error', (t, done) => {
 })
 
 test('stream mode - Can abort a request using AbortController/AbortSignal', async (t) => {
-  const dispatch = function (req, res) {
+  const dispatch = function (_req, res) {
     res.writeHead(200)
   }
 
@@ -316,7 +316,7 @@ test("stream mode - passes payload when using express' send", (t, done) => {
 
   const app = express()
 
-  app.get('/hello', (req, res) => {
+  app.get('/hello', (_req, res) => {
     res.send('some text')
   })
 
