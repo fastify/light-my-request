@@ -100,6 +100,31 @@ test('stream mode - returns chunked payload', (t, done) => {
   })
 })
 
+test('stream mode - backpressure', (t, done) => {
+  t.plan(7)
+  let expected
+  const dispatch = function (_req, res) {
+    res.writeHead(200, 'OK')
+    res.write('a')
+    const buf = Buffer.alloc(1024 * 1024).fill('b')
+    t.assert.strictEqual(res.write(buf), false)
+    expected = 'a' + buf.toString()
+    res.end()
+  }
+
+  inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.ok(res.headers.date)
+    t.assert.ok(res.headers.connection)
+    t.assert.strictEqual(res.headers['transfer-encoding'], 'chunked')
+    accumulate(res.stream(), (err, payload) => {
+      t.assert.ifError(err)
+      t.assert.strictEqual(payload.toString(), expected)
+      done()
+    })
+  })
+})
+
 test('stream mode - sets trailers in response object', (t, done) => {
   t.plan(4)
   const dispatch = function (_req, res) {
