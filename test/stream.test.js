@@ -109,7 +109,9 @@ test('stream mode - backpressure', (t, done) => {
     const buf = Buffer.alloc(1024 * 1024).fill('b')
     t.assert.strictEqual(res.write(buf), false)
     expected = 'a' + buf.toString()
-    res.end()
+    res.on('drain', () => {
+      res.end()
+    })
   }
 
   inject(dispatch, { method: 'GET', url: '/', payloadAsStream: true }, (err, res) => {
