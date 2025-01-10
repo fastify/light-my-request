@@ -153,7 +153,7 @@ Injects a fake request into an HTTP server.
   - `headers` - an optional object containing request headers.
   - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header. If the header is already set, the data will be appended.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
-  - `payload` - an optional request payload. Can be a string, Buffer, Stream or object. If the payload is string, Buffer or Stream is used as is as the request payload. Oherwise it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`
+  - `payload` - an optional request payload. Can be a string, Buffer, Stream, or object. If the payload is string, Buffer or Stream is used as is as the request payload. Otherwise, it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`
   - `query` - an optional object or string containing query parameters.
   - `body` - alias for payload.
   - `simulate` - an object containing flags to simulate various conditions:
@@ -209,11 +209,11 @@ Checks if given object `obj` is a *light-my-request* `Request` object.
 
 #### Method chaining
 
-There are following methods you can used as chaining:
+The following methods can be used in chaining:
 - `delete`, `get`, `head`, `options`, `patch`, `post`, `put`, `trace`. They will set the HTTP request method and the request URL.
 - `body`, `headers`, `payload`, `query`, `cookies`. They can be used to set the request options object.
 
-And finally you need to call `end`. It has the signature `function (callback)`.
+And finally, you need to call `end`. It has the signature `function (callback)`.
 If you invoke `end` without a callback function, the method will return a promise, thus you can:
 
 ```js
@@ -249,12 +249,12 @@ inject(dispatch)
   })
 ```
 
-Note: The application would not respond multiple times. If you try to invoking any method after the application has responded, the application would throw an error.
+Note: The application would not respond multiple times. If you try to invoke any method after the application has responded, the application would throw an error.
 
-## Acknowledgements
+## Acknowledgments
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.
-All the credits before the commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) goes to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).
-Since the commit [db8bced](https://github.com/fastify/light-my-request/commit/db8bced10b4367731688c8738621d42f39680efc) the project will be maintained by the Fastify team.
+All credits prior to commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) go to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).
+Since commit [db8bced](https://github.com/fastify/light-my-request/commit/db8bced10b4367731688c8738621d42f39680efc) the project will be maintained by the Fastify team.
 
 ## License
 
