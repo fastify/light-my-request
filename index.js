@@ -74,8 +74,21 @@ function doInject (dispatchFunc, options, callback) {
 
   // Express.js detection
   if (dispatchFunc.request && dispatchFunc.request.app === dispatchFunc) {
-    Object.setPrototypeOf(Object.getPrototypeOf(dispatchFunc.request), RequestConstructor.prototype)
-    Object.setPrototypeOf(Object.getPrototypeOf(dispatchFunc.response), Response.prototype)
+    const reqProto = Object.getPrototypeOf(dispatchFunc.request)
+    const resProto = Object.getPrototypeOf(dispatchFunc.response)
+    const reqExpressProto = Object.getPrototypeOf(reqProto)
+    const resExpressProto = Object.getPrototypeOf(resProto)
+    Object.setPrototypeOf(reqProto, RequestConstructor.prototype)
+    Object.setPrototypeOf(resProto, Response.prototype)
+
+    // Restore original express prototypes after dispatch is called
+    const distpach = dispatchFunc
+    dispatchFunc = function (req, res) {
+      const result = distpach.call(this, req, res)
+      Object.setPrototypeOf(reqProto, reqExpressProto)
+      Object.setPrototypeOf(resProto, resExpressProto)
+      return result
+    }
   }
 
   if (typeof callback === 'function') {
