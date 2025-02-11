@@ -1759,8 +1759,7 @@ test('correctly handles no string headers', (t, done) => {
       true: 'true',
       false: 'false',
       host: 'example.com:8080',
-      'user-agent': 'lightMyRequest',
-      'transfer-encoding': 'chunked'
+      'user-agent': 'lightMyRequest'
     })
     done()
   })
