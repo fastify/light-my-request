@@ -3,7 +3,7 @@
 module.exports = require('neostandard')({
   ignores: [
     ...require('neostandard').resolveIgnoresFromGitignore(),
-    'test/benchmark.js',
+    'test/benchmark.js'
   ],
   ts: true
 })

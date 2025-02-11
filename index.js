@@ -19,6 +19,7 @@ function inject (dispatchFunc, options, callback) {
 function supportStream1 (req, next) {
   const payload = req._lightMyRequest.payload
   if (!payload || payload._readableState || typeof payload.resume !== 'function') { // does quack like a modern stream
+    req.headers['transfer-encoding'] = 'chunked'
     return next()
   }
 
