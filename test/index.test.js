@@ -8,6 +8,7 @@ const zlib = require('node:zlib')
 const http = require('node:http')
 const eos = require('end-of-stream')
 const express = require('express')
+const multer = require('multer')
 
 const inject = require('../index')
 const parseURL = require('../lib/parse-url')
@@ -2274,4 +2275,42 @@ test('query method works', (t, done) => {
     t.assert.strictEqual(res.payload, '{"a":1}')
     done()
   })
+})
+
+test('should return the file content', async (t) => {
+  const multerMiddleware = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 1024
+    }
+  })
+
+  const app = express()
+
+  app.use((req, res, next) => {
+    if (req.headers['content-type'].indexOf('multipart/form-data') === 0) {
+      req.multipart = true
+    }
+    next()
+  })
+
+  app.post('/hello', multerMiddleware.single('textFile'), (req, res) => {
+    res.send(req.file.buffer.toString('utf8'))
+  })
+  app.use((err, req, res, next) => {
+    console.warn(err)
+    res.status(500).send('Something was wrong')
+  })
+
+  const formData = new FormData()
+  formData.append('textFile', new Blob(['some data']), 'sample.txt')
+
+  const response = await inject(app, {
+    method: 'POST',
+    url: 'http://example.com:8080/hello',
+    payload: formData
+  })
+
+  t.assert.equal(response.statusCode, 200)
+  t.assert.equal(response.payload, 'some data')
 })
