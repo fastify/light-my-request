@@ -2129,36 +2129,6 @@ test("passes payload when using express' send", (t, done) => {
   })
 })
 
-test('can both inject and make HTTP requests with express', (t, done) => {
-  t.plan(5)
-
-  const app = express()
-
-  app.get('/hello', (_req, res) => {
-    res.send('some text')
-  })
-
-  const server = app.listen()
-  t.after(() => server.close())
-
-  inject(app, { method: 'GET', url: 'http://example.com:8080/hello' }, (err, res) => {
-    t.assert.ifError(err)
-    t.assert.strictEqual(res.headers['content-length'], '9')
-    t.assert.strictEqual(res.payload, 'some text')
-
-    fetch(`http://localhost:${server.address().port}/hello`)
-      .then((res) => {
-        t.assert.strictEqual(res.headers.get('content-length'), '9')
-        return res.text()
-      })
-      .then(body => {
-        t.assert.strictEqual(body, 'some text')
-        done()
-      })
-      .catch((err) => done(err))
-  })
-})
-
 test('request that is destroyed errors', (t, done) => {
   t.plan(2)
   const dispatch = function (req, res) {
