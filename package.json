@@ -7,7 +7,7 @@
   "types": "types/index.d.ts",
   "dependencies": {
     "cookie": "^1.0.1",
-    "process-warning": "^4.0.0",
+    "process-warning": "^5.0.0",
     "set-cookie-parser": "^2.6.0"
   },
   "devDependencies": {
