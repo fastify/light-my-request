@@ -14,3 +14,10 @@ test('aborted property should be false', async (t) => {
 
   t.assert.strictEqual(req.aborted, false)
 })
+
+test('req.socket.destroy()', async (t) => {
+  const req = new Request({ url: 'http://localhost' })
+
+  t.assert.strictEqual(typeof req.socket.destroy, 'function')
+  t.assert.doesNotThrow(() => req.socket.destroy())
+})
