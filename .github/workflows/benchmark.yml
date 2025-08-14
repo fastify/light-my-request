@@ -24,7 +24,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Remove benchmark label
-        uses: octokit/request-action@v2.x
+        uses: octokit/request-action@v2
         id: remove-label
         with:
           route: DELETE /repos/{repo}/issues/{issue_number}/labels/{name}
