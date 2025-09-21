@@ -12,7 +12,6 @@
   },
   "devDependencies": {
     "@fastify/ajv-compiler": "^4.0.0",
-    "@fastify/pre-commit": "^2.1.0",
     "@types/node": "^24.0.9",
     "c8": "^10.1.2",
     "end-of-stream": "^1.4.4",
