@@ -1,6 +1,7 @@
 'use strict'
 
 const assert = require('node:assert')
+const deepMerge = require('@fastify/deepmerge')()
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
@@ -56,7 +57,7 @@ function makeRequest (dispatchFunc, server, req, res) {
 }
 
 function doInject (dispatchFunc, options, callback) {
-  options = (typeof options === 'string' ? { url: options } : options)
+  options = toOptionsObject(options)
 
   if (options.validate !== false) {
     assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
@@ -188,31 +189,8 @@ function isInjection (obj) {
   )
 }
 
-function mergeOptions (defaults, options) {
-  if (typeof options === 'string') {
-    options = { url: options }
-  }
-
-  const merged = { ...defaults, ...options }
-
-  // Deep merge headers
-  if (defaults.headers || options.headers) {
-    merged.headers = { ...defaults.headers, ...options.headers }
-  }
-
-  // Deep merge cookies
-  if (defaults.cookies || options.cookies) {
-    merged.cookies = { ...defaults.cookies, ...options.cookies }
-  }
-
-  // Deep merge query
-  if (defaults.query && options.query) {
-    if (typeof defaults.query === 'object' && typeof options.query === 'object') {
-      merged.query = { ...defaults.query, ...options.query }
-    }
-  }
-
-  return merged
+function toOptionsObject (options = {}) {
+  return typeof options === 'string' ? { url: options } : options
 }
 
 function bindInject (dispatchFunc, defaults) {
@@ -220,10 +198,10 @@ function bindInject (dispatchFunc, defaults) {
     assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
   }
 
-  defaults = typeof defaults === 'string' ? { url: defaults } : { ...defaults }
+  defaults = toOptionsObject(defaults)
 
   return function boundInject (options, callback) {
-    const mergedOptions = mergeOptions(defaults, options || {})
+    const mergedOptions = deepMerge(defaults, toOptionsObject(options))
     return inject(dispatchFunc, mergedOptions, callback)
   }
 }
