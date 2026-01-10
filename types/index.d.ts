@@ -111,6 +111,16 @@ declare namespace inject {
     end(callback: CallbackFunc): void
   }
 
+  export interface BoundInjectFunction {
+    (options?: string | InjectOptions): Chain
+    (options: string | InjectOptions, callback: CallbackFunc): void
+  }
+
+  export function bindInject (
+    dispatchFunc: DispatchFunc,
+    defaults: InjectOptions
+  ): BoundInjectFunction
+
   export const inject: Inject
   export { inject as default }
 }

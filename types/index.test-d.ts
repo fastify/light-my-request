@@ -1,7 +1,7 @@
 import * as http from 'node:http'
-import { inject, isInjection, Response, DispatchFunc, InjectOptions, Chain } from '..'
-import { expectType, expectAssignable, expectNotAssignable } from 'tsd'
 import { Readable } from 'node:stream'
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd'
+import { bindInject, BoundInjectFunction, Chain, DispatchFunc, inject, InjectOptions, isInjection, Response } from '..'
 
 expectAssignable<InjectOptions>({ url: '/' })
 expectAssignable<InjectOptions>({ autoStart: true })
@@ -147,3 +147,32 @@ inject(httpDispatch, { method: 'get', url: '/', payloadAsStream: true }, (err, r
   expectType<Error | undefined>(err)
   expectResponse(res)
 })
+
+// bindInject tests
+const boundInject = bindInject(dispatch, { headers: { authorization: 'Bearer token' } })
+expectType<BoundInjectFunction>(boundInject)
+
+boundInject({ method: 'get', url: '/' }, (err, res) => {
+  expectType<Error | undefined>(err)
+  expectResponse(res)
+})
+
+expectType<Chain>(boundInject({ method: 'get', url: '/' }))
+
+// @ts-ignore tsd supports top-level await, but normal ts does not so ignore
+expectType<Response>(await boundInject({ method: 'get', url: '/' }))
+
+// bindInject with chaining
+boundInject()
+  .get('/')
+  .then((value) => {
+    expectType<Response>(value)
+  })
+
+// bindInject with cookies and query defaults
+const boundInjectWithDefaults = bindInject(dispatch, {
+  headers: { 'x-custom': 'value' },
+  cookies: { session: 'abc123' },
+  query: { version: '1' }
+})
+expectType<BoundInjectFunction>(boundInjectWithDefaults)

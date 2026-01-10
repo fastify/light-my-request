@@ -188,7 +188,48 @@ function isInjection (obj) {
   )
 }
 
+function mergeOptions (defaults, options) {
+  if (typeof options === 'string') {
+    options = { url: options }
+  }
+
+  const merged = { ...defaults, ...options }
+
+  // Deep merge headers
+  if (defaults.headers || options.headers) {
+    merged.headers = { ...defaults.headers, ...options.headers }
+  }
+
+  // Deep merge cookies
+  if (defaults.cookies || options.cookies) {
+    merged.cookies = { ...defaults.cookies, ...options.cookies }
+  }
+
+  // Deep merge query
+  if (defaults.query && options.query) {
+    if (typeof defaults.query === 'object' && typeof options.query === 'object') {
+      merged.query = { ...defaults.query, ...options.query }
+    }
+  }
+
+  return merged
+}
+
+function bindInject (dispatchFunc, defaults) {
+  if (defaults.validate !== false) {
+    assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
+  }
+
+  defaults = typeof defaults === 'string' ? { url: defaults } : { ...defaults }
+
+  return function boundInject (options, callback) {
+    const mergedOptions = mergeOptions(defaults, options || {})
+    return inject(dispatchFunc, mergedOptions, callback)
+  }
+}
+
 module.exports = inject
 module.exports.default = inject
 module.exports.inject = inject
 module.exports.isInjection = isInjection
+module.exports.bindInject = bindInject
