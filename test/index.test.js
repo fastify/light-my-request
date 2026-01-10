@@ -1680,7 +1680,7 @@ test('read cookie', (t, done) => {
   inject(dispatch, { url: 'http://example.com:8080/hello', cookies: { foo: 'bar' } }, (err, res) => {
     t.assert.ifError(err)
     t.assert.strictEqual(res.payload, 'example.com:8080|foo=bar')
-    t.assert.partialDeepStrictEqual(res.cookies, [
+    t.assert.deepStrictEqual(structuredClone(res.cookies), [
       { name: 'type', value: 'ninja' },
       {
         name: 'dev',
