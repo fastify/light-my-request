@@ -214,10 +214,7 @@ Checks if given object `obj` is a *light-my-request* `Request` object.
 Creates a new inject function with pre-configured default options. This is useful when you want to reuse common options like authentication headers across multiple requests.
 
 - `dispatchFunc` - listener function. Same as `inject`.
-- `defaults` - default options object that will be merged with each request. Supports all options from `inject`. The following options are deeply merged:
-  - `headers` - default headers are merged with request-specific headers. Request headers take precedence.
-  - `cookies` - default cookies are merged with request-specific cookies. Request cookies take precedence.
-  - `query` - default query parameters are merged with request-specific query parameters (only when both are objects). Request query takes precedence.
+- `defaults` - default options object that will be merged with each request. Supports all options from `inject`. They are deeply merged with request's options, which take precedence.
 
 Returns a function with the same signature as `inject(options[, callback])`.
 
@@ -240,7 +237,7 @@ const res3 = await boundInject({
   headers: { 'x-custom': 'value' } // authorization header is also included
 })
 
-// Method chaining also works
+// Method chaining also works, but it overwrites the default options
 const res4 = await boundInject()
   .get('/users')
   .headers({ 'x-request-id': '123' })
