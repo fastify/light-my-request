@@ -148,7 +148,6 @@ inject(httpDispatch, { method: 'get', url: '/', payloadAsStream: true }, (err, r
   expectResponse(res)
 })
 
-// bindInject tests
 const boundInject = bindInject(dispatch, { headers: { authorization: 'Bearer token' } })
 expectType<BoundInjectFunction>(boundInject)
 
@@ -159,17 +158,14 @@ boundInject({ method: 'get', url: '/' }, (err, res) => {
 
 expectType<Chain>(boundInject({ method: 'get', url: '/' }))
 
-// @ts-ignore tsd supports top-level await, but normal ts does not so ignore
 expectType<Response>(await boundInject({ method: 'get', url: '/' }))
 
-// bindInject with chaining
 boundInject()
   .get('/')
   .then((value) => {
     expectType<Response>(value)
   })
 
-// bindInject with cookies and query defaults
 const boundInjectWithDefaults = bindInject(dispatch, {
   headers: { 'x-custom': 'value' },
   cookies: { session: 'abc123' },
