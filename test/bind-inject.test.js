@@ -203,9 +203,9 @@ test('bindInject without options uses defaults only', async (t) => {
 })
 
 test('bindInject throws with invalid dispatchFunc', (t) => {
-  t.assert.throws(() => {
-    bindInject('not a function', { headers: {} })
-  }, /dispatchFunc should be a function/)
+  const boundInject = bindInject('not a function', { headers: {} })
+
+  return t.assert.rejects(boundInject, /dispatchFunc should be a function/)
 })
 
 test('bindInject does not throw with validate false', (t) => {

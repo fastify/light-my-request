@@ -194,10 +194,6 @@ function toOptionsObject (options = {}) {
 }
 
 function bindInject (dispatchFunc, defaults) {
-  if (defaults.validate !== false) {
-    assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
-  }
-
   defaults = toOptionsObject(defaults)
 
   return function boundInject (options, callback) {
