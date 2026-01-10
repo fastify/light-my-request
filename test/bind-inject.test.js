@@ -39,8 +39,7 @@ test('bindInject merges request headers with default headers', async (t) => {
   const res = await boundInject({ method: 'get', url: '/', headers: { 'x-custom': 'custom-value' } })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const body = res.json()
-  t.assert.deepStrictEqual(body, {
+  t.assert.deepStrictEqual(res.json(), {
     authorization: 'Bearer token123',
     'x-custom': 'custom-value'
   })
@@ -69,9 +68,7 @@ test('bindInject applies default cookies', async (t) => {
   const res = await boundInject({ method: 'get', url: '/' })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const body = res.json()
-  t.assert.ok(body.cookie)
-  t.assert.ok(body.cookie.includes('session=abc123'))
+  t.assert.deepStrictEqual(res.json(), { cookie: 'session=abc123' })
 })
 
 test('bindInject merges request cookies with default cookies', async (t) => {
@@ -84,9 +81,7 @@ test('bindInject merges request cookies with default cookies', async (t) => {
   const res = await boundInject({ method: 'get', url: '/', cookies: { user: 'john' } })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const cookie = res.json().cookie
-  t.assert.ok(cookie.includes('session=abc123'))
-  t.assert.ok(cookie.includes('user=john'))
+  t.assert.deepStrictEqual(res.json(), { cookie: 'session=abc123; user=john' })
 })
 
 test('bindInject applies default query parameters', async (t) => {
@@ -99,9 +94,7 @@ test('bindInject applies default query parameters', async (t) => {
   const res = await boundInject({ method: 'get', url: '/' })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const body = res.json()
-  t.assert.ok(body.url)
-  t.assert.ok(body.url.includes('version=1'))
+  t.assert.deepStrictEqual(res.json(), { url: '/?version=1' })
 })
 
 test('bindInject merges request query with default query', async (t) => {
@@ -114,9 +107,7 @@ test('bindInject merges request query with default query', async (t) => {
   const res = await boundInject({ method: 'get', url: '/', query: { page: '2' } })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const url = res.json().url
-  t.assert.ok(url.includes('version=1'))
-  t.assert.ok(url.includes('page=2'))
+  t.assert.deepStrictEqual(res.json(), { url: '/?version=1&page=2' })
 })
 
 test('bindInject works with callback', (t, done) => {
@@ -149,11 +140,11 @@ test('bindInject works with method chaining', async (t) => {
   const res = await boundInject().get('/test')
 
   t.assert.strictEqual(res.statusCode, 200)
-  const body = res.json()
-  t.assert.strictEqual(body.authorization, 'Bearer token123')
-  t.assert.strictEqual(body.method, 'GET')
-  t.assert.ok(body.url)
-  t.assert.ok(body.url.includes('/test'))
+  t.assert.deepStrictEqual(res.json(), {
+    authorization: 'Bearer token123',
+    method: 'GET',
+    url: '/test'
+  })
 })
 
 test('bindInject chain headers override defaults', async (t) => {
@@ -166,13 +157,10 @@ test('bindInject chain headers override defaults', async (t) => {
   }
 
   const boundInject = bindInject(dispatch, { headers: { authorization: 'Bearer token123' } })
-  // Note: chain .headers() replaces the entire headers object, it does not merge
   const res = await boundInject().get('/').headers({ 'x-custom': 'custom-value' })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const body = res.json()
-  // Authorization header is not present because .headers() replaces the entire headers object
-  t.assert.deepStrictEqual(body, {
+  t.assert.deepStrictEqual(res.json(), {
     'x-custom': 'custom-value'
   })
 })
@@ -291,10 +279,7 @@ test('bindInject with string query in request', async (t) => {
   const res = await boundInject({ method: 'get', url: '/', query: 'page=2' })
 
   t.assert.strictEqual(res.statusCode, 200)
-  const body = res.json()
-  // String query should override object query from defaults
-  t.assert.ok(body.url)
-  t.assert.ok(body.url.includes('page=2'))
+  t.assert.deepStrictEqual(res.json(), { url: '/?page=2' })
 })
 
 test('bindInject with string defaults', async (t) => {
