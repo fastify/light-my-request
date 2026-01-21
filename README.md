@@ -125,6 +125,8 @@ inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
 ```
 The declaration file exports types for the following parts of the API:
 - `inject` - standard light-my-request `inject` method
+- `bindInject` - creates a new inject function with pre-configured default options
+- `BoundInjectFunction` - the return type of `bindInject`
 - `DispatchFunc` - the fake HTTP dispatch function
 - `InjectPayload` - a union type for valid payload types
 - `isInjection` - standard light-my-request `isInjection` method
@@ -206,6 +208,63 @@ ParseUrl and query x 194,479 ops/sec ±0.16% (99 runs sampled)
 #### `inject.isInjection(obj)`
 
 Checks if given object `obj` is a *light-my-request* `Request` object.
+
+#### `bindInject(dispatchFunc, defaults)`
+
+Creates a new inject function with pre-configured default options. This is useful when you want to reuse common options like authentication headers across multiple requests.
+
+- `dispatchFunc` - listener function. Same as `inject`.
+- `defaults` - default options object that will be merged with each request. Supports all options from `inject`. They are deeply merged with request's options, which take precedence.
+
+Returns a function with the same signature as `inject(options[, callback])`.
+
+```js
+const { bindInject } = require('light-my-request')
+
+// Create a bound inject function with default authorization header
+const boundInject = bindInject(dispatch, { 
+  headers: { authorization: 'Bearer my-token' } 
+})
+
+// All requests will include the authorization header
+const res1 = await boundInject({ method: 'get', url: '/protected' })
+const res2 = await boundInject({ method: 'post', url: '/api/data', payload: { foo: 'bar' } })
+
+// You can still add additional headers per request
+const res3 = await boundInject({ 
+  method: 'get', 
+  url: '/admin', 
+  headers: { 'x-custom': 'value' } // authorization header is also included
+})
+
+// Method chaining also works, but it overwrites the default options
+const res4 = await boundInject()
+  .get('/users')
+  .headers({ 'x-request-id': '123' })
+```
+
+Example with authentication flow:
+```js
+const { inject, bindInject } = require('light-my-request')
+
+// Login request
+const loginResponse = await inject(dispatch, {
+  method: 'post',
+  url: '/auth/login',
+  payload: { username: 'user', password: 'pass' }
+})
+
+const { accessToken } = loginResponse.json()
+
+// Create bound inject with the access token
+const authenticatedInject = bindInject(dispatch, {
+  headers: { authorization: `Bearer ${accessToken}` }
+})
+
+// All subsequent requests are authenticated
+const userResponse = await authenticatedInject({ method: 'get', url: '/api/user' })
+const dataResponse = await authenticatedInject({ method: 'get', url: '/api/data' })
+```
 
 #### Method chaining
 

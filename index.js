@@ -1,6 +1,7 @@
 'use strict'
 
 const assert = require('node:assert')
+const deepMerge = require('@fastify/deepmerge')()
 const Request = require('./lib/request')
 const Response = require('./lib/response')
 
@@ -56,7 +57,7 @@ function makeRequest (dispatchFunc, server, req, res) {
 }
 
 function doInject (dispatchFunc, options, callback) {
-  options = (typeof options === 'string' ? { url: options } : options)
+  options = toOptionsObject(options)
 
   if (options.validate !== false) {
     assert(typeof dispatchFunc === 'function', 'dispatchFunc should be a function')
@@ -188,7 +189,21 @@ function isInjection (obj) {
   )
 }
 
+function toOptionsObject (options = {}) {
+  return typeof options === 'string' ? { url: options } : options
+}
+
+function bindInject (dispatchFunc, defaults) {
+  defaults = toOptionsObject(defaults)
+
+  return function boundInject (options, callback) {
+    const mergedOptions = deepMerge(defaults, toOptionsObject(options))
+    return inject(dispatchFunc, mergedOptions, callback)
+  }
+}
+
 module.exports = inject
 module.exports.default = inject
 module.exports.inject = inject
 module.exports.isInjection = isInjection
+module.exports.bindInject = bindInject
