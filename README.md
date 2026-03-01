@@ -222,8 +222,8 @@ Returns a function with the same signature as `inject(options[, callback])`.
 const { bindInject } = require('light-my-request')
 
 // Create a bound inject function with default authorization header
-const boundInject = bindInject(dispatch, { 
-  headers: { authorization: 'Bearer my-token' } 
+const boundInject = bindInject(dispatch, {
+  headers: { authorization: 'Bearer my-token' }
 })
 
 // All requests will include the authorization header
@@ -231,9 +231,9 @@ const res1 = await boundInject({ method: 'get', url: '/protected' })
 const res2 = await boundInject({ method: 'post', url: '/api/data', payload: { foo: 'bar' } })
 
 // You can still add additional headers per request
-const res3 = await boundInject({ 
-  method: 'get', 
-  url: '/admin', 
+const res3 = await boundInject({
+  method: 'get',
+  url: '/admin',
   headers: { 'x-custom': 'value' } // authorization header is also included
 })
 
