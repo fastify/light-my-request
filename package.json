@@ -16,7 +16,7 @@
     "@types/node": "^25.0.9",
     "c8": "^11.0.0",
     "end-of-stream": "^1.4.5",
-    "eslint": "^9.39.2",
+    "eslint": "^10.1.0",
     "express": "^5.2.1",
     "form-auto-content": "^3.2.1",
     "form-data": "^4.0.5",
