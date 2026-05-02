@@ -23,7 +23,6 @@
     "formdata-node": "^6.0.3",
     "multer": "^2.0.2",
     "neostandard": "^0.13.0",
-    "tinybench": "^4.1.0",
     "tstyche": "^7.0.0",
     "undici": "^7.18.2"
   },
