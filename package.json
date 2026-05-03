@@ -23,8 +23,7 @@
     "formdata-node": "^6.0.3",
     "multer": "^2.0.2",
     "neostandard": "^0.13.0",
-    "tinybench": "^6.0.1",
-    "tsd": "^0.33.0",
+    "tstyche": "^7.0.0",
     "undici": "^7.18.2"
   },
   "scripts": {
@@ -33,7 +32,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "npm run lint && npm run test:unit && npm run test:typescript",
-    "test:typescript": "tsd",
+    "test:typescript": "tstyche",
     "test:unit": "c8 --100 node --test"
   },
   "repository": {
