@@ -152,7 +152,7 @@ Injects a fake request into an HTTP server.
   - `method` - a string specifying the HTTP request method, defaulting to `'GET'`.
   - `authority` - a string specifying the HTTP HOST header value to be used if no header is provided, and the `url`
     does not include an authority component. Defaults to `'localhost'`.
-  - `headers` - an optional object containing request headers.
+  - `headers` - an optional object containing request headers. A header value may be an array of strings to simulate the same header being sent multiple times; the values are aggregated exactly as a Node.js HTTP server would expose them on `request.headers` (`set-cookie` is kept as an array, `cookie` values are joined with `'; '`, other values with `', '`), while every individual value is preserved in `request.rawHeaders`.
   - `cookies` - an optional object containing key-value pairs that will be encoded and added to `cookie` header. If the header is already set, the data will be appended.
   - `remoteAddress` - an optional string specifying the client remote address. Defaults to `'127.0.0.1'`.
   - `payload` - an optional request payload. Can be a string, Buffer, Stream, or object. If the payload is string, Buffer or Stream is used as is as the request payload. Otherwise, it is serialized with `JSON.stringify` forcing the request to have the `Content-type` equal to `application/json`

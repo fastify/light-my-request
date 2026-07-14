@@ -1754,7 +1754,7 @@ test('correctly handles no string headers', (t, done) => {
       null: 'null',
       string: 'string',
       object: '[object Object]',
-      array: '1,two,3',
+      array: '1, two, 3',
       date: date.toString(),
       true: 'true',
       false: 'false',
@@ -1769,6 +1769,106 @@ test('errors for invalid undefined header value', (t, done) => {
   t.plan(1)
   try {
     inject(() => {}, { url: '/', headers: { 'header-key': undefined } }, () => {})
+  } catch (err) {
+    t.assert.ok(err)
+    done()
+  }
+})
+
+test('aggregates array header values like a real HTTP server', (t, done) => {
+  t.plan(4)
+  const dispatch = function (req, res) {
+    // General headers are joined with ', ' (comma + space), matching Node.
+    t.assert.strictEqual(req.headers['x-multi'], 'first, second')
+    // Numeric values are coerced to strings before joining.
+    t.assert.strictEqual(req.headers['x-num'], '1, 2')
+    // Each supplied value is preserved as a separate rawHeaders entry.
+    t.assert.deepStrictEqual(
+      req.rawHeaders.slice(0, 8),
+      ['x-multi', 'first', 'x-multi', 'second', 'x-num', '1', 'x-num', '2']
+    )
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, {
+    method: 'GET',
+    url: 'http://example.com:8080/hello',
+    headers: { 'x-multi': ['first', 'second'], 'x-num': [1, 2] }
+  }, (err) => {
+    t.assert.ifError(err)
+    done()
+  })
+})
+
+test('keeps set-cookie request header as an array', (t, done) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    t.assert.deepStrictEqual(req.headers['set-cookie'], ['a=1', 'b=2'])
+    t.assert.deepStrictEqual(
+      req.rawHeaders.slice(0, 4),
+      ['set-cookie', 'a=1', 'set-cookie', 'b=2']
+    )
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, {
+    method: 'GET',
+    url: 'http://example.com:8080/hello',
+    headers: { 'set-cookie': ['a=1', 'b=2'] }
+  }, (err) => {
+    t.assert.ifError(err)
+    done()
+  })
+})
+
+test('joins array cookie request header with "; "', (t, done) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    t.assert.strictEqual(req.headers.cookie, 'x=1; y=2')
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, {
+    method: 'GET',
+    url: 'http://example.com:8080/hello',
+    headers: { cookie: ['x=1', 'y=2'] }
+  }, (err) => {
+    t.assert.ifError(err)
+    done()
+  })
+})
+
+test('discards duplicates of single-value array headers, keeping the first', (t, done) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    // `content-type` is a single-value header: Node keeps only the first.
+    t.assert.strictEqual(req.headers['content-type'], 'text/plain')
+    // rawHeaders still lists every supplied occurrence.
+    t.assert.deepStrictEqual(
+      req.rawHeaders.slice(0, 4),
+      ['content-type', 'text/plain', 'content-type', 'application/json']
+    )
+    res.writeHead(200)
+    res.end()
+  }
+
+  inject(dispatch, {
+    method: 'GET',
+    url: 'http://example.com:8080/hello',
+    headers: { 'content-type': ['text/plain', 'application/json'] }
+  }, (err) => {
+    t.assert.ifError(err)
+    done()
+  })
+})
+
+test('errors for an undefined value inside an array header', (t, done) => {
+  t.plan(1)
+  try {
+    inject(() => {}, { url: '/', headers: { 'header-key': ['a', undefined] } }, () => {})
   } catch (err) {
     t.assert.ok(err)
     done()
