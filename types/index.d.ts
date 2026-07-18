@@ -7,7 +7,9 @@ type HTTPMethods = 'DELETE' | 'delete' |
                    'PATCH' | 'patch' |
                    'POST' | 'post' |
                    'PUT' | 'put' |
-                   'OPTIONS' | 'options'
+                   'OPTIONS' | 'options' |
+                   'QUERY' | 'query' |
+                   (string & {})
 
 type Inject = typeof inject
 
