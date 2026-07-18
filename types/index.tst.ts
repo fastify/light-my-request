@@ -6,6 +6,11 @@ import { bindInject, type BoundInjectFunction, type Chain, type DispatchFunc, in
 import { expect } from 'tstyche'
 
 expect({ url: '/' }).type.toBeAssignableTo<InjectOptions>()
+expect({ url: '/', method: 'GET' }).type.toBeAssignableTo<InjectOptions>()
+expect({ url: '/', method: 'options' }).type.toBeAssignableTo<InjectOptions>()
+// custom HTTP methods (e.g. registered via Fastify's `addHttpMethod`) are accepted at runtime
+expect({ url: '/', method: 'REBIND' }).type.toBeAssignableTo<InjectOptions>()
+expect({ url: '/', method: 42 }).type.not.toBeAssignableTo<InjectOptions>()
 expect({ autoStart: true }).type.toBeAssignableTo<InjectOptions>()
 expect({ autoStart: false }).type.toBeAssignableTo<InjectOptions>()
 expect({ validate: true }).type.toBeAssignableTo<InjectOptions>()

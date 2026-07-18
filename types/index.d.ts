@@ -50,7 +50,7 @@ declare namespace inject {
     }
     authority?: string
     remoteAddress?: string
-    method?: HTTPMethods
+    method?: HTTPMethods | (string & Record<never, never>)
     validate?: boolean
     payload?: InjectPayload
     body?: InjectPayload
