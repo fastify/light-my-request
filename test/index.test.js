@@ -2277,6 +2277,20 @@ test('query method works', (t, done) => {
   })
 })
 
+test('custom HTTP method works (e.g. registered via addHttpMethod)', (t, done) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200)
+    res.end(req.method)
+  }
+
+  inject(dispatch, { method: 'REBIND', url: '/test' }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'REBIND')
+    done()
+  })
+})
+
 test('should return the file content', async (t) => {
   const multerMiddleware = multer({
     storage: multer.memoryStorage(),
