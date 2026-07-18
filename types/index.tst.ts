@@ -10,6 +10,8 @@ expect({ autoStart: true }).type.toBeAssignableTo<InjectOptions>()
 expect({ autoStart: false }).type.toBeAssignableTo<InjectOptions>()
 expect({ validate: true }).type.toBeAssignableTo<InjectOptions>()
 expect({ validate: false }).type.toBeAssignableTo<InjectOptions>()
+expect({ method: 'REBIND', url: '/' }).type.toBeAssignableTo<InjectOptions>()
+expect({ method: 'REBIND' }).type.toBeAssignableTo<InjectOptions>()
 
 const dispatch: http.RequestListener = function (req, res) {
   expect(req).type.toBeAssignableTo<http.IncomingMessage>()
