@@ -17,3 +17,12 @@ test('multiple calls to res.destroy should not be called', (t, done) => {
   res.destroy()
   res.destroy()
 })
+
+test('isLightMyRequest should be true', (t, done) => {
+  t.plan(1)
+
+  const res = new Response({})
+  t.assert.strictEqual(res.isLightMyRequest, true)
+
+  res.destroy()
+})

@@ -2,14 +2,14 @@ import * as http from 'node:http'
 import { Readable } from 'node:stream'
 
 type HTTPMethods = 'DELETE' | 'delete' |
-                   'GET' | 'get' |
-                   'HEAD' | 'head' |
-                   'PATCH' | 'patch' |
-                   'POST' | 'post' |
-                   'PUT' | 'put' |
-                   'OPTIONS' | 'options' |
-                   'QUERY' | 'query' |
-                   (string & {})
+  'GET' | 'get' |
+  'HEAD' | 'head' |
+  'PATCH' | 'patch' |
+  'POST' | 'post' |
+  'PUT' | 'put' |
+  'OPTIONS' | 'options' |
+  'QUERY' | 'query' |
+  (string & {})
 
 type Inject = typeof inject
 
@@ -93,6 +93,7 @@ declare namespace inject {
     json: <T = any>() => T
     stream: () => Readable
     cookies: Array<Cookie>
+    isLightMyRequest: true
   }
 
   export interface Chain extends Promise<Response> {
