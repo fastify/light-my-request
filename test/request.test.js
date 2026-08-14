@@ -16,6 +16,8 @@ test('aborted property should be false', async (t) => {
 })
 
 test('isLightMyRequest should be true', async (t) => {
+  t.plan(1)
+
   const mockReq = {
     url: 'http://localhost',
     method: 'GET',
