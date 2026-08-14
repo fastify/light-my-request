@@ -310,10 +310,10 @@ inject(dispatch)
 
 Note: The application would not respond multiple times. If you try to invoke any method after the application has responded, the application would throw an error.
 
-#### Inspect if Request or Response orignated from `light-my-requet`
+#### Inspect if Request or Response orignated from `light-my-request`
 
 Both `request` and `response` added `isLightMyRequest` property to inspect if it is originated by
-`light-my-requet`.
+`light-my-request`.
 
 ```js
 import { inject, DispatchFunc } from 'light-my-request'
