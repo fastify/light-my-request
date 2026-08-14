@@ -310,6 +310,28 @@ inject(dispatch)
 
 Note: The application would not respond multiple times. If you try to invoke any method after the application has responded, the application would throw an error.
 
+#### Inspect if Request or Response orignated from `light-my-request`
+
+Both `request` and `response` added `isLightMyRequest` property to inspect if it is originated by
+`light-my-request`.
+
+```js
+import { inject, DispatchFunc } from 'light-my-request'
+
+const dispatch: DispatchFunc = function (req, res) {
+  req.isLightMyRequest // true
+  res.isLightMyRequest // true
+  const reply = 'Hello World'
+  res.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': reply.length })
+  res.end(reply)
+}
+
+inject(dispatch, { method: 'get', url: '/' }, (err, res) => {
+  console.log(res.payload)
+})
+```
+
+
 ## Acknowledgments
 This project has been forked from [`hapi/shot`](https://github.com/hapijs/shot) because we wanted to support *Node ≥ v4* and not only *Node ≥ v8*.
 All credits prior to commit [00a2a82](https://github.com/fastify/light-my-request/commit/00a2a82eb773b765003b6085788cc3564cd08326) go to the `hapi/shot` project [contributors](https://github.com/hapijs/shot/graphs/contributors).

@@ -2,8 +2,8 @@
 
 import * as http from 'node:http'
 import { Readable } from 'node:stream'
-import { bindInject, type BoundInjectFunction, type Chain, type DispatchFunc, inject, type InjectOptions, isInjection, type Response } from '.'
 import { expect } from 'tstyche'
+import { bindInject, type BoundInjectFunction, type Chain, type DispatchFunc, inject, type InjectOptions, isInjection, type Response } from '.'
 
 expect({ url: '/' }).type.toBeAssignableTo<InjectOptions>()
 expect({ autoStart: true }).type.toBeAssignableTo<InjectOptions>()
@@ -40,6 +40,7 @@ const expectResponse = function (res: Response | undefined) {
   expect(res.payload).type.toBe<string>()
   expect(res.body).type.toBe<string>()
   expect(res.cookies).type.toBeAssignableTo<Array<any>>()
+  expect(res.isLightMyRequest).type.toBe<true>()
 
   const cookie = res.cookies[0]
 
