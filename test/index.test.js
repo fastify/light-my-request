@@ -1647,6 +1647,96 @@ test('send cookie', (t, done) => {
   })
 })
 
+test('send cookie omits Path that does not match the request URL', (t, done) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie || '')
+  }
+
+  inject(dispatch, {
+    url: '/account/other',
+    cookies: {
+      session: 'ok',
+      scoped: { value: 'uid-cookie', path: '/account/123' }
+    }
+  }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'session=ok')
+    done()
+  })
+})
+
+test('send cookie includes Path that matches the request URL', (t, done) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie || '')
+  }
+
+  inject(dispatch, {
+    url: '/account/123/settings',
+    cookies: {
+      session: 'ok',
+      scoped: { value: 'uid-cookie', path: '/account/123' }
+    }
+  }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'session=ok; scoped=uid-cookie')
+    done()
+  })
+})
+
+test('send cookie honors RFC 6265 path-prefix matching', (t, done) => {
+  t.plan(2)
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie || '')
+  }
+
+  inject(dispatch, {
+    url: '/docsets',
+    cookies: {
+      docs: { value: '1', path: '/docs' },
+      slash: { value: '2', path: '/docs/' },
+      all: { value: '3', path: '/' }
+    }
+  }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'all=3')
+    done()
+  })
+})
+
+test('send cookie accepts a previous response cookie array', (t, done) => {
+  t.plan(3)
+  const dispatch = function (req, res) {
+    if (req.url === '/login') {
+      res.setHeader('Set-Cookie', [
+        'session=abc; Path=/',
+        'scoped=uid; Path=/account/123'
+      ])
+      res.writeHead(200)
+      res.end()
+      return
+    }
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end(req.headers.cookie || '')
+  }
+
+  inject(dispatch, { url: '/login' }, (err, login) => {
+    t.assert.ifError(err)
+    inject(dispatch, {
+      url: '/account/other',
+      cookies: login.cookies
+    }, (err, res) => {
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.payload, 'session=abc')
+      done()
+    })
+  })
+})
+
 test('send cookie with header already set', (t, done) => {
   t.plan(3)
   const dispatch = function (req, res) {
