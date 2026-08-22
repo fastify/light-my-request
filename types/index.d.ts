@@ -58,7 +58,7 @@ declare namespace inject {
     body?: InjectPayload
     server?: http.Server
     autoStart?: boolean
-    cookies?: { [k: string]: string },
+    cookies?: { [k: string]: string | Omit<Cookie, 'name'> } | Cookie[],
     signal?: AbortSignal,
     Request?: object,
     payloadAsStream?: boolean
@@ -67,9 +67,11 @@ declare namespace inject {
   /**
    * https://github.com/nfriedly/set-cookie-parser/blob/3eab8b7d5d12c8ed87832532861c1a35520cf5b3/lib/set-cookie.js#L41
    */
-  interface Cookie {
+  export interface Cookie {
     name: string;
     value: string;
+    path?: string;
+    domain?: string;
     expires?: Date;
     maxAge?: number;
     secure?: boolean;
@@ -109,7 +111,7 @@ declare namespace inject {
     headers: (headers: http.IncomingHttpHeaders | http.OutgoingHttpHeaders) => Chain
     payload: (payload: InjectPayload) => Chain
     query: (query: string | { [k: string]: string | string[] }) => Chain
-    cookies: (query: object) => Chain
+    cookies: (cookies: InjectOptions['cookies']) => Chain
     end(): Promise<Response>
     end(callback: CallbackFunc): void
   }

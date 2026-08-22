@@ -29,8 +29,24 @@ const schema = {
     url: urlSchema,
     path: urlSchema,
     cookies: {
-      type: 'object',
-      additionalProperties: true
+      anyOf: [
+        {
+          type: 'object',
+          additionalProperties: true
+        },
+        {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              value: { type: 'string' }
+            },
+            required: ['name', 'value'],
+            additionalProperties: true
+          }
+        }
+      ]
     },
     headers: {
       type: 'object',

@@ -47,6 +47,8 @@ const expectResponse = function (res: Response | undefined) {
   if (cookie) {
     expect(cookie.name).type.toBe<string>()
     expect(cookie.value).type.toBe<string>()
+    expect(cookie.path).type.toBe<string | undefined>()
+    expect(cookie.domain).type.toBe<string | undefined>()
     expect(cookie.expires).type.toBe<Date | undefined>()
     expect(cookie.maxAge).type.toBe<number | undefined>()
     expect(cookie.httpOnly).type.toBe<boolean | undefined>()
@@ -77,6 +79,23 @@ inject(dispatch, { method: 'get', url }, (err, res) => {
 })
 
 inject(dispatch, { method: 'get', url: '/', cookies: { name1: 'value1', value2: 'value2' } }, (err, res) => {
+  expect(err).type.toBe<Error | undefined>()
+  expectResponse(res)
+})
+
+inject(dispatch, {
+  method: 'get',
+  url: '/',
+  cookies: {
+    session: 'abc',
+    scoped: { value: 'uid', path: '/admin' }
+  }
+}, (err, res) => {
+  expect(err).type.toBe<Error | undefined>()
+  expectResponse(res)
+})
+
+inject(dispatch, { method: 'get', url: '/', cookies: [{ name: 'session', value: 'abc', path: '/' }] }, (err, res) => {
   expect(err).type.toBe<Error | undefined>()
   expectResponse(res)
 })
