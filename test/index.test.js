@@ -1220,7 +1220,8 @@ test('chainable api: http methods should work correctly', (t, done) => {
     inject(dispatch)[method]('http://example.com:8080/hello')
       .end((err, res) => {
         t.assert.ifError(err)
-        t.assert.strictEqual(res.body, method.toUpperCase())
+        // a HEAD response has no body
+        t.assert.strictEqual(res.body, method === 'head' ? '' : method.toUpperCase())
         if (index === httpMethods.length - 1) {
           done()
         }
@@ -2517,4 +2518,44 @@ test('should return the file content', async (t) => {
 
   t.assert.equal(response.statusCode, 200)
   t.assert.equal(response.payload, 'some data')
+})
+
+test('does not return a body for HEAD requests, like a real HTTP server', async (t) => {
+  const dispatch = function (req, res) {
+    res.writeHead(200, { 'content-type': 'text/plain', 'content-length': 5 })
+    res.end('hello')
+  }
+
+  const res = await inject(dispatch, { method: 'HEAD', url: '/' })
+  t.assert.strictEqual(res.statusCode, 200)
+  t.assert.strictEqual(res.headers['content-length'], '5')
+  t.assert.strictEqual(res.payload, '')
+})
+
+test('does not return a body for 204 and 304 responses, like a real HTTP server', async (t) => {
+  for (const statusCode of [204, 304]) {
+    const dispatch = function (req, res) {
+      res.statusCode = statusCode
+      res.write('hello')
+      res.end('world')
+    }
+
+    const res = await inject(dispatch, { method: 'GET', url: '/' })
+    t.assert.strictEqual(res.statusCode, statusCode)
+    t.assert.strictEqual(res.payload, '')
+  }
+})
+
+test('does not stream a body for HEAD requests', async (t) => {
+  const dispatch = function (req, res) {
+    res.writeHead(200)
+    res.end('hello')
+  }
+
+  const res = await inject(dispatch, { method: 'HEAD', url: '/', payloadAsStream: true })
+  const chunks = []
+  for await (const chunk of res.stream()) {
+    chunks.push(chunk)
+  }
+  t.assert.strictEqual(Buffer.concat(chunks).toString(), '')
 })
