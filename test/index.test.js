@@ -532,6 +532,44 @@ test('allows ending twice', (t, done) => {
   })
 })
 
+test('calls the callback passed as the only argument to res.end()', (t, done) => {
+  t.plan(3)
+  // The end callback and the inject callback run in either order depending on the Node.js version
+  let pending = 2
+  const finish = () => { if (--pending === 0) done() }
+  const dispatch = function (_req, res) {
+    res.write('a')
+    res.end(() => {
+      t.assert.ok('end callback called')
+      finish()
+    })
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, 'a')
+    finish()
+  })
+})
+
+test('calls the callback passed to res.end() with empty data', (t, done) => {
+  t.plan(3)
+  let pending = 2
+  const finish = () => { if (--pending === 0) done() }
+  const dispatch = function (_req, res) {
+    res.end('', () => {
+      t.assert.ok('end callback called')
+      finish()
+    })
+  }
+
+  inject(dispatch, { method: 'GET', url: '/' }, (err, res) => {
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.payload, '')
+    finish()
+  })
+})
+
 test('identifies injection object', (t, done) => {
   t.plan(6)
   const dispatchRequest = function (req, res) {
